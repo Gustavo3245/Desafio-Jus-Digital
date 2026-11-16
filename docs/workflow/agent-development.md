@@ -15,6 +15,10 @@ last_updated: 2026-11-16
 
 ## Skills iniciais recomendadas
 
+O catálogo versionado está em [`docs/skills/`](../skills/README.md). Skills mantidas
+ali precisam ser vinculadas ou movidas para `.agents/skills/` para descoberta
+automática pelo Codex.
+
 ### `feature-spec`
 
 Use para criar, entrevistar, revisar ou completar uma especificação antes de
@@ -42,8 +46,14 @@ correções só são implementadas quando solicitadas.
 description: Revisa mudanças do JusDigital contra requisitos, contratos, segurança e testes. Use antes de commit, PR ou entrega; por padrão relata achados e não implementa correções.
 ```
 
-Comece com essas três. Crie outra skill somente quando um procedimento se repetir ou
-exigir orientação especializada que não pertença ao `AGENTS.md`.
+### `application-design`
+
+Use para auditar o Figma, propor uma evolução visual e revisar telas, componentes,
+estados, responsividade e acessibilidade. A fonte está em
+[`docs/skills/application-design/`](../skills/application-design/SKILL.md).
+
+Comece com essas quatro. Crie outra skill somente quando um procedimento se repetir
+ou exigir orientação especializada que não pertença ao `AGENTS.md`.
 
 ## Como integrar uma skill
 

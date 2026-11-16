@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Application Design'
+  short_description: 'Planeja e revisa o design do JusDigital'
+  default_prompt: 'Use $application-design para propor uma melhoria de interface baseada no produto e no design existente.'

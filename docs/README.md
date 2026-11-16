@@ -19,18 +19,20 @@ esta prática com Domain-Driven Design, também conhecido como DDD.
 
 ## Mapa das fontes canônicas
 
-| Assunto                       | Documento                                                              |
-| ----------------------------- | ---------------------------------------------------------------------- |
-| Requisitos e escopo           | [`product/requirements.md`](product/requirements.md)                   |
-| Arquitetura                   | [`architecture/overview.md`](architecture/overview.md)                 |
-| Modelo de dados               | [`architecture/data-model.md`](architecture/data-model.md)             |
-| Decisões arquiteturais        | [`architecture/decisions/README.md`](architecture/decisions/README.md) |
-| Endpoints e payloads          | [`contracts/http-api.md`](contracts/http-api.md)                       |
-| Google, AWS e OpenAI          | [`integrations/overview.md`](integrations/overview.md)                 |
-| Segurança                     | [`quality/security.md`](quality/security.md)                           |
-| Estratégia de testes          | [`quality/testing.md`](quality/testing.md)                             |
-| Processo com agentes e skills | [`workflow/agent-development.md`](workflow/agent-development.md)       |
-| Padrão editorial              | [`standards.md`](standards.md)                                         |
+| Assunto                       | Documento                                                                  |
+| ----------------------------- | -------------------------------------------------------------------------- |
+| Requisitos e escopo           | [`product/requirements.md`](product/requirements.md)                       |
+| Arquitetura                   | [`architecture/overview.md`](architecture/overview.md)                     |
+| Modelo de dados               | [`architecture/data-model.md`](architecture/data-model.md)                 |
+| Decisões arquiteturais        | [`architecture/decisions/README.md`](architecture/decisions/README.md)     |
+| Endpoints e payloads          | [`contracts/http-api.md`](contracts/http-api.md)                           |
+| Google, AWS e OpenAI          | [`integrations/overview.md`](integrations/overview.md)                     |
+| Segurança                     | [`quality/security.md`](quality/security.md)                               |
+| Estratégia de testes          | [`quality/testing.md`](quality/testing.md)                                 |
+| Processo com agentes e skills | [`workflow/agent-development.md`](workflow/agent-development.md)           |
+| Catálogo de skills            | [`skills/README.md`](skills/README.md)                                     |
+| Design do aplicativo          | [`skills/application-design/SKILL.md`](skills/application-design/SKILL.md) |
+| Padrão editorial              | [`standards.md`](standards.md)                                             |
 
 ## Ciclo de uma funcionalidade
 
