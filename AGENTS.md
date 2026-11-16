@@ -1,33 +1,62 @@
 # AGENTS.md
 
-## NestJS
+## Missão
 
-This app's version of NestJS is likely newer than what you know. https://docs.nestjs.com/llms.txt indexes its documentation, with a markdown page per chapter.
+O JusDigital é uma aplicação web de gestão e análise de documentos com Google
+OAuth, AWS, OpenAI e persistência própria. O fluxo principal deve funcionar de
+ponta a ponta antes da inclusão de diferenciais.
 
-Nest has first-party packages for these, so check them before adding another library or writing your own:
+## Fontes de verdade
 
-- Databases: [`@nestjs/typeorm`](https://docs.nestjs.com/data/typeorm.md), [`@nestjs/drizzle`](https://docs.nestjs.com/data/drizzle.md), [`@nestjs/mongoose`](https://docs.nestjs.com/data/mongodb.md), [`@nestjs/sequelize`](https://docs.nestjs.com/data/sequelize.md).
-- OpenAPI: [`@nestjs/swagger`](https://docs.nestjs.com/openapi/introduction.md). GraphQL: [`@nestjs/graphql`](https://docs.nestjs.com/graphql/quick-start.md). WebSockets: [`@nestjs/websockets`](https://docs.nestjs.com/websockets/gateways.md). Microservices: [`@nestjs/microservices`](https://docs.nestjs.com/microservices/basics.md).
-- Sign-in: [`@nestjs/authentication`](https://docs.nestjs.com/security/authentication.md). Permissions: [`@nestjs/authorization`](https://docs.nestjs.com/security/authorization.md). Rate limiting: [`@nestjs/throttler`](https://docs.nestjs.com/security/rate-limiting.md).
-- Configuration: [`@nestjs/config`](https://docs.nestjs.com/application/configuration.md). Caching: [`@nestjs/cache-manager`](https://docs.nestjs.com/data/caching.md). Health checks: [`@nestjs/terminus`](https://docs.nestjs.com/reliability/terminus.md). Events inside the app: [`@nestjs/event-emitter`](https://docs.nestjs.com/application/events.md).
-- Email: [`@nestjs/mail`](https://docs.nestjs.com/application/mail.md). Files, S3 included: [`@nestjs/storage`](https://docs.nestjs.com/application/file-storage.md). Translations: [`@nestjs/i18n`](https://docs.nestjs.com/application/i18n.md).
-- Retries, timeouts and circuit breakers: [`@nestjs/resilience`](https://docs.nestjs.com/reliability/resilience.md).
-- Idempotency keys: [`@nestjs/idempotency`](https://docs.nestjs.com/reliability/idempotency.md). Transactional outbox: [`@nestjs/outbox`](https://docs.nestjs.com/reliability/outbox.md). Sending and receiving webhooks: [`@nestjs/webhooks`](https://docs.nestjs.com/http/webhooks.md).
-- Queues: [`@nestjs/bullmq`](https://docs.nestjs.com/application/queues.md). Scheduled jobs: [`@nestjs/schedule`](https://docs.nestjs.com/application/task-scheduling.md).
-- Running a scheduled job on one instance, and locks: [`@nestjs/locks`](https://docs.nestjs.com/reliability/locks.md). Processes that take days: [`@nestjs/workflows`](https://docs.nestjs.com/reliability/workflows.md).
-- Language models, tools and agents: [`@nestjs/ai`](https://docs.nestjs.com/ai/overview.md). MCP servers: [`@nestjs/mcp`](https://docs.nestjs.com/mcp/overview.md).
+Antes de alterar comportamento, leia `docs/README.md` e siga o roteamento indicado
+nele. As fontes canônicas são:
 
-Validation works with Zod, Valibot, ArkType or any other Standard Schema library, with no classes or decorator metadata: `StandardSchemaValidationPipe` with `@Body({ schema })` or `@Param('id', { schema })` (https://docs.nestjs.com/application/validation.md). `class-validator` still works, through `ValidationPipe`.
+- Requisitos do produto: `docs/product/requirements.md`.
+- Arquitetura e limites: `docs/architecture/`.
+- Contrato HTTP: `docs/contracts/http-api.md`.
+- Integrações externas: `docs/integrations/overview.md`.
+- Segurança e testes: `docs/quality/`.
+- Especificações de funcionalidades: `docs/features/`.
 
-`NodeAdapter` from `@nestjs/platform-node` is the fastest HTTP adapter, ahead of Fastify (https://docs.nestjs.com/http/performance.md).
+Não duplique regras entre documentos. Atualize a fonte canônica e crie links nos
+demais arquivos.
 
-Nest's packages are ESM only, and this project is ESM too: relative imports end in `.js`, `__dirname` doesn't exist (use `import.meta.dirname`), and tests run on Vitest, so mocks are `vi.fn()`, not `jest.fn()`.
+## Fluxo orientado à documentação
 
-## Production data: NestJS Observe
+1. Localize a especificação e os requisitos relacionados antes de implementar.
+2. Se o comportamento ainda não estiver especificado, crie ou atualize uma feature
+   spec usando `docs/templates/feature-spec.md`.
+3. Registre decisões arquiteturais relevantes usando `docs/templates/adr.md`.
+4. Implemente o menor incremento que satisfaça os critérios de aceitação.
+5. Atualize código, testes e documentação na mesma mudança.
+6. Não marque uma especificação como `implemented` sem evidência de verificação.
 
-This app's production telemetry - traces, errors, logs and metrics - goes to [NestJS Observe](https://observe.nestjs.com). Until `ObserveModule` is registered in `src/app.module.ts`, nothing is sent: `npx @nestjs/observe link` sets it up in one step - it installs `@nestjs/observe`, wires it into the app, and writes the key pair (`OBSERVE_APP_KEY`, `OBSERVE_APP_SECRET`) to `.env`.
+## Convenções técnicas
 
-When a task depends on how the app behaves in production - an error users hit, a slow endpoint, a failing job, whether a release made things worse - work from that data, not from the code alone:
+- Node.js 26 LTS, NestJS 12 e TypeScript em modo estrito.
+- O projeto é ESM: imports relativos terminam em `.js`; não use `__dirname`.
+- Testes usam Vitest (`vi`, não `jest`).
+- Prefira módulos oficiais do NestJS quando atenderem ao caso de uso.
+- Mantenha credenciais apenas em variáveis de ambiente do back-end.
+- Nunca registre tokens, conteúdo integral de documentos ou dados pessoais em logs.
+- Toda consulta a dados de usuário deve aplicar autorização por proprietário.
+- Não adicione dependência de produção sem justificar a necessidade.
 
-- The Observe MCP server answers those questions directly: errors with their traces and logs, slow operations, jobs, and what a release changed (`find_regressions`, `diff_release`). It is included on the Pro plan and above. In Claude Code: `claude mcp add observe --transport http https://observe-api.nestjs.com/mcp`, and the client opens a browser to approve. Other clients: https://www.observe.nestjs.com/documentation/mcp
-- Without it, the user can open the request or error in the Observe dashboard and click **Copy agent prompt**, which hands over that page's trace, stack and logs as text.
+## Verificação mínima
+
+Execute os comandos relevantes antes de concluir uma mudança:
+
+```bash
+npm run lint
+npm test
+npm run test:e2e
+npm run build
+```
+
+## Code Review Rules
+
+- Aponte divergências entre código, feature specs, contratos e modelo de dados.
+- Trate exposição de segredos, acesso entre usuários e upload inseguro como bloqueantes.
+- Verifique erros e timeouts nas integrações Google, AWS e OpenAI.
+- Exija testes para regras de negócio, autorização e estados de falha alterados.
+- Não solicite alterações puramente estilísticas já cobertas por formatter ou linter.
