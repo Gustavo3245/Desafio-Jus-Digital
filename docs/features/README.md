@@ -12,14 +12,14 @@ Cada funcionalidade relevante possui uma especificação em
 
 ## Ordem inicial sugerida
 
-| ID                                     | Funcionalidade                        | Estado       |
-| -------------------------------------- | ------------------------------------- | ------------ |
-| `FEAT-001`                             | Fundação e configuração               | Não iniciada |
-| [`FEAT-002`](google-authentication.md) | Autenticação Google                   | Implementada |
-| `FEAT-003`                             | Persistência de usuários e documentos | Não iniciada |
-| `FEAT-004`                             | Upload e armazenamento S3             | Não iniciada |
-| `FEAT-005`                             | Análise com OpenAI                    | Não iniciada |
-| `FEAT-006`                             | Listagem, leitura e exclusão          | Não iniciada |
+| ID                                              | Funcionalidade                        | Estado       |
+| ----------------------------------------------- | ------------------------------------- | ------------ |
+| [`FEAT-001`](docker-development-environment.md) | Ambiente Docker                       | Em andamento |
+| [`FEAT-002`](google-authentication.md)          | Autenticação Google                   | Implementada |
+| `FEAT-003`                                      | Persistência de usuários e documentos | Não iniciada |
+| `FEAT-004`                                      | Upload e armazenamento S3             | Não iniciada |
+| `FEAT-005`                                      | Análise com OpenAI                    | Não iniciada |
+| `FEAT-006`                                      | Listagem, leitura e exclusão          | Não iniciada |
 
 Crie a spec imediatamente antes de trabalhar na funcionalidade, evitando detalhar
 todo o sistema com suposições que ainda não foram validadas.
