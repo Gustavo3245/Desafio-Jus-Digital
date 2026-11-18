@@ -135,7 +135,8 @@ pelo back-end.
 
 ## Questões em aberto
 
-- O armazenamento PostgreSQL de usuários e sessões será definido em `FEAT-003`.
+- O armazenamento PostgreSQL de usuários e sessões é especificado em
+  [`FEAT-003`](postgres-persistence.md).
 
 ## Evidência de implementação
 

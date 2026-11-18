@@ -1,10 +1,13 @@
 ---
 title: Modelo de dados
-status: draft
-last_updated: 2026-11-16
+status: accepted
+last_updated: 2026-11-18
 ---
 
 # Modelo de dados
+
+A persistência relacional em PostgreSQL segue as decisões da
+[`ADR-0004`](decisions/0004-drizzle-orm-and-postgres-persistence.md).
 
 ## User
 
@@ -17,6 +20,18 @@ last_updated: 2026-11-16
 | `avatarUrl` | Foto de perfil opcional                 |
 | `createdAt` | Data de criação                         |
 | `updatedAt` | Data da última atualização              |
+
+## Session
+
+| Campo          | Regra                                                       |
+| -------------- | ----------------------------------------------------------- |
+| `id`           | Hash SHA-256 do token opaco; o token bruto não é salvo      |
+| `userId`       | Proprietário da sessão; chave estrangeira para `User`       |
+| `createdAt`    | Data de criação da sessão                                   |
+| `expiresAt`    | Expiração absoluta; nunca estendida por atividade           |
+| `lastActiveAt` | Última atividade registrada para timeout de inatividade     |
+| `mfa`          | Estado opcional de MFA do contrato `@nestjs/authentication` |
+| `metadata`     | Metadados opcionais da sessão em JSON                       |
 
 ## Document
 
@@ -38,7 +53,8 @@ last_updated: 2026-11-16
 
 ## Relações e invariantes
 
-- Um usuário possui zero ou muitos documentos.
+- Um usuário possui zero ou muitas sessões e zero ou muitos documentos.
+- A exclusão de um usuário remove suas sessões e documentos em cascata.
 - `googleSub` é único.
 - `storageKey` é única e não deriva somente do nome original.
 - `analysis` é obrigatória quando `status = completed`.
