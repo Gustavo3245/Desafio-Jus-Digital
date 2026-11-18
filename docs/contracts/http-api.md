@@ -105,10 +105,42 @@ corpo. Sessão ausente responde `401`.
 
 ## Criação de documento
 
+### `POST /api/v1/documents`
+
+- Exige sessão válida e origem confiável.
 - Content-Type: `multipart/form-data`.
-- Campos: `file`, `title`, `instruction`.
-- Resposta e status HTTP dependem da decisão sobre processamento síncrono ou assíncrono.
+- Campos:
+  - `file`: arquivo obrigatório (`.pdf`, `.docx`, `.doc` ou `.txt`, de 1 byte até
+    10 MB, validado por extensão e assinatura binária/textual).
+  - `title`: texto obrigatório (1 a 150 caracteres após `trim`).
+  - `instruction`: texto obrigatório (1 a 2.000 caracteres após `trim`).
 - O cliente nunca envia `userId`, `storageKey`, estado ou resultado da análise.
+
+Em sucesso (`201 Created`), retorna o documento sem expor `storageKey`:
+
+```json
+{
+  "document": {
+    "id": "opaque-document-id",
+    "title": "Contrato de Prestação de Serviços",
+    "instruction": "Resuma as cláusulas de rescisão e multa",
+    "originalName": "contrato.pdf",
+    "mimeType": "application/pdf",
+    "sizeBytes": 34816,
+    "status": "processing",
+    "analysis": null,
+    "failureCode": null,
+    "createdAt": "2026-11-18T17:30:00.000Z",
+    "updatedAt": "2026-11-18T17:30:00.000Z"
+  }
+}
+```
+
+- Campos de texto ausentes ou fora do limite: `400`.
+- Arquivo ausente, vazio, acima de 10 MB ou com conteúdo incompatível: `400` com
+  `code: "INVALID_FILE"`.
+- Falha ou indisponibilidade do AWS S3: `503` com
+  `code: "EXTERNAL_SERVICE_UNAVAILABLE"`.
 
 ## Códigos de erro iniciais
 

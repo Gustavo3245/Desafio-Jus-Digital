@@ -8,9 +8,11 @@ desenvolvido como desafio técnico FullStack.
 O back-end NestJS está na raiz do repositório. A autenticação Google está
 implementada com validação do ID token no servidor e sessão opaca em cookie. A
 persistência em PostgreSQL (`users`, `sessions` e `documents`) está implementada com
-Drizzle ORM e migrations SQL versionadas, mantendo adaptadores em memória para a
-execução rápida de testes unitários e E2E HTTP. O ambiente Docker fornece a API e
-PostgreSQL para desenvolvimento e testes.
+Drizzle ORM e migrations SQL versionadas. O upload de documentos (`POST /api/v1/documents`)
+valida tamanho e assinatura binária (`.pdf`, `.docx`, `.doc`, `.txt`), armazena o
+arquivo original de forma privada no AWS S3 e registra os metadados no PostgreSQL com
+compensação automática. O ambiente Docker fornece a API e PostgreSQL para
+desenvolvimento e testes.
 
 ## Requisitos
 
@@ -96,6 +98,16 @@ O valor da URI precisa ser idêntico, incluindo esquema, porta e caminho. Para t
 métodos de verificação da Conta Google, use um navegador normal; navegadores
 incorporados podem não oferecer passkeys, chaves de segurança ou confirmação por
 dispositivo.
+
+## Upload e AWS S3
+
+- `POST /api/v1/documents` recebe `multipart/form-data` com `file`, `title` e
+  `instruction`.
+- Formatos aceitos: `.pdf`, `.docx`, `.doc` e `.txt` (até 10 MB, validados por
+  extensão e assinatura mágica / conteúdo binário).
+- Configure no `.env` as variáveis `AWS_REGION`, `AWS_S3_BUCKET`, `AWS_ACCESS_KEY_ID`
+  e `AWS_SECRET_ACCESS_KEY` de um usuário IAM com acesso restrito exclusivamente às
+  operações `s3:PutObject`, `s3:GetObject` e `s3:DeleteObject` no bucket privado.
 
 ## Verificação
 

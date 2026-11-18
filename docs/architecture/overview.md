@@ -26,15 +26,19 @@ front-end ou o back-end para outro repositório sem alterar os contratos públic
 ## Fluxo de criação de documento
 
 1. A API autentica e identifica o usuário.
-2. Valida título, instrução, tipo e tamanho do arquivo.
-3. Cria o registro do documento em estado `processing`.
-4. Armazena o original no S3 com chave não previsível.
-5. Solicita a análise à OpenAI.
+2. Valida título, instrução, tipo e tamanho do arquivo (1 B a 10 MB, magic bytes para
+   `.pdf`, `.docx`, `.doc` e `.txt`).
+3. Armazena o original no S3 com chave não previsível
+   (`users/<userId>/documents/<uuid>.<ext>`).
+4. Cria o registro do documento em estado `processing` no PostgreSQL (executando
+   remoção compensatória do objeto no S3 caso a gravação no banco falhe).
+5. Solicita a análise à OpenAI (`FEAT-005`).
 6. Persiste a resposta e muda o estado para `completed`.
-7. Em falha, registra estado `failed` sem expor detalhes sensíveis ao cliente.
+7. Em falha da análise, registra estado `failed` sem expor detalhes sensíveis ao
+   cliente.
 
-A ordem exata e a compensação em falhas devem ser decididas em ADR antes da
-implementação, principalmente para evitar arquivos órfãos ou registros sem arquivo.
+A ordem entre validação, upload no S3 e persistência com compensação está registrada
+na [`ADR-0005`](decisions/0005-s3-storage-and-upload-compensation.md).
 
 ## Fluxo de autenticação
 

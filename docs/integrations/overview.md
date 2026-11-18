@@ -29,11 +29,14 @@ validada na inicialização e traduzir erros externos para erros do domínio.
 ## AWS S3
 
 - Bucket privado com bloqueio de acesso público.
-- IAM limitado às ações e ao bucket necessários.
-- Chaves de objeto não previsíveis e associadas ao usuário/documento.
+- IAM limitado às ações (`s3:PutObject`, `s3:GetObject`, `s3:DeleteObject`) e ao
+  bucket necessários.
+- Chaves de objeto não previsíveis no formato `users/<userId>/documents/<uuid>.<ext>`.
+- Objetos gravados com `ContentDisposition: attachment` e criptografia `AES256`.
 - Download somente após autorização, por streaming ou URL pré-assinada curta.
 - Armazenar apenas `storageKey` e metadados no banco.
-- Definir compensação para falha entre upload, banco e análise.
+- Compensação automática (`DeleteObject`) se a gravação no banco falhar após o upload,
+  conforme [`ADR-0005`](../architecture/decisions/0005-s3-storage-and-upload-compensation.md).
 
 ## OpenAI
 
