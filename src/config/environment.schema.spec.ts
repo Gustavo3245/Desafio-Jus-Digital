@@ -21,6 +21,7 @@ describe('validateEnvironment', () => {
       AWS_S3_BUCKET: 'jusdigital-documents',
       OPENAI_API_KEY: 'test-openai-api-key',
       OPENAI_MODEL: 'gpt-4o-mini',
+      DOCUMENT_STORAGE_DRIVER: 's3',
     });
 
     expect(
@@ -77,5 +78,22 @@ describe('validateEnvironment', () => {
         OPENAI_API_KEY: '',
       }),
     ).toThrow(/OPENAI_API_KEY/);
+  });
+
+  it('allows in-memory storage locally and forbids it in production', () => {
+    expect(
+      validateEnvironment({
+        ...validConfig,
+        DOCUMENT_STORAGE_DRIVER: 'memory',
+      }),
+    ).toMatchObject({ DOCUMENT_STORAGE_DRIVER: 'memory' });
+
+    expect(() =>
+      validateEnvironment({
+        ...validConfig,
+        NODE_ENV: 'production',
+        DOCUMENT_STORAGE_DRIVER: 'memory',
+      }),
+    ).toThrow(/In-memory document storage is forbidden in production/);
   });
 });

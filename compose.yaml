@@ -14,12 +14,13 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-jusdigital}:${POSTGRES_PASSWORD:-jusdigital}@postgres:5432/${POSTGRES_DB:-jusdigital}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      DOCUMENT_STORAGE_DRIVER: ${DOCUMENT_STORAGE_DRIVER:-memory}
       AWS_REGION: ${AWS_REGION:-sa-east-1}
       AWS_S3_BUCKET: ${AWS_S3_BUCKET:-jusdigital-documents-dev}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
     ports:
-      - "${API_PORT:-3000}:3000"
+      - '${API_PORT:-3000}:3000'
     volumes:
       - .:/app
       - api_node_modules:/app/node_modules
@@ -45,7 +46,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-jusdigital}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-jusdigital}
     ports:
-      - "${POSTGRES_PORT:-5433}:5432"
+      - '${POSTGRES_PORT:-5433}:5432'
     volumes:
       - postgres_data:/var/lib/postgresql
     healthcheck:

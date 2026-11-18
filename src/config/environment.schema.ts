@@ -14,6 +14,7 @@ export const environmentSchema = z
     }),
     OPENAI_API_KEY: z.string().trim().min(1, 'OPENAI_API_KEY is required'),
     OPENAI_MODEL: z.string().trim().min(1).default('gpt-4o-mini'),
+    DOCUMENT_STORAGE_DRIVER: z.enum(['s3', 'memory']).default('s3'),
     AWS_REGION: z.string().trim().min(1).default('us-east-1'),
     AWS_S3_BUCKET: z.string().trim().min(1, 'AWS_S3_BUCKET is required'),
     AWS_ACCESS_KEY_ID: z.string().trim().optional(),
@@ -30,6 +31,17 @@ export const environmentSchema = z
         path: [hasAccessKey ? 'AWS_SECRET_ACCESS_KEY' : 'AWS_ACCESS_KEY_ID'],
         message:
           'AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY must be provided together',
+      });
+    }
+
+    if (
+      env.NODE_ENV === 'production' &&
+      env.DOCUMENT_STORAGE_DRIVER === 'memory'
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['DOCUMENT_STORAGE_DRIVER'],
+        message: 'In-memory document storage is forbidden in production',
       });
     }
   });

@@ -51,7 +51,9 @@ import {
         inMemory: InMemoryDocumentStorageService,
         s3: S3DocumentStorageService,
       ): DocumentStorageService =>
-        config.get('NODE_ENV', { infer: true }) === 'test' ? inMemory : s3,
+        config.get('DOCUMENT_STORAGE_DRIVER', { infer: true }) === 'memory'
+          ? inMemory
+          : s3,
     },
   ],
   exports: [
