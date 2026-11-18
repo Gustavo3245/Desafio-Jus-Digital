@@ -1,6 +1,6 @@
 ---
 title: Análise de documentos com OpenAI
-status: in_progress
+status: implemented
 last_updated: 2026-11-18
 feature_id: FEAT-005
 requirements:
@@ -98,13 +98,13 @@ ao cliente.
 
 ## Critérios de aceitação
 
-- [ ] Dado um upload válido, quando a OpenAI retorna texto, então o documento é
+- [x] Dado um upload válido, quando a OpenAI retorna texto, então o documento é
       persistido como `completed` e a API retorna a análise.
-- [ ] Dada uma falha externa, quando a análise é solicitada, então o documento fica
+- [x] Dada uma falha externa, quando a análise é solicitada, então o documento fica
       `failed` e a API retorna `503` sem expor detalhes externos.
-- [ ] Dada uma resposta vazia, quando a análise é processada, então o documento fica
+- [x] Dada uma resposta vazia, quando a análise é processada, então o documento fica
       `failed` e a API retorna `502` com `ANALYSIS_FAILED`.
-- [ ] Nenhum teste padrão realiza chamada real ou consome créditos da OpenAI.
+- [x] Nenhum teste padrão realiza chamada real ou consome créditos da OpenAI.
 
 ## Estratégia de teste
 
@@ -124,4 +124,12 @@ ao cliente.
 
 ## Evidência de implementação
 
-Preencher somente ao mudar o estado para `implemented`.
+- Código: `src/integrations/openai/`, conexão em
+  `src/documents/documents.service.ts`, configuração validada em
+  `src/config/environment.schema.ts`, `.env.example` e `compose.yaml`.
+- Testes do adapter verificam Base64, `store: false`, resposta válida/vazia e
+  tradução de falhas. Serviço, E2E e integração verificam as transições
+  `processing` → `completed` e `processing` → `failed`.
+- Verificação em 2026-11-18: `npm run lint`, `npm test` (12 suítes/36 testes),
+  `npm run test:integration` (1 suíte/14 testes), `npm run test:e2e` (2 suítes/17
+  testes) e `npm run build`.

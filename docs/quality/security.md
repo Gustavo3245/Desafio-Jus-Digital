@@ -41,6 +41,12 @@ last_updated: 2026-11-18
 - O callback de Google redirect é a única exceção de rota e exige a igualdade entre
   o cookie e o campo `g_csrf_token` antes de validar a credencial.
 - A aplicação recusa produção com armazenamento de sessão em memória.
+- A chave da OpenAI é validada na inicialização, permanece no back-end e nunca é
+  incluída em respostas ou logs.
+- A análise usa `store: false`; arquivo, instrução, resposta e detalhes do erro
+  externo não são registrados.
+- O conteúdo do documento é tratado como dado não confiável e não como instrução
+  para o modelo.
 
 ## Checklist de revisão
 

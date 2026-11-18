@@ -39,6 +39,9 @@ front-end ou o back-end para outro repositório sem alterar os contratos públic
 
 A ordem entre validação, upload no S3 e persistência com compensação está registrada
 na [`ADR-0005`](decisions/0005-s3-storage-and-upload-compensation.md).
+O processamento síncrono, o envio direto em Base64 e as transições de análise estão
+registrados na
+[`ADR-0006`](decisions/0006-synchronous-openai-document-analysis.md).
 
 ## Fluxo de autenticação
 
@@ -91,6 +94,5 @@ uso concreto.
 
 ## Decisões pendentes
 
-- Processamento síncrono ou assíncrono da análise.
 - Estratégia de compensação entre banco, S3 e OpenAI.
 - Provedor de hospedagem e configuração de produção.

@@ -45,8 +45,8 @@ de falha.
 
 ### Não incluído
 
-- Chamada à API da OpenAI (`gpt-4o-mini`) após o upload, coberta por `FEAT-005` (os
-  documentos criados nesta etapa permanecem em estado `processing` até `FEAT-005`).
+- Chamada à API da OpenAI (`gpt-4o-mini`) após o upload, especificada e implementada
+  separadamente pela [`FEAT-005`](openai-document-analysis.md).
 - Endpoints de listagem (`GET /documents`), leitura (`GET /documents/{id}`), download
   (`GET /documents/{id}/download`) e exclusão (`DELETE /documents/{id}`), cobertos
   por `FEAT-006`.
@@ -79,8 +79,8 @@ de falha.
    `DocumentStorageService.uploadObject`.
 5. Após confirmação do S3, o serviço cria o registro em estado `processing` no
    PostgreSQL via `DocumentsRepository.createProcessing`.
-6. A API responde `201 Created` com `{ "document": ... }` contendo os metadados
-   públicos do documento (sem `storageKey`).
+6. O fluxo é entregue à FEAT-005 para análise; em sucesso, a API responde `201
+Created` com o documento `completed` e sem `storageKey`.
 
 ## Regras de negócio
 
@@ -102,15 +102,15 @@ de falha.
 
 ## Estados e erros
 
-| Situação                                               | Comportamento esperado                             | Código/estado                          |
-| ------------------------------------------------------ | -------------------------------------------------- | -------------------------------------- |
-| Requisição sem sessão válida                           | Rejeitar antes de processar upload                 | `401`                                  |
-| Origem não confiável (CSRF)                            | Rejeitar requisição mutável                        | `403`                                  |
-| `title` ou `instruction` ausentes/inválidos            | Rejeitar sem chamar S3 nem banco                   | `400`                                  |
-| Arquivo ausente, vazio, > 10 MB ou tipo/magic inválido | Rejeitar com `INVALID_FILE` sem chamar S3          | `400` / `INVALID_FILE`                 |
-| Falha de rede, permissão ou timeout no AWS S3          | Não criar registro no banco e retornar erro seguro | `503` / `EXTERNAL_SERVICE_UNAVAILABLE` |
-| Falha no banco após upload no S3                       | Remover objeto recém-enviado do S3                 | `500` (objeto compensado)              |
-| Upload e persistência concluídos                       | Retornar documento em estado `processing`          | `201` / `processing`                   |
+| Situação                                               | Comportamento esperado                               | Código/estado                          |
+| ------------------------------------------------------ | ---------------------------------------------------- | -------------------------------------- |
+| Requisição sem sessão válida                           | Rejeitar antes de processar upload                   | `401`                                  |
+| Origem não confiável (CSRF)                            | Rejeitar requisição mutável                          | `403`                                  |
+| `title` ou `instruction` ausentes/inválidos            | Rejeitar sem chamar S3 nem banco                     | `400`                                  |
+| Arquivo ausente, vazio, > 10 MB ou tipo/magic inválido | Rejeitar com `INVALID_FILE` sem chamar S3            | `400` / `INVALID_FILE`                 |
+| Falha de rede, permissão ou timeout no AWS S3          | Não criar registro no banco e retornar erro seguro   | `503` / `EXTERNAL_SERVICE_UNAVAILABLE` |
+| Falha no banco após upload no S3                       | Remover objeto recém-enviado do S3                   | `500` (objeto compensado)              |
+| Upload e persistência concluídos                       | Entregar registro `processing` ao serviço de análise | estado interno transitório             |
 
 ## Contratos afetados
 
@@ -137,7 +137,7 @@ de falha.
 - [x] Dado um usuário autenticado enviando um arquivo válido (`.pdf`, `.docx`, `.doc`
       ou `.txt`) com `title` e `instruction`, quando `POST /api/v1/documents` é
       chamado, então o objeto é salvo no storage com chave não previsível, o registro
-      é persistido no banco com `status = 'processing'` e a resposta é `201` sem expor
+      é criado com `status = 'processing'` antes da análise e a resposta nunca expõe
       `storageKey`.
 - [x] Dado um arquivo ausente, vazio, maior que 10 MB ou com assinatura binária
       incompatível com a extensão, quando o upload é enviado, então a resposta é `400`
@@ -168,11 +168,6 @@ de falha.
 - Falhas de integração com o S3 podem registrar apenas o código/categoria do erro AWS
   e identificador de requisição, sem expor credenciais, chaves secretas ou bytes do
   documento.
-
-## Questões em aberto
-
-- O acionamento automático da análise OpenAI (`gpt-4o-mini`) logo após o upload será
-  conectado em `FEAT-005`.
 
 ## Evidência de implementação
 

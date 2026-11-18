@@ -26,8 +26,8 @@ módulo. Não crie ADR para detalhes locais facilmente alteráveis.
 | [`ADR-0003`](0003-google-sign-in-redirect.md)              | Aceita | Google Sign-In na mesma aba                             |
 | [`ADR-0004`](0004-drizzle-orm-and-postgres-persistence.md) | Aceita | Drizzle ORM e persistência PostgreSQL                   |
 | [`ADR-0005`](0005-s3-storage-and-upload-compensation.md)   | Aceita | Armazenamento privado no AWS S3 e compensação no upload |
+| [`ADR-0006`](0006-synchronous-openai-document-analysis.md) | Aceita | Análise síncrona com OpenAI Responses API               |
 
 ## Primeiras ADRs candidatas
 
-- Processamento síncrono ou assíncrono da análise OpenAI.
 - Exclusão consistente no banco e S3.

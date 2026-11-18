@@ -59,7 +59,9 @@ docker compose exec api npm run build
 A suíte `npm run test:integration` aplica as migrations SQL do Drizzle contra o
 serviço `postgres`, limpa as tabelas entre cada caso e valida os repositórios
 PostgreSQL, o contrato oficial `authenticationStoreContract` (`concurrent: true`) e
-a jornada HTTP completa de autenticação Google com persistência no banco.
+a jornada HTTP completa de autenticação Google, upload e análise com persistência no
+banco. Em `NODE_ENV=test`, storage e análise usam adapters em memória; nenhuma chamada
+ao S3 ou à OpenAI é realizada.
 
 ## Regras
 

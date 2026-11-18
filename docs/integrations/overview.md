@@ -40,12 +40,20 @@ validada na inicialização e traduzir erros externos para erros do domínio.
 
 ## OpenAI
 
-- Modelo exigido: `gpt-4o-mini`.
+- A integração usa a Responses API do SDK oficial, atrás de
+  `DocumentAnalysisService`.
+- O modelo padrão exigido é `gpt-4o-mini`, substituível somente por configuração
+  controlada em `OPENAI_MODEL`.
 - A chave permanece exclusivamente no back-end.
-- Documento e instrução são enviados pelo serviço de análise.
-- Configurar timeout e mapear limite de uso, arquivo inválido e indisponibilidade.
+- Documento e instrução são enviados na mesma requisição como `input_file` em
+  Base64 e `input_text`, sem criar um artefato persistente na Files API.
+- A chamada usa `store: false`, timeout de 60 segundos, no máximo um retry automático
+  e limite de 4.096 tokens de saída.
+- Timeout, rate limit e indisponibilidade retornam
+  `503 EXTERNAL_SERVICE_UNAVAILABLE`; resposta vazia retorna `502 ANALYSIS_FAILED`.
 - Não registrar prompts, documentos ou respostas completas em logs.
 - Validar a resposta antes de marcar o documento como `completed`.
+- Decisão completa: [`ADR-0006`](../architecture/decisions/0006-synchronous-openai-document-analysis.md).
 
 ## Variáveis previstas
 
@@ -56,6 +64,7 @@ FRONTEND_URL=http://localhost:5173
 GOOGLE_CLIENT_ID=
 DATABASE_URL=
 OPENAI_API_KEY=
+OPENAI_MODEL=gpt-4o-mini
 AWS_REGION=
 AWS_S3_BUCKET=
 AWS_ACCESS_KEY_ID=

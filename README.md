@@ -11,8 +11,9 @@ persistência em PostgreSQL (`users`, `sessions` e `documents`) está implementa
 Drizzle ORM e migrations SQL versionadas. O upload de documentos (`POST /api/v1/documents`)
 valida tamanho e assinatura binária (`.pdf`, `.docx`, `.doc`, `.txt`), armazena o
 arquivo original de forma privada no AWS S3 e registra os metadados no PostgreSQL com
-compensação automática. O ambiente Docker fornece a API e PostgreSQL para
-desenvolvimento e testes.
+compensação automática. O mesmo fluxo envia o documento e a instrução à OpenAI,
+persiste uma resposta textual válida e registra falhas sem marcar o documento como
+concluído. O ambiente Docker fornece a API e PostgreSQL para desenvolvimento e testes.
 
 ## Requisitos
 
@@ -33,8 +34,9 @@ npm run start:dev
 ```
 
 Preencha `GOOGLE_CLIENT_ID` com o Client ID Web configurado no Google Cloud e ajuste
-`FRONTEND_URL` para a origem exata do front-end. A API fica disponível por padrão em
-`http://localhost:3000/api/v1`.
+`FRONTEND_URL` para a origem exata do front-end. Preencha `OPENAI_API_KEY` com uma
+chave ativa mantida somente no `.env`; não reutilize nem registre credenciais expostas.
+A API fica disponível por padrão em `http://localhost:3000/api/v1`.
 
 ## Ambiente Docker
 
@@ -108,6 +110,15 @@ dispositivo.
 - Configure no `.env` as variáveis `AWS_REGION`, `AWS_S3_BUCKET`, `AWS_ACCESS_KEY_ID`
   e `AWS_SECRET_ACCESS_KEY` de um usuário IAM com acesso restrito exclusivamente às
   operações `s3:PutObject`, `s3:GetObject` e `s3:DeleteObject` no bucket privado.
+
+## Análise com OpenAI
+
+- O upload envia arquivo e instrução à Responses API e só retorna `completed` depois
+  de persistir uma resposta textual válida.
+- Configure `OPENAI_API_KEY` apenas no back-end. `OPENAI_MODEL` usa `gpt-4o-mini` por
+  padrão e permite migração controlada de modelo.
+- Timeout, rate limit ou indisponibilidade retornam `503`; resposta vazia retorna
+  `502`. Em ambos os casos, o registro permanece `failed`.
 
 ## Verificação
 

@@ -127,8 +127,8 @@ Em sucesso (`201 Created`), retorna o documento sem expor `storageKey`:
     "originalName": "contrato.pdf",
     "mimeType": "application/pdf",
     "sizeBytes": 34816,
-    "status": "processing",
-    "analysis": null,
+    "status": "completed",
+    "analysis": "O contrato prevê rescisão com aviso de 30 dias e multa proporcional.",
     "failureCode": null,
     "createdAt": "2026-11-18T17:30:00.000Z",
     "updatedAt": "2026-11-18T17:30:00.000Z"
@@ -141,6 +141,10 @@ Em sucesso (`201 Created`), retorna o documento sem expor `storageKey`:
   `code: "INVALID_FILE"`.
 - Falha ou indisponibilidade do AWS S3: `503` com
   `code: "EXTERNAL_SERVICE_UNAVAILABLE"`.
+- Timeout, limite ou indisponibilidade da OpenAI: o registro fica `failed` e a API
+  responde `503` com `code: "EXTERNAL_SERVICE_UNAVAILABLE"`.
+- Resposta vazia ou inválida da análise: o registro fica `failed` e a API responde
+  `502` com `code: "ANALYSIS_FAILED"`.
 
 ## Códigos de erro iniciais
 
