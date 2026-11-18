@@ -440,19 +440,37 @@ describe('PostgreSQL persistence (integration)', () => {
           },
         });
 
-      // 5. Create and complete a document for the authenticated Google user in PostgreSQL
-      const appDocsRepo = app.get(DocumentsRepository);
-      const createdDoc = await appDocsRepo.createProcessing({
-        userId: userIdA,
+      // 5. Upload a document via HTTP multipart/form-data and complete its analysis in PostgreSQL
+      const uploadResponse = await agentA
+        .post('/api/v1/documents')
+        .set('Origin', 'http://localhost:5173')
+        .field('title', 'Acordo Extrajudicial')
+        .field('instruction', 'Verifique cláusula penal e foro de eleição')
+        .attach(
+          'file',
+          Buffer.from('%PDF-1.7\nAcordo extrajudicial entre as partes.'),
+          {
+            filename: 'acordo.pdf',
+            contentType: 'application/pdf',
+          },
+        )
+        .expect(HttpStatus.CREATED);
+
+      const uploadedDocumentId = uploadResponse.body.document.id as string;
+      expect(uploadResponse.body.document).toMatchObject({
+        id: expect.any(String),
         title: 'Acordo Extrajudicial',
         instruction: 'Verifique cláusula penal e foro de eleição',
         originalName: 'acordo.pdf',
-        storageKey: `users/${userIdA}/documents/${randomUUID()}.pdf`,
         mimeType: 'application/pdf',
-        sizeBytes: 16_384,
+        status: 'processing',
+        analysis: null,
       });
+      expect(uploadResponse.body.document).not.toHaveProperty('storageKey');
+
+      const appDocsRepo = app.get(DocumentsRepository);
       await appDocsRepo.markCompleted(
-        createdDoc.id,
+        uploadedDocumentId,
         userIdA,
         'Cláusula penal de 10% e foro da comarca de São Paulo.',
       );
@@ -460,7 +478,7 @@ describe('PostgreSQL persistence (integration)', () => {
       const userADocs = await appDocsRepo.listByOwner(userIdA);
       expect(userADocs).toHaveLength(1);
       expect(userADocs[0]).toMatchObject({
-        id: createdDoc.id,
+        id: uploadedDocumentId,
         userId: userIdA,
         status: 'completed',
       });
