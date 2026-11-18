@@ -1,0 +1,9 @@
+CONTRATO DE PRESTACAO DE SERVICOS - AMBIENTE DE TESTE
+
+1. Objeto: a contratada prestara servicos de consultoria documental por 12 meses.
+2. Pagamento: o valor mensal ficticio e de R$ 1.000,00, com vencimento no dia 10.
+3. Rescisao: qualquer parte podera encerrar o contrato mediante aviso previo de 30 dias.
+4. Multa: a rescisao sem aviso previo gera multa ficticia equivalente a uma mensalidade.
+5. Foro: fica eleito, apenas para este teste, o foro da comarca de Fortaleza/CE.
+
+Este documento e inteiramente sintetico e nao produz efeitos juridicos.

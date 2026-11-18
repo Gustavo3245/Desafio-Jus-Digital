@@ -214,6 +214,9 @@
               required
             />
           </label>
+          <button id="use-sample" class="secondary" type="button">
+            Usar contrato sintético de exemplo
+          </button>
           <label>
             Título
             <input
@@ -252,17 +255,19 @@ Resuma o documento e liste os três pontos mais importantes.</textarea>
     <script type="module">
       const googleClientId = __GOOGLE_CLIENT_ID__;
       const apiBaseUrl = __API_BASE_URL__;
-      const callbackUrl = `${apiBaseUrl}/auth/google/callback`;
 
       const profile = document.querySelector('#profile');
       const sessionStatus = document.querySelector('#session-status');
       const googleButton = document.querySelector('#google-button');
       const logoutButton = document.querySelector('#logout');
       const form = document.querySelector('#analysis-form');
+      const fileInput = document.querySelector('#file');
+      const useSampleButton = document.querySelector('#use-sample');
       const submitButton = document.querySelector('#submit');
       const analysisStatus = document.querySelector('#analysis-status');
       const result = document.querySelector('#result');
       let authenticated = false;
+      let sampleFile = null;
 
       function setBadge(element, text, state = '') {
         element.textContent = text;
@@ -275,6 +280,23 @@ Resuma o documento e liste os três pontos mais importantes.</textarea>
           throw new Error(body.message ?? `Falha HTTP ${response.status}`);
         }
         return body;
+      }
+
+      async function completeGoogleSignIn(googleResponse) {
+        try {
+          await readJson(
+            await fetch(`${apiBaseUrl}/auth/google`, {
+              method: 'POST',
+              credentials: 'include',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ credential: googleResponse.credential }),
+            }),
+          );
+          await refreshSession();
+        } catch (error) {
+          result.textContent = error.message;
+          setBadge(sessionStatus, 'Falha no login', 'error');
+        }
       }
 
       function renderGoogleButton() {
@@ -292,8 +314,8 @@ Resuma o documento e liste os três pontos mais importantes.</textarea>
 
         window.google.accounts.id.initialize({
           client_id: googleClientId,
-          ux_mode: 'redirect',
-          login_uri: callbackUrl,
+          ux_mode: 'popup',
+          callback: completeGoogleSignIn,
         });
         window.google.accounts.id.renderButton(googleButton, {
           type: 'standard',
@@ -354,6 +376,33 @@ Resuma o documento e liste os três pontos mais importantes.</textarea>
         }
       });
 
+      useSampleButton.addEventListener('click', async () => {
+        useSampleButton.disabled = true;
+        try {
+          const response = await fetch('/fixtures/sample-contract.txt');
+          if (!response.ok)
+            throw new Error('Não foi possível carregar o exemplo.');
+
+          sampleFile = new File(
+            [await response.blob()],
+            'sample-contract.txt',
+            { type: 'text/plain' },
+          );
+          result.textContent =
+            'Contrato sintético selecionado. Revise a pergunta e envie para analisar.';
+          setBadge(analysisStatus, 'Exemplo pronto');
+        } catch (error) {
+          result.textContent = error.message;
+          setBadge(analysisStatus, 'Falhou', 'error');
+        } finally {
+          useSampleButton.disabled = false;
+        }
+      });
+
+      fileInput.addEventListener('change', () => {
+        sampleFile = null;
+      });
+
       form.addEventListener('submit', async (event) => {
         event.preventDefault();
         if (!authenticated) return;
@@ -364,10 +413,13 @@ Resuma o documento e liste os três pontos mais importantes.</textarea>
         setBadge(analysisStatus, 'Processando');
 
         try {
+          const formData = new FormData(form);
+          if (sampleFile) formData.set('file', sampleFile);
+
           const response = await fetch(`${apiBaseUrl}/documents`, {
             method: 'POST',
             credentials: 'include',
-            body: new FormData(form),
+            body: formData,
           });
           const body = await readJson(response);
           result.textContent = body.document.analysis;
