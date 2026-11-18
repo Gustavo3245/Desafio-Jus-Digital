@@ -9,6 +9,11 @@
   "scripts": {
     "build": "nest build",
     "deploy": "nest deploy",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs --follow",
+    "docker:ps": "docker compose ps",
+    "docker:test": "docker compose run --rm api npm test",
+    "docker:up": "docker compose up --build --detach --wait",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"*.ts\" \"docs/**/*.md\" \"*.md\" package.json",
     "start": "nest start",
     "start:dev": "nest start --watch",
