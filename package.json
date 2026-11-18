@@ -22,14 +22,15 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "oxlint --type-aware src/ test/",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:cov": "vitest run --coverage",
-    "test:debug": "vitest --inspect-brk --no-file-parallelism",
-    "test:e2e": "vitest run --config ./vitest.config.e2e.ts",
-    "test:integration": "vitest run --config ./vitest.config.integration.ts"
+    "test": "vitest run --configLoader runner",
+    "test:watch": "vitest --configLoader runner",
+    "test:cov": "vitest run --coverage --configLoader runner",
+    "test:debug": "vitest --inspect-brk --no-file-parallelism --configLoader runner",
+    "test:e2e": "vitest run --config ./vitest.config.e2e.ts --configLoader runner",
+    "test:integration": "vitest run --config ./vitest.config.integration.ts --configLoader runner"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1171.0",
     "@nestjs/authentication": "^0.1.6",
     "@nestjs/common": "^12.0.1",
     "@nestjs/config": "^12.1.1",
