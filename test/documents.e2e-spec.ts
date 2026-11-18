@@ -9,6 +9,11 @@ import { configureApplication } from '../src/bootstrap.js';
 import { MAX_DOCUMENT_SIZE_BYTES } from '../src/documents/document-file-validator.js';
 import { DocumentsRepository } from '../src/documents/documents.repository.js';
 import {
+  DocumentAnalysisService,
+  ExternalAnalysisUnavailableException,
+  InvalidAnalysisResponseException,
+} from '../src/integrations/openai/document-analysis.service.js';
+import {
   DocumentStorageService,
   ExternalStorageUnavailableException,
 } from '../src/integrations/storage/document-storage.service.js';
@@ -64,7 +69,7 @@ describe('Document upload and storage (e2e)', () => {
     return login.body.user.id as string;
   }
 
-  it('uploads a valid PDF document, stores the private object and returns metadata without storageKey', async () => {
+  it('uploads, stores and analyzes a valid PDF without exposing storageKey', async () => {
     const userId = await signIn();
     const pdfBuffer = Buffer.from('%PDF-1.7\nCláusula 1ª - Do Objeto.');
 
@@ -87,8 +92,9 @@ describe('Document upload and storage (e2e)', () => {
         originalName: 'contrato.pdf',
         mimeType: 'application/pdf',
         sizeBytes: pdfBuffer.byteLength,
-        status: 'processing',
-        analysis: null,
+        status: 'completed',
+        analysis:
+          'Análise simulada concluída para a instrução: Resuma as cláusulas de rescisão e multa',
         failureCode: null,
         createdAt: expect.any(String),
         updatedAt: expect.any(String),
@@ -190,5 +196,61 @@ describe('Document upload and storage (e2e)', () => {
 
     const repository = app.get(DocumentsRepository);
     expect(await repository.listByOwner(userId)).toEqual([]);
+  });
+
+  it('returns 503 and persists a failed state when the analysis provider is unavailable', async () => {
+    const userId = await signIn();
+    const analysis = app.get(DocumentAnalysisService);
+    vi.spyOn(analysis, 'analyzeDocument').mockRejectedValueOnce(
+      new ExternalAnalysisUnavailableException(),
+    );
+
+    const response = await agent
+      .post('/api/v1/documents')
+      .set('Origin', frontendOrigin)
+      .field('title', 'Contrato')
+      .field('instruction', 'Analise')
+      .attach('file', Buffer.from('%PDF-1.7\ncontent'), 'contrato.pdf')
+      .expect(HttpStatus.SERVICE_UNAVAILABLE);
+
+    expect(response.body).toEqual({
+      code: 'EXTERNAL_SERVICE_UNAVAILABLE',
+      message: 'Document analysis service is temporarily unavailable',
+    });
+    expect(await app.get(DocumentsRepository).listByOwner(userId)).toEqual([
+      expect.objectContaining({
+        status: 'failed',
+        analysis: null,
+        failureCode: 'ANALYSIS_PROVIDER_UNAVAILABLE',
+      }),
+    ]);
+  });
+
+  it('returns 502 ANALYSIS_FAILED and persists a failed state for an empty response', async () => {
+    const userId = await signIn();
+    const analysis = app.get(DocumentAnalysisService);
+    vi.spyOn(analysis, 'analyzeDocument').mockRejectedValueOnce(
+      new InvalidAnalysisResponseException(),
+    );
+
+    const response = await agent
+      .post('/api/v1/documents')
+      .set('Origin', frontendOrigin)
+      .field('title', 'Contrato')
+      .field('instruction', 'Analise')
+      .attach('file', Buffer.from('%PDF-1.7\ncontent'), 'contrato.pdf')
+      .expect(HttpStatus.BAD_GATEWAY);
+
+    expect(response.body).toEqual({
+      code: 'ANALYSIS_FAILED',
+      message: 'Document analysis could not be completed',
+    });
+    expect(await app.get(DocumentsRepository).listByOwner(userId)).toEqual([
+      expect.objectContaining({
+        status: 'failed',
+        analysis: null,
+        failureCode: 'ANALYSIS_INVALID_RESPONSE',
+      }),
+    ]);
   });
 });

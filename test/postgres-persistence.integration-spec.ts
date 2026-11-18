@@ -440,7 +440,7 @@ describe('PostgreSQL persistence (integration)', () => {
           },
         });
 
-      // 5. Upload a document via HTTP multipart/form-data and complete its analysis in PostgreSQL
+      // 5. Upload and analyze a document via HTTP, persisting the result in PostgreSQL
       const uploadResponse = await agentA
         .post('/api/v1/documents')
         .set('Origin', 'http://localhost:5173')
@@ -463,18 +463,13 @@ describe('PostgreSQL persistence (integration)', () => {
         instruction: 'Verifique cláusula penal e foro de eleição',
         originalName: 'acordo.pdf',
         mimeType: 'application/pdf',
-        status: 'processing',
-        analysis: null,
+        status: 'completed',
+        analysis:
+          'Análise simulada concluída para a instrução: Verifique cláusula penal e foro de eleição',
       });
       expect(uploadResponse.body.document).not.toHaveProperty('storageKey');
 
       const appDocsRepo = app.get(DocumentsRepository);
-      await appDocsRepo.markCompleted(
-        uploadedDocumentId,
-        userIdA,
-        'Cláusula penal de 10% e foro da comarca de São Paulo.',
-      );
-
       const userADocs = await appDocsRepo.listByOwner(userIdA);
       expect(userADocs).toHaveLength(1);
       expect(userADocs[0]).toMatchObject({
