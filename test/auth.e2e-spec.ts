@@ -19,6 +19,9 @@ const verifiedPayload: TokenPayload = {
   picture: 'https://example.com/avatar.png',
 };
 
+const googleOrigin = 'https://accounts.google.com';
+const frontendAuthCallback = 'http://localhost:5173/auth/callback';
+
 describe('Google authentication (e2e)', () => {
   let app: INestApplication<App>;
   let agent: Agent;
@@ -86,6 +89,93 @@ describe('Google authentication (e2e)', () => {
     expect(response.body).toMatchObject({
       code: 'INVALID_GOOGLE_CREDENTIAL',
     });
+  });
+
+  it('creates a session from a valid Google redirect callback', async () => {
+    const csrfToken = 'google-csrf-token';
+    const response = await agent
+      .post('/api/v1/auth/google/callback')
+      .set('Origin', googleOrigin)
+      .set('Sec-Fetch-Site', 'cross-site')
+      .set('Cookie', `g_csrf_token=${csrfToken}`)
+      .type('form')
+      .send({
+        credential: 'google-id-token',
+        g_csrf_token: csrfToken,
+      })
+      .expect(HttpStatus.SEE_OTHER);
+
+    expect(response.headers.location).toBe(frontendAuthCallback);
+    expect(response.headers['set-cookie']?.[0]).toContain('HttpOnly');
+    await agent.get('/api/v1/auth/me').expect(HttpStatus.OK);
+  });
+
+  it.each([
+    ['a missing cookie', undefined],
+    ['a mismatched cookie', 'different-csrf-token'],
+  ])('rejects the Google callback with %s', async (_case, cookieToken) => {
+    const csrfToken = 'google-csrf-token';
+    const login = request(app.getHttpServer())
+      .post('/api/v1/auth/google/callback')
+      .set('Origin', googleOrigin)
+      .set('Sec-Fetch-Site', 'cross-site')
+      .type('form')
+      .send({
+        credential: 'google-id-token',
+        g_csrf_token: csrfToken,
+      });
+
+    if (cookieToken) {
+      login.set('Cookie', `g_csrf_token=${cookieToken}`);
+    }
+
+    const response = await login.expect(HttpStatus.FORBIDDEN);
+
+    expect(response.headers['set-cookie']).toBeUndefined();
+    expect(response.body).toMatchObject({ code: 'INVALID_GOOGLE_CSRF_TOKEN' });
+    expect(verifyIdToken).not.toHaveBeenCalled();
+  });
+
+  it('returns a safe error after an invalid redirect credential', async () => {
+    verifyIdToken.mockRejectedValue(new Error('invalid signature'));
+    const csrfToken = 'google-csrf-token';
+
+    const response = await agent
+      .post('/api/v1/auth/google/callback')
+      .set('Origin', googleOrigin)
+      .set('Sec-Fetch-Site', 'cross-site')
+      .set('Cookie', `g_csrf_token=${csrfToken}`)
+      .type('form')
+      .send({
+        credential: 'invalid-token',
+        g_csrf_token: csrfToken,
+      })
+      .expect(HttpStatus.SEE_OTHER);
+
+    expect(response.headers.location).toBe(
+      `${frontendAuthCallback}?error=invalid_google_credential`,
+    );
+    expect(response.headers['set-cookie']).toBeUndefined();
+    await agent.get('/api/v1/auth/me').expect(HttpStatus.UNAUTHORIZED);
+  });
+
+  it('rejects a redirect callback from an untrusted origin', async () => {
+    const csrfToken = 'google-csrf-token';
+
+    const response = await agent
+      .post('/api/v1/auth/google/callback')
+      .set('Origin', 'https://attacker.example')
+      .set('Sec-Fetch-Site', 'cross-site')
+      .set('Cookie', `g_csrf_token=${csrfToken}`)
+      .type('form')
+      .send({
+        credential: 'google-id-token',
+        g_csrf_token: csrfToken,
+      })
+      .expect(HttpStatus.FORBIDDEN);
+
+    expect(response.headers['set-cookie']).toBeUndefined();
+    await agent.get('/api/v1/auth/me').expect(HttpStatus.UNAUTHORIZED);
   });
 
   it('validates the login payload before calling Google', async () => {
