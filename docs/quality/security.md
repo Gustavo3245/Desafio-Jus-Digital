@@ -47,6 +47,8 @@ last_updated: 2026-11-18
   externo não são registrados.
 - O conteúdo do documento é tratado como dado não confiável e não como instrução
   para o modelo.
+- O adapter de armazenamento em memória serve somente ao desenvolvimento e aos
+  testes; a validação de ambiente impede sua inicialização em produção.
 
 ## Checklist de revisão
 

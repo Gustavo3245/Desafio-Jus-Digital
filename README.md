@@ -120,6 +120,22 @@ dispositivo.
 - Timeout, rate limit ou indisponibilidade retornam `503`; resposta vazia retorna
   `502`. Em ambos os casos, o registro permanece `failed`.
 
+### Teste manual sem AWS
+
+O ambiente Docker usa `DOCUMENT_STORAGE_DRIVER=memory` por padrão em desenvolvimento,
+permitindo validar Google Auth, upload e uma chamada real à OpenAI antes da
+configuração do bucket. O driver em memória é rejeitado em produção.
+
+Com a API ativa em `http://localhost:3000`, inicie a página local:
+
+```bash
+npm run start:manual
+```
+
+Abra `http://localhost:5173`, entre com o Google, selecione um documento e envie a
+pergunta. A página exibe somente o resultado retornado pela API; a chave da OpenAI
+continua restrita ao back-end.
+
 ## Verificação
 
 ```bash

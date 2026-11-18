@@ -71,3 +71,11 @@ ao S3 ou à OpenAI é realizada.
 - Testes de autorização usam pelo menos dois usuários distintos.
 - Mocks preservam contratos e falham explicitamente quando o contrato muda.
 - Cobertura é um sinal; critérios de aceitação continuam sendo a referência principal.
+
+## Teste manual da análise real
+
+Com `OPENAI_API_KEY` configurada localmente, execute a API em desenvolvimento com
+`DOCUMENT_STORAGE_DRIVER=memory` e inicie `npm run start:manual`. A página em
+`http://localhost:5173` percorre Google Auth, upload, Responses API e persistência da
+análise. Esse teste consome créditos e nunca deve usar uma chave compartilhada em
+chat, logs ou arquivos rastreados.

@@ -28,7 +28,7 @@ de falha.
 
 - Configuração e validação das variáveis de ambiente do AWS S3 (`AWS_REGION`,
   `AWS_S3_BUCKET`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` e `AWS_S3_ENDPOINT`
-  opcional).
+  opcional) e seleção por `DOCUMENT_STORAGE_DRIVER`.
 - Abstração `DocumentStorageService` com implementações `S3DocumentStorageService`
   (`@aws-sdk/client-s3`) e `InMemoryDocumentStorageService` (para ambiente de teste).
 - Validação e inspeção de arquivos enviados (`.pdf`, `.docx`, `.doc`, `.txt`),

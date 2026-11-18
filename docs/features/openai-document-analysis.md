@@ -30,6 +30,8 @@ ao cliente.
   limite de tokens de saída.
 - Persistência de sucesso como `completed` e falha como `failed`.
 - Adapter em memória para testes sem chamadas externas pagas.
+- Página local para teste manual autenticado da integração real, usando storage em
+  memória enquanto a AWS não estiver configurada.
 
 ### Não incluído
 
@@ -111,6 +113,8 @@ ao cliente.
 - Unitário: payload do adapter, resposta válida/vazia e tradução de falhas.
 - Serviço: transições `processing` → `completed` e `processing` → `failed`.
 - E2E: upload autenticado usando adapter em memória.
+- Manual opcional: Google Auth, upload e resposta real da OpenAI em
+  `http://localhost:5173`.
 
 ## Observabilidade
 
