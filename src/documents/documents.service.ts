@@ -1,4 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import {
+  DocumentAnalysisService,
+  ExternalAnalysisUnavailableException,
+  InvalidAnalysisResponseException,
+} from '../integrations/openai/document-analysis.service.js';
 import { DocumentStorageService } from '../integrations/storage/document-storage.service.js';
 import {
   buildDocumentStorageKey,
@@ -20,6 +25,7 @@ export class DocumentsService {
   constructor(
     private readonly documents: DocumentsRepository,
     private readonly storage: DocumentStorageService,
+    private readonly analysis: DocumentAnalysisService,
   ) {}
 
   async createDocument(command: UploadDocumentCommand): Promise<Document> {
@@ -36,8 +42,10 @@ export class DocumentsService {
       originalName: validatedFile.originalName,
     });
 
+    let processingDocument: Document;
+
     try {
-      return await this.documents.createProcessing({
+      processingDocument = await this.documents.createProcessing({
         userId: command.userId,
         title: command.title,
         instruction: command.instruction,
@@ -50,5 +58,46 @@ export class DocumentsService {
       await this.storage.deleteObject(storageKey).catch(() => undefined);
       throw error;
     }
+
+    try {
+      const analysis = await this.analysis.analyzeDocument({
+        body: validatedFile.buffer,
+        originalName: validatedFile.originalName,
+        mimeType: validatedFile.mimeType,
+        instruction: command.instruction,
+      });
+      const completed = await this.documents.markCompleted(
+        processingDocument.id,
+        command.userId,
+        analysis,
+      );
+
+      if (!completed) {
+        throw new Error('Document could not transition to completed');
+      }
+
+      return completed;
+    } catch (error) {
+      await Promise.resolve(
+        this.documents.markFailed(
+          processingDocument.id,
+          command.userId,
+          toAnalysisFailureCode(error),
+        ),
+      ).catch(() => undefined);
+      throw error;
+    }
   }
+}
+
+function toAnalysisFailureCode(error: unknown): string {
+  if (error instanceof InvalidAnalysisResponseException) {
+    return 'ANALYSIS_INVALID_RESPONSE';
+  }
+
+  if (error instanceof ExternalAnalysisUnavailableException) {
+    return 'ANALYSIS_PROVIDER_UNAVAILABLE';
+  }
+
+  return 'ANALYSIS_PERSISTENCE_FAILED';
 }

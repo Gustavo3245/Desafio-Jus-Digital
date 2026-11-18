@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import type { Environment } from '../config/environment.schema.js';
+import { OpenAIModule } from '../integrations/openai/openai.module.js';
 import { StorageModule } from '../integrations/storage/storage.module.js';
 import { DocumentsController } from './documents.controller.js';
 import { DocumentsRepository } from './documents.repository.js';
@@ -9,7 +10,7 @@ import { InMemoryDocumentsRepository } from './in-memory-documents.repository.js
 import { PostgresDocumentsRepository } from './postgres-documents.repository.js';
 
 @Module({
-  imports: [ConfigModule, StorageModule],
+  imports: [ConfigModule, OpenAIModule, StorageModule],
   controllers: [DocumentsController],
   providers: [
     DocumentsService,
