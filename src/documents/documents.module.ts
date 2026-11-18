@@ -1,13 +1,18 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import type { Environment } from '../config/environment.schema.js';
+import { StorageModule } from '../integrations/storage/storage.module.js';
+import { DocumentsController } from './documents.controller.js';
 import { DocumentsRepository } from './documents.repository.js';
+import { DocumentsService } from './documents.service.js';
 import { InMemoryDocumentsRepository } from './in-memory-documents.repository.js';
 import { PostgresDocumentsRepository } from './postgres-documents.repository.js';
 
 @Module({
-  imports: [ConfigModule],
+  imports: [ConfigModule, StorageModule],
+  controllers: [DocumentsController],
   providers: [
+    DocumentsService,
     InMemoryDocumentsRepository,
     PostgresDocumentsRepository,
     {
@@ -28,6 +33,7 @@ import { PostgresDocumentsRepository } from './postgres-documents.repository.js'
     },
   ],
   exports: [
+    DocumentsService,
     DocumentsRepository,
     InMemoryDocumentsRepository,
     PostgresDocumentsRepository,
