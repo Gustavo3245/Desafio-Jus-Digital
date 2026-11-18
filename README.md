@@ -73,10 +73,23 @@ ou tabelas da aplicação. Essa conexão será implementada em `FEAT-003`.
 ## Autenticação
 
 - `POST /api/v1/auth/google` recebe `{ "credential": "<google-id-token>" }`.
+- `POST /api/v1/auth/google/callback` recebe o formulário do Google Sign-In em modo
+  redirect, cria a sessão e retorna para `${FRONTEND_URL}/auth/callback`.
 - `GET /api/v1/auth/me` retorna o perfil da sessão.
 - `POST /api/v1/auth/logout` revoga a sessão atual.
 
 Clientes web devem enviar cookies com `credentials: 'include'`.
+
+No cliente OAuth Web do Google Cloud, configure:
+
+- origem JavaScript autorizada: `http://localhost:5173`;
+- URI de redirecionamento autorizada:
+  `http://localhost:3000/api/v1/auth/google/callback`.
+
+O valor da URI precisa ser idêntico, incluindo esquema, porta e caminho. Para testar
+métodos de verificação da Conta Google, use um navegador normal; navegadores
+incorporados podem não oferecer passkeys, chaves de segurança ou confirmação por
+dispositivo.
 
 ## Verificação
 

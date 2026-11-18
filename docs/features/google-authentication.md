@@ -1,6 +1,6 @@
 ---
 title: Autenticação com conta Google
-status: in_progress
+status: implemented
 last_updated: 2026-11-18
 feature_id: FEAT-002
 requirements:
@@ -116,9 +116,9 @@ pelo back-end.
 - [x] Dado um logout válido, quando a sessão é reutilizada, então o acesso é negado.
 - [x] Dada uma execução de produção sem armazenamento persistente de sessões, quando
       a aplicação inicia, então a configuração é rejeitada.
-- [ ] Dado um callback com cookie e campo CSRF correspondentes, quando a credencial
+- [x] Dado um callback com cookie e campo CSRF correspondentes, quando a credencial
       é válida, então a sessão é criada e o navegador retorna ao front-end.
-- [ ] Dado um callback sem prova CSRF válida, quando o login é solicitado, então a
+- [x] Dado um callback sem prova CSRF válida, quando o login é solicitado, então a
       resposta é `403` e nenhuma sessão é criada.
 
 ## Estratégia de teste
@@ -140,8 +140,8 @@ pelo back-end.
 ## Evidência de implementação
 
 - Código: `src/auth/`, `src/users/`, `src/config/` e `src/bootstrap.ts`.
-- Testes: `npm run lint`, `npm test` (7 testes), `npm run test:e2e` (4 testes),
-  `npm run build` e inicialização de produção sem `SessionStore`, todos validados em
-  2026-11-18; a última falhou de forma segura como especificado.
+- Testes: `npm run lint`, `npm test` (12 testes), `npm run test:e2e` (10 testes) e
+  `npm run build`, validados em 2026-11-18. O callback também foi exercitado na API
+  Docker para redirecionamento seguro e rejeição de CSRF.
 - ADRs: [`ADR-0001`](../architecture/decisions/0001-google-id-token-and-server-session.md)
   e [`ADR-0003`](../architecture/decisions/0003-google-sign-in-redirect.md).

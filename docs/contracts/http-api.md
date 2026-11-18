@@ -117,6 +117,7 @@ corpo. Sessão ausente responde `401`.
 | `AUTH_REQUIRED`                | Sessão ausente ou inválida                          |
 | `INVALID_GOOGLE_CREDENTIAL`    | ID token Google inválido, expirado ou incompatível  |
 | `GOOGLE_EMAIL_NOT_VERIFIED`    | A conta Google não possui e-mail verificado         |
+| `INVALID_GOOGLE_CSRF_TOKEN`    | Callback Google sem prova CSRF válida               |
 | `DOCUMENT_NOT_FOUND`           | Documento inexistente ou não acessível pelo usuário |
 | `INVALID_FILE`                 | Tipo, tamanho ou conteúdo rejeitado                 |
 | `ANALYSIS_FAILED`              | Falha controlada ao processar a análise             |
