@@ -12,7 +12,10 @@ validada na inicialização e traduzir erros externos para erros do domínio.
 ## Google OAuth
 
 - O front-end obtém a credencial com Google Identity Services.
-- O front-end envia o ID token uma única vez em `POST /api/v1/auth/google`.
+- No modo popup, o front-end envia o ID token uma única vez em
+  `POST /api/v1/auth/google`.
+- No modo redirect, o Google envia o ID token e `g_csrf_token` ao callback dedicado;
+  o back-end compara o token do formulário com o cookie antes de autenticar.
 - O back-end usa `google-auth-library` para validar assinatura, emissores Google,
   audiência configurada e expiração.
 - O identificador estável da conta é `sub`; e-mail não é chave primária.
@@ -20,7 +23,8 @@ validada na inicialização e traduzir erros externos para erros do domínio.
 - O sistema cria ou atualiza o perfil e emite sua própria sessão.
 - A credencial recebida nunca é persistida ou registrada em logs.
 - `GOOGLE_CLIENT_ID` é configuração; nenhum segredo Google vai para o repositório.
-- Decisão completa: [`ADR-0001`](../architecture/decisions/0001-google-id-token-and-server-session.md).
+- Decisões completas: [`ADR-0001`](../architecture/decisions/0001-google-id-token-and-server-session.md)
+  e [`ADR-0003`](../architecture/decisions/0003-google-sign-in-redirect.md).
 
 ## AWS S3
 

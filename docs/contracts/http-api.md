@@ -24,6 +24,7 @@ de decorators.
 | Método   | Caminho                    | Finalidade                        |
 | -------- | -------------------------- | --------------------------------- |
 | `POST`   | `/auth/google`             | Validar Google e criar sessão     |
+| `POST`   | `/auth/google/callback`    | Concluir Google redirect          |
 | `GET`    | `/auth/me`                 | Obter usuário autenticado         |
 | `POST`   | `/auth/logout`             | Encerrar sessão                   |
 | `POST`   | `/documents`               | Criar documento e iniciar análise |
@@ -65,6 +66,23 @@ necessário ao cliente:
   `INVALID_GOOGLE_CREDENTIAL`.
 - E-mail não verificado: `403` com `GOOGLE_EMAIL_NOT_VERIFIED`.
 
+### `POST /api/v1/auth/google/callback`
+
+Endpoint público usado exclusivamente por Google Identity Services com
+`ux_mode: "redirect"`. Recebe `application/x-www-form-urlencoded`:
+
+```text
+credential=<google-id-token>&g_csrf_token=<random-value>
+```
+
+O cookie `g_csrf_token` DEVE existir e ser idêntico ao campo do formulário. Em
+sucesso, cria a sessão e responde `303` para `${FRONTEND_URL}/auth/callback`. O
+front-end consulta `/auth/me`; nenhuma credencial ou dado pessoal é colocado na URL.
+
+Credencial inválida ou e-mail não verificado redirecionam com um código de erro
+seguro no parâmetro `error`. CSRF ausente ou divergente responde `403` sem criar
+sessão e sem redirecionar.
+
 ### `GET /api/v1/auth/me`
 
 Exige sessão válida. Responde `200` com o mesmo objeto `{ "user": ... }` do login.
@@ -81,7 +99,8 @@ corpo. Sessão ausente responde `401`.
   de inatividade de um dia.
 - Cookie `HttpOnly`, `SameSite=Lax`, `Path=/` e `Secure` em produção.
 - Requisições mutáveis do navegador são aceitas somente da origem configurada em
-  `FRONTEND_URL` ou da própria API.
+  `FRONTEND_URL` ou da própria API, exceto o callback dedicado do Google, protegido
+  pelo double-submit de `g_csrf_token`.
 - CORS permite credenciais apenas para `FRONTEND_URL`.
 
 ## Criação de documento

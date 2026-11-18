@@ -23,6 +23,7 @@ módulo. Não crie ADR para detalhes locais facilmente alteráveis.
 | -------------------------------------------------------- | ------ | -------------------------------------------- |
 | [`ADR-0001`](0001-google-id-token-and-server-session.md) | Aceita | Google ID token e sessão própria no servidor |
 | [`ADR-0002`](0002-docker-development-environment.md)     | Aceita | Ambiente Docker para API e PostgreSQL        |
+| [`ADR-0003`](0003-google-sign-in-redirect.md)            | Aceita | Google Sign-In na mesma aba                  |
 
 ## Primeiras ADRs candidatas
 

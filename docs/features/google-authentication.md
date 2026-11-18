@@ -1,6 +1,6 @@
 ---
 title: Autenticação com conta Google
-status: implemented
+status: in_progress
 last_updated: 2026-11-18
 feature_id: FEAT-002
 requirements:
@@ -22,6 +22,7 @@ pelo back-end.
 ### Incluído
 
 - Receber um Google ID token obtido pelo front-end com Google Identity Services.
+- Receber a mesma credencial pelo callback de redirecionamento do Google.
 - Validar assinatura, emissor, audiência, validade e e-mail verificado do token.
 - Criar ou atualizar o perfil local identificado de forma estável pelo `sub`.
 - Criar uma sessão opaca em cookie seguro e disponibilizar o usuário autenticado.
@@ -48,8 +49,9 @@ pelo back-end.
 
 ## Fluxo principal
 
-1. O front-end obtém um ID token pelo Google Identity Services.
-2. Envia a credencial para `POST /api/v1/auth/google`.
+1. O front-end inicia o Google Identity Services em modo popup ou redirect.
+2. No modo popup, envia a credencial JSON para `POST /api/v1/auth/google`; no modo
+   redirect, o Google envia um formulário para `POST /api/v1/auth/google/callback`.
 3. O back-end valida a credencial diretamente com a biblioteca oficial do Google.
 4. O back-end cria ou atualiza o usuário local usando `sub` como identidade externa.
 5. O back-end cria uma sessão opaca e envia seu identificador em cookie `HttpOnly`.
@@ -67,6 +69,10 @@ pelo back-end.
 - `AUTH-RULE-005` - A credencial Google nunca é persistida nem escrita em logs.
 - `AUTH-RULE-006` - Sessões são armazenadas somente em memória até `FEAT-003` e a
   aplicação recusa inicialização em produção nessa condição.
+- `AUTH-RULE-007` - O callback de redirecionamento exige que o `g_csrf_token` do
+  cookie e do formulário sejam não vazios e idênticos.
+- `AUTH-RULE-008` - O retorno do callback usa somente a origem configurada no
+  back-end e nunca inclui a credencial Google na URL.
 
 ## Estados e erros
 
@@ -77,6 +83,8 @@ pelo back-end.
 | E-mail Google não verificado                      | Não criar usuário nem sessão       | `403`         |
 | Sessão ausente ou inválida                        | Não expor dados de usuário         | `401`         |
 | Login válido                                      | Criar sessão e retornar perfil     | `200`         |
+| Callback válido                                   | Criar sessão e voltar ao front-end | `303`         |
+| CSRF ausente ou divergente no callback            | Não validar nem criar sessão       | `403`         |
 | Logout válido                                     | Revogar a sessão e limpar o cookie | `204`         |
 
 ## Contratos afetados
@@ -90,6 +98,8 @@ pelo back-end.
 - A sessão usa identificador aleatório opaco; somente seu hash é armazenado.
 - O cookie é `HttpOnly`, `SameSite=Lax` e `Secure` em produção.
 - Login e demais requisições mutáveis validam uma origem confiável.
+- O callback externo valida o double-submit cookie definido pelo Google antes de
+  processar a credencial.
 - Nenhum token, cookie, conteúdo de documento ou dado pessoal é registrado em logs.
 - O perfil retornado contém somente os atributos necessários à interface.
 
@@ -106,6 +116,10 @@ pelo back-end.
 - [x] Dado um logout válido, quando a sessão é reutilizada, então o acesso é negado.
 - [x] Dada uma execução de produção sem armazenamento persistente de sessões, quando
       a aplicação inicia, então a configuração é rejeitada.
+- [ ] Dado um callback com cookie e campo CSRF correspondentes, quando a credencial
+      é válida, então a sessão é criada e o navegador retorna ao front-end.
+- [ ] Dado um callback sem prova CSRF válida, quando o login é solicitado, então a
+      resposta é `403` e nenhuma sessão é criada.
 
 ## Estratégia de teste
 
@@ -129,4 +143,5 @@ pelo back-end.
 - Testes: `npm run lint`, `npm test` (7 testes), `npm run test:e2e` (4 testes),
   `npm run build` e inicialização de produção sem `SessionStore`, todos validados em
   2026-11-18; a última falhou de forma segura como especificado.
-- ADRs: [`ADR-0001`](../architecture/decisions/0001-google-id-token-and-server-session.md).
+- ADRs: [`ADR-0001`](../architecture/decisions/0001-google-id-token-and-server-session.md)
+  e [`ADR-0003`](../architecture/decisions/0003-google-sign-in-redirect.md).

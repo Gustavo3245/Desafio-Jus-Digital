@@ -38,6 +38,8 @@ last_updated: 2026-11-18
   público.
 - Proteção de origem do NestJS cobre login CSRF e requisições mutáveis; CORS não é
   tratado como substituto dessa proteção.
+- O callback de Google redirect é a única exceção de rota e exige a igualdade entre
+  o cookie e o campo `g_csrf_token` antes de validar a credencial.
 - A aplicação recusa produção com armazenamento de sessão em memória.
 
 ## Checklist de revisão
