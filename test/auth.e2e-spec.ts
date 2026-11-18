@@ -159,6 +159,31 @@ describe('Google authentication (e2e)', () => {
     await agent.get('/api/v1/auth/me').expect(HttpStatus.UNAUTHORIZED);
   });
 
+  it('returns a safe error for an unverified Google email', async () => {
+    verifyIdToken.mockResolvedValueOnce(
+      new LoginTicket('', { ...verifiedPayload, email_verified: false }),
+    );
+    const csrfToken = 'google-csrf-token';
+
+    const response = await agent
+      .post('/api/v1/auth/google/callback')
+      .set('Origin', googleOrigin)
+      .set('Sec-Fetch-Site', 'cross-site')
+      .set('Cookie', `g_csrf_token=${csrfToken}`)
+      .type('form')
+      .send({
+        credential: 'google-id-token',
+        g_csrf_token: csrfToken,
+      })
+      .expect(HttpStatus.SEE_OTHER);
+
+    expect(response.headers.location).toBe(
+      `${frontendAuthCallback}?error=google_email_not_verified`,
+    );
+    expect(response.headers['set-cookie']).toBeUndefined();
+    await agent.get('/api/v1/auth/me').expect(HttpStatus.UNAUTHORIZED);
+  });
+
   it('rejects a redirect callback from an untrusted origin', async () => {
     const csrfToken = 'google-csrf-token';
 
