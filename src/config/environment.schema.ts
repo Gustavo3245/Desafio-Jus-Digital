@@ -12,6 +12,8 @@ export const environmentSchema = z
       protocol: /^postgres(ql)?$/,
       error: 'DATABASE_URL must be a valid PostgreSQL connection URL',
     }),
+    OPENAI_API_KEY: z.string().trim().min(1, 'OPENAI_API_KEY is required'),
+    OPENAI_MODEL: z.string().trim().min(1).default('gpt-4o-mini'),
     AWS_REGION: z.string().trim().min(1).default('us-east-1'),
     AWS_S3_BUCKET: z.string().trim().min(1, 'AWS_S3_BUCKET is required'),
     AWS_ACCESS_KEY_ID: z.string().trim().optional(),
