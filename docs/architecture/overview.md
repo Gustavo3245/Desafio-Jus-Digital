@@ -1,7 +1,7 @@
 ---
 title: Visão geral da arquitetura
 status: draft
-last_updated: 2026-11-16
+last_updated: 2026-11-18
 ---
 
 # Visão geral da arquitetura
@@ -36,6 +36,18 @@ front-end ou o back-end para outro repositório sem alterar os contratos públic
 A ordem exata e a compensação em falhas devem ser decididas em ADR antes da
 implementação, principalmente para evitar arquivos órfãos ou registros sem arquivo.
 
+## Fluxo de autenticação
+
+1. O front-end obtém um Google ID token com Google Identity Services.
+2. A API valida o token para o Client ID configurado e exige e-mail verificado.
+3. O módulo de usuários cria ou atualiza o perfil identificado pelo `sub` do Google.
+4. A API emite uma sessão opaca em cookie `HttpOnly`.
+5. O guard global exige a sessão por padrão; somente rotas explicitamente públicas
+   são anônimas.
+
+A estratégia e seus trade-offs estão registrados na
+[`ADR-0001`](decisions/0001-google-id-token-and-server-session.md).
+
 ## Limites obrigatórios
 
 - O front-end nunca recebe credenciais privadas da AWS ou OpenAI.
@@ -66,7 +78,6 @@ uso concreto.
 ## Decisões pendentes
 
 - ORM e estratégia de migrations.
-- Sessão em cookie ou token de acesso.
 - Processamento síncrono ou assíncrono da análise.
 - Estratégia de compensação entre banco, S3 e OpenAI.
 - Provedor de hospedagem e configuração de produção.

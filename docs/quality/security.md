@@ -1,7 +1,7 @@
 ---
 title: Segurança
 status: accepted
-last_updated: 2026-11-16
+last_updated: 2026-11-18
 ---
 
 # Segurança
@@ -26,6 +26,19 @@ last_updated: 2026-11-16
 | Vazamento em logs   | Redação e logs estruturados sem payload sensível               |
 | Abuso da OpenAI     | Limites, timeout e controle por usuário                        |
 | Segredo no Git      | `.gitignore`, `.env.example` e revisão antes do commit         |
+
+## Controles de autenticação implementados
+
+- Google ID tokens são validados no back-end para assinatura, emissor, audiência e
+  expiração; `sub` é a identidade externa canônica.
+- A credencial Google não é persistida e não aparece em logs.
+- Sessões usam tokens opacos aleatórios, armazenados somente como hash.
+- Cookies são `HttpOnly`, `SameSite=Lax`, `Path=/` e `Secure` em produção.
+- O guard global protege rotas por padrão e exige marcação explícita para acesso
+  público.
+- Proteção de origem do NestJS cobre login CSRF e requisições mutáveis; CORS não é
+  tratado como substituto dessa proteção.
+- A aplicação recusa produção com armazenamento de sessão em memória.
 
 ## Checklist de revisão
 

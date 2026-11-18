@@ -1,7 +1,7 @@
 ---
 title: Integrações externas
 status: draft
-last_updated: 2026-11-16
+last_updated: 2026-11-18
 ---
 
 # Integrações externas
@@ -12,10 +12,15 @@ validada na inicialização e traduzir erros externos para erros do domínio.
 ## Google OAuth
 
 - O front-end obtém a credencial com Google Identity Services.
-- O back-end valida assinatura, emissor, audiência e expiração.
+- O front-end envia o ID token uma única vez em `POST /api/v1/auth/google`.
+- O back-end usa `google-auth-library` para validar assinatura, emissores Google,
+  audiência configurada e expiração.
 - O identificador estável da conta é `sub`; e-mail não é chave primária.
+- Somente contas com `email_verified = true` são aceitas.
 - O sistema cria ou atualiza o perfil e emite sua própria sessão.
+- A credencial recebida nunca é persistida ou registrada em logs.
 - `GOOGLE_CLIENT_ID` é configuração; nenhum segredo Google vai para o repositório.
+- Decisão completa: [`ADR-0001`](../architecture/decisions/0001-google-id-token-and-server-session.md).
 
 ## AWS S3
 
@@ -38,15 +43,16 @@ validada na inicialização e traduzir erros externos para erros do domínio.
 ## Variáveis previstas
 
 ```dotenv
-DATABASE_URL=
+NODE_ENV=development
+PORT=3000
+FRONTEND_URL=http://localhost:5173
 GOOGLE_CLIENT_ID=
+DATABASE_URL=
 OPENAI_API_KEY=
 AWS_REGION=
 AWS_S3_BUCKET=
 AWS_ACCESS_KEY_ID=
 AWS_SECRET_ACCESS_KEY=
-SESSION_SECRET=
-FRONTEND_URL=
 ```
 
 O `.env.example` deve conter apenas nomes e exemplos não secretos. Em produção,

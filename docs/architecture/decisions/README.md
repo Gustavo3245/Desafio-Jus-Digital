@@ -1,7 +1,7 @@
 ---
 title: Registro de decisões arquiteturais
 status: accepted
-last_updated: 2026-11-16
+last_updated: 2026-11-18
 ---
 
 # Decisões arquiteturais
@@ -19,13 +19,12 @@ módulo. Não crie ADR para detalhes locais facilmente alteráveis.
 
 ## Índice
 
-| ADR | Estado | Decisão                          |
-| --- | ------ | -------------------------------- |
-| -   | -      | Nenhuma decisão registrada ainda |
+| ADR                                                      | Estado | Decisão                                      |
+| -------------------------------------------------------- | ------ | -------------------------------------------- |
+| [`ADR-0001`](0001-google-id-token-and-server-session.md) | Aceita | Google ID token e sessão própria no servidor |
 
 ## Primeiras ADRs candidatas
 
 - ORM e migrations.
-- Estratégia de sessão após Google OAuth.
 - Pipeline e compensação de upload/análise.
 - Exclusão consistente no banco e S3.
