@@ -14,6 +14,7 @@ import {
   GOOGLE_TOKEN_VERIFIER,
   type GoogleTokenVerifier,
 } from './google/google-token-verifier.js';
+import { PostgresSessionStore } from './postgres-session.store.js';
 import { SessionAuthProvider } from './session-auth.provider.js';
 
 @Module({
@@ -51,6 +52,7 @@ import { SessionAuthProvider } from './session-auth.provider.js';
     GoogleAuthRedirectService,
     GoogleCsrfService,
     GoogleIdentityService,
+    PostgresSessionStore,
     SessionAuthProvider,
     {
       provide: GOOGLE_TOKEN_VERIFIER,
