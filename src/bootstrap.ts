@@ -1,4 +1,5 @@
 import {
+  RequestMethod,
   StandardSchemaValidationPipe,
   type INestApplication,
 } from '@nestjs/common';
@@ -11,7 +12,15 @@ export function configureApplication(app: INestApplication): void {
 
   app.setGlobalPrefix('api/v1');
   app.enableCors({ origin: frontendUrl, credentials: true });
-  app.enableCsrfProtection({ trustedOrigins: [frontendUrl] });
+  app.enableCsrfProtection({
+    trustedOrigins: [frontendUrl],
+    exclude: [
+      {
+        path: 'auth/google/callback',
+        method: RequestMethod.POST,
+      },
+    ],
+  });
   app.useSecurityHeaders();
   app.useGlobalPipes(new StandardSchemaValidationPipe());
 }
