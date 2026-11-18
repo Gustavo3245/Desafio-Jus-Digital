@@ -1,6 +1,6 @@
 ---
 title: Persistência de usuários, sessões e documentos em PostgreSQL
-status: in_progress
+status: implemented
 last_updated: 2026-11-18
 feature_id: FEAT-003
 requirements:
@@ -127,20 +127,20 @@ operações de leitura e exclusão (`FEAT-006`).
 
 ## Critérios de aceitação
 
-- [ ] Dada uma configuração sem `DATABASE_URL` válida (fora do fallback controlado de
+- [x] Dada uma configuração sem `DATABASE_URL` válida (fora do fallback controlado de
       teste), quando o ambiente é validado, então a inicialização falha.
-- [ ] Dado um banco PostgreSQL limpo, quando as migrations são executadas, então as
+- [x] Dado um banco PostgreSQL limpo, quando as migrations são executadas, então as
       tabelas `users`, `sessions` e `documents` e suas constraints são criadas.
-- [ ] Dado um perfil Google novo ou existente, quando `upsertGoogleProfile` é chamado
+- [x] Dado um perfil Google novo ou existente, quando `upsertGoogleProfile` é chamado
       no `PostgresUsersRepository`, então o usuário é persistido ou atualizado
       preservando seu `id`.
-- [ ] Dado o `PostgresSessionStore`, quando a suíte `authenticationStoreContract`
+- [x] Dado o `PostgresSessionStore`, quando a suíte `authenticationStoreContract`
       (`concurrent: true`) é executada contra o PostgreSQL, então todos os casos do
       contrato `sessions` passam.
-- [ ] Dados dois usuários distintos no `PostgresDocumentsRepository`, quando um
+- [x] Dados dois usuários distintos no `PostgresDocumentsRepository`, quando um
       usuário tenta ler, atualizar ou excluir um documento do outro, então a operação
       não afeta o registro alheio e retorna ausente (`null` ou `false`).
-- [ ] Dado um documento em `processing`, quando transicionado para `completed` com
+- [x] Dado um documento em `processing`, quando transicionado para `completed` com
       análise ou `failed` com código de falha, então o estado e os carimbos de tempo
       são persistidos corretamente.
 
@@ -149,8 +149,8 @@ operações de leitura e exclusão (`FEAT-006`).
 - Unitário: `InMemoryUsersRepository`, `InMemoryDocumentsRepository` e validações de
   schema de configuração e invariantes de domínio.
 - Integração: `PostgresUsersRepository`, `PostgresSessionStore` (com
-  `authenticationStoreContract`) e `PostgresDocumentsRepository` executados contra o
-  PostgreSQL.
+  `authenticationStoreContract`), `PostgresDocumentsRepository` e jornada HTTP
+  completa de autenticação Google (popup e redirect) executados contra o PostgreSQL.
 - E2E: suíte HTTP de autenticação (`test/auth.e2e-spec.ts`) validando que os fluxos
   da API continuam íntegros.
 
@@ -166,8 +166,11 @@ operações de leitura e exclusão (`FEAT-006`).
 
 ## Evidência de implementação
 
-Preencher somente ao mudar o estado para `implemented`.
-
-- Código: pendente.
-- Testes: pendente.
+- Código: `src/database/`, `src/users/postgres-users.repository.ts`,
+  `src/auth/postgres-session.store.ts`, `src/documents/`, `drizzle/` e
+  `drizzle.config.ts`.
+- Testes: `npm run lint` (0 avisos/erros), `npm test` (18 testes unitários),
+  `npm run test:integration` (14 testes contra PostgreSQL, incluindo
+  `authenticationStoreContract` concorrente e jornada HTTP Google Auth + PostgreSQL),
+  `npm run test:e2e` (10 testes E2E HTTP) e `npm run build`, validados em 2026-11-18.
 - ADRs: [`ADR-0004`](../architecture/decisions/0004-drizzle-orm-and-postgres-persistence.md).

@@ -26,7 +26,7 @@ A persistência relacional em PostgreSQL segue as decisões da
 | Campo          | Regra                                                       |
 | -------------- | ----------------------------------------------------------- |
 | `id`           | Hash SHA-256 do token opaco; o token bruto não é salvo      |
-| `userId`       | Proprietário da sessão; chave estrangeira para `User`       |
+| `userId`       | Identificador do usuário proprietário da sessão (indexado)  |
 | `createdAt`    | Data de criação da sessão                                   |
 | `expiresAt`    | Expiração absoluta; nunca estendida por atividade           |
 | `lastActiveAt` | Última atividade registrada para timeout de inatividade     |
@@ -54,7 +54,8 @@ A persistência relacional em PostgreSQL segue as decisões da
 ## Relações e invariantes
 
 - Um usuário possui zero ou muitas sessões e zero ou muitos documentos.
-- A exclusão de um usuário remove suas sessões e documentos em cascata.
+- A exclusão de um usuário remove seus documentos em cascata no banco; sessões são
+  gerenciadas pelo contrato `SessionStore` (`deleteUserSessions`).
 - `googleSub` é único.
 - `storageKey` é única e não deriva somente do nome original.
 - `analysis` é obrigatória quando `status = completed`.

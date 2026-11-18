@@ -6,9 +6,11 @@ desenvolvido como desafio técnico FullStack.
 ## Estado atual
 
 O back-end NestJS está na raiz do repositório. A autenticação Google está
-implementada com validação do ID token no servidor e sessão opaca em cookie. Usuários
-e sessões permanecem em memória até a implementação da persistência PostgreSQL. O
-ambiente Docker já fornece a API e PostgreSQL para desenvolvimento e testes.
+implementada com validação do ID token no servidor e sessão opaca em cookie. A
+persistência em PostgreSQL (`users`, `sessions` e `documents`) está implementada com
+Drizzle ORM e migrations SQL versionadas, mantendo adaptadores em memória para a
+execução rápida de testes unitários e E2E HTTP. O ambiente Docker fornece a API e
+PostgreSQL para desenvolvimento e testes.
 
 ## Requisitos
 
@@ -67,8 +69,12 @@ npm run docker:down
 `docker:down` preserva os volumes. Para apagar deliberadamente todos os dados locais,
 use `docker compose down --volumes`; essa ação não pode ser desfeita.
 
-O Compose disponibiliza `DATABASE_URL` à API, mas ainda não existem ORM, migrations
-ou tabelas da aplicação. Essa conexão será implementada em `FEAT-003`.
+Para gerar ou aplicar migrations SQL do Drizzle no PostgreSQL local:
+
+```bash
+npm run db:generate
+npm run db:migrate
+```
 
 ## Autenticação
 
@@ -96,6 +102,7 @@ dispositivo.
 ```bash
 npm run lint
 npm test
+npm run test:integration
 npm run test:e2e
 npm run build
 ```

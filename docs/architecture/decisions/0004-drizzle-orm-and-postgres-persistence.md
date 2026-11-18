@@ -83,7 +83,7 @@ adaptadores em memória quando configurados para testes sem banco, enquanto a su
 
 - Entidades de domínio (`User`, `Document`) permanecem interfaces TypeScript puras.
 - Invariantes críticas (`google_sub` único, `storage_key` única, `analysis` obrigatória
-  quando `status = 'completed'`, chaves estrangeiras e deleção em cascata de sessões)
+  quando `status = 'completed'`, chave estrangeira e deleção em cascata de documentos)
   são garantidas tanto na aplicação quanto no PostgreSQL.
 - `NODE_ENV=production` passa a contar com armazenamento persistente compartilhado
   para sessões e usuários.

@@ -38,6 +38,7 @@ sem valor contratual.
 
 ```bash
 npm test
+npm run test:integration
 npm run test:e2e
 npm run test:cov
 npm run lint
@@ -50,12 +51,15 @@ No ambiente Docker:
 npm run docker:up
 npm run docker:test
 docker compose exec api npm run lint
+docker compose exec api npm run test:integration
 docker compose exec api npm run test:e2e
 docker compose exec api npm run build
 ```
 
-Testes de integração com PostgreSQL devem usar o serviço `postgres`, mas migrations e
-dados de teste precisam ser explícitos e isolados quando `FEAT-003` for implementada.
+A suíte `npm run test:integration` aplica as migrations SQL do Drizzle contra o
+serviço `postgres`, limpa as tabelas entre cada caso e valida os repositórios
+PostgreSQL, o contrato oficial `authenticationStoreContract` (`concurrent: true`) e
+a jornada HTTP completa de autenticação Google com persistência no banco.
 
 ## Regras
 
