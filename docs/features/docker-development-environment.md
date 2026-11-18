@@ -1,6 +1,6 @@
 ---
 title: Ambiente Docker de desenvolvimento
-status: in_progress
+status: implemented
 last_updated: 2026-11-18
 feature_id: FEAT-001
 requirements:
@@ -89,12 +89,12 @@ depender de instalações locais além do Docker.
 
 ## Critérios de aceitação
 
-- [ ] A imagem final do back-end é construída a partir de um checkout limpo.
-- [ ] `docker compose config` valida a composição sem avisos de sintaxe.
-- [ ] PostgreSQL fica saudável e preserva dados no volume nomeado.
-- [ ] A API fica saudável em `/api/v1/health` após o banco.
-- [ ] Testes e build podem ser executados no serviço da API.
-- [ ] Nenhuma migration ou tabela da aplicação é criada.
+- [x] A imagem final do back-end é construída a partir de um checkout limpo.
+- [x] `docker compose config` valida a composição sem avisos de sintaxe.
+- [x] PostgreSQL fica saudável e preserva dados no volume nomeado.
+- [x] A API fica saudável em `/api/v1/health` após o banco.
+- [x] Testes e build podem ser executados no serviço da API.
+- [x] Nenhuma migration ou tabela da aplicação é criada.
 
 ## Estratégia de teste
 
@@ -113,8 +113,10 @@ depender de instalações locais além do Docker.
 
 ## Evidência de implementação
 
-Preencher somente ao mudar o estado para `implemented`.
-
-- Código: pendente.
-- Testes: pendente.
+- Código: `Dockerfile`, `.dockerignore`, `compose.yaml`, `.env.example` e scripts
+  `docker:*` em `package.json`.
+- Testes: imagem `runtime` construída; usuário e conteúdo inspecionados;
+  `docker compose config`; API e PostgreSQL saudáveis; endpoint de saúde aprovado;
+  cluster PostgreSQL preservado após reinício; zero tabelas de aplicação; lint, build,
+  7 testes unitários e 4 testes E2E aprovados dentro do container em 2026-11-18.
 - ADRs: [`ADR-0002`](../architecture/decisions/0002-docker-development-environment.md).

@@ -48,6 +48,16 @@ implementação, principalmente para evitar arquivos órfãos ou registros sem a
 A estratégia e seus trade-offs estão registrados na
 [`ADR-0001`](decisions/0001-google-id-token-and-server-session.md).
 
+## Ambiente local
+
+Docker Compose orquestra a API em modo de desenvolvimento e PostgreSQL. O banco usa
+volume nomeado e health check; a API somente inicia depois de o banco ficar saudável.
+`DATABASE_URL` já é entregue ao container, mas nenhum módulo usa a conexão antes da
+decisão de ORM e migrations em `FEAT-003`.
+
+As versões, estágios da imagem e limites desse ambiente estão registrados na
+[`ADR-0002`](decisions/0002-docker-development-environment.md).
+
 ## Limites obrigatórios
 
 - O front-end nunca recebe credenciais privadas da AWS ou OpenAI.

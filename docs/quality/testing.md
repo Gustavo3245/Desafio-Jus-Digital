@@ -1,7 +1,7 @@
 ---
 title: Estratégia de testes
 status: accepted
-last_updated: 2026-11-16
+last_updated: 2026-11-18
 ---
 
 # Estratégia de testes
@@ -43,6 +43,19 @@ npm run test:cov
 npm run lint
 npm run build
 ```
+
+No ambiente Docker:
+
+```bash
+npm run docker:up
+npm run docker:test
+docker compose exec api npm run lint
+docker compose exec api npm run test:e2e
+docker compose exec api npm run build
+```
+
+Testes de integração com PostgreSQL devem usar o serviço `postgres`, mas migrations e
+dados de teste precisam ser explícitos e isolados quando `FEAT-003` for implementada.
 
 ## Regras
 
