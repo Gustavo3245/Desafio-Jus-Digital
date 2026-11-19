@@ -1,7 +1,7 @@
 ---
 title: Registro de decisões arquiteturais
 status: accepted
-last_updated: 2026-11-18
+last_updated: 2026-11-19
 ---
 
 # Decisões arquiteturais
@@ -27,6 +27,7 @@ módulo. Não crie ADR para detalhes locais facilmente alteráveis.
 | [`ADR-0004`](0004-drizzle-orm-and-postgres-persistence.md) | Aceita | Drizzle ORM e persistência PostgreSQL                   |
 | [`ADR-0005`](0005-s3-storage-and-upload-compensation.md)   | Aceita | Armazenamento privado no AWS S3 e compensação no upload |
 | [`ADR-0006`](0006-synchronous-openai-document-analysis.md) | Aceita | Análise síncrona com OpenAI Responses API               |
+| [`ADR-0007`](0007-react-vite-colocated-frontend.md)        | Aceita | React e Vite em pacote independente `frontend/`         |
 
 ## Primeiras ADRs candidatas
 

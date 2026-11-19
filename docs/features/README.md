@@ -21,6 +21,7 @@ Cada funcionalidade relevante possui uma especificação em
 | [`FEAT-005`](openai-document-analysis.md)       | Análise com OpenAI                    | Implementada |
 | [`FEAT-006`](document-history-and-reading.md)   | Histórico, listagem e leitura         | Implementada |
 | `FEAT-007`                                      | Download e exclusão                   | Não iniciada |
+| [`FEAT-008`](frontend-authentication.md)        | Front-end de autenticação e conta     | Em andamento |
 
 Crie a spec imediatamente antes de trabalhar na funcionalidade, evitando detalhar
 todo o sistema com suposições que ainda não foram validadas.

@@ -8,9 +8,10 @@ last_updated: 2026-11-18
 
 ## Direção
 
-O sistema será uma aplicação web com front-end e back-end independentes. Neste
-repositório, o back-end NestJS está na raiz. Essa organização permite mover o
-front-end ou o back-end para outro repositório sem alterar os contratos públicos.
+O sistema é uma aplicação web com front-end e back-end independentes. Neste
+repositório, o back-end NestJS permanece na raiz e o front-end React fica em
+`frontend/`, com manifesto, dependências e build próprios. Essa organização permite
+mover qualquer pacote para outro repositório sem alterar os contratos públicos.
 
 ## Componentes
 
@@ -91,6 +92,20 @@ src/
 
 Crie módulos apenas quando houver funcionalidade real; não antecipe abstrações sem
 uso concreto.
+
+O front-end organiza código por módulo de produto e mantém tokens compartilhados:
+
+```text
+frontend/src/
+├── app/
+├── modules/
+│   └── auth/
+├── shared/
+└── styles/
+```
+
+A decisão está registrada na
+[`ADR-0007`](decisions/0007-react-vite-colocated-frontend.md).
 
 ## Decisões pendentes
 

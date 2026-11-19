@@ -32,6 +32,8 @@ esta prática com Domain-Driven Design, também conhecido como DDD.
 | Processo com agentes e skills | [`workflow/agent-development.md`](workflow/agent-development.md)           |
 | Catálogo de skills            | [`skills/README.md`](skills/README.md)                                     |
 | Design do aplicativo          | [`skills/application-design/SKILL.md`](skills/application-design/SKILL.md) |
+| Fundações visuais             | [`design/foundations.md`](design/foundations.md)                           |
+| Telas de autenticação         | [`design/authentication.md`](design/authentication.md)                     |
 | Padrão editorial              | [`standards.md`](standards.md)                                             |
 
 ## Ciclo de uma funcionalidade
