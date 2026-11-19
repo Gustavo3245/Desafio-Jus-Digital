@@ -1,6 +1,6 @@
 ---
 title: Autenticação com conta Google
-status: in_progress
+status: implemented
 last_updated: 2026-11-19
 feature_id: FEAT-002
 requirements:
@@ -90,7 +90,7 @@ pelo back-end.
 | CSRF ausente ou divergente no callback            | Não validar nem criar sessão       | `403`         |
 | Logout válido                                     | Revogar a sessão e limpar o cookie | `204`         |
 | Página manual aberta diretamente como arquivo     | Orientar abertura pelo Vite        | Erro local    |
-| API ou SDK Google sem resposta                    | Encerrar espera e orientar correção| Erro local    |
+| API ou SDK Google sem resposta                    | Encerrar espera e orientar correção | Erro local    |
 
 ## Contratos afetados
 
@@ -125,7 +125,7 @@ pelo back-end.
       é válida, então a sessão é criada e o navegador retorna ao front-end.
 - [x] Dado um callback sem prova CSRF válida, quando o login é solicitado, então a
       resposta é `403` e nenhuma sessão é criada.
-- [ ] Dada a página manual aberta incorretamente ou uma dependência sem resposta,
+- [x] Dada a página manual aberta incorretamente ou uma dependência sem resposta,
       quando a verificação inicial ocorre, então o estado deixa de ser `Verificando`
       e apresenta uma orientação acionável.
 
@@ -152,5 +152,10 @@ pelo back-end.
 - Testes: `npm run lint`, `npm test` (12 testes), `npm run test:e2e` (10 testes) e
   `npm run build`, validados em 2026-11-18. O callback também foi exercitado na API
   Docker para redirecionamento seguro e rejeição de CSRF.
+- Correção do cliente manual validada em 2026-11-19: abertura por `file://` apresenta
+  o endereço correto; a página servida encerra a consulta de sessão e renderiza o
+  botão Google; chamadas à API e carregamento do SDK possuem timeout de 10 segundos.
+  Lint, build do Nest e do Vite, 40 testes unitários, 14 de integração e 19 E2E
+  aprovados.
 - ADRs: [`ADR-0001`](../architecture/decisions/0001-google-id-token-and-server-session.md)
   e [`ADR-0003`](../architecture/decisions/0003-google-sign-in-redirect.md).

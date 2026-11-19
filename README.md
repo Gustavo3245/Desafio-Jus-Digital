@@ -149,6 +149,10 @@ Abra `http://localhost:5173`, entre com o Google, selecione um documento e envie
 pergunta. A página exibe somente o resultado retornado pela API; a chave da OpenAI
 continua restrita ao back-end.
 
+Não abra `tools/manual-test/index.html` diretamente como `file://`: essa forma não
+recebe do Vite o Client ID do Google nem o endereço da API. Se a API ou o SDK Google
+não responder, a página encerra a verificação após 10 segundos e informa a causa.
+
 ## Verificação
 
 ```bash
