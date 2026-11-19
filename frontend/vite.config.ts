@@ -5,7 +5,10 @@ import { defineConfig, loadEnv } from 'vite';
 const repositoryRoot = resolve(import.meta.dirname, '..');
 
 export default defineConfig(({ mode }) => {
-  const environment = loadEnv(mode, repositoryRoot, '');
+  const environment = {
+    ...loadEnv(mode, repositoryRoot, ''),
+    ...process.env,
+  };
 
   return {
     envDir: repositoryRoot,

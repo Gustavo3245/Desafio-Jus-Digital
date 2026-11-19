@@ -1,6 +1,23 @@
 name: jusdigital
 
 services:
+  frontend:
+    build:
+      context: ./frontend
+    init: true
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:3000/api/v1}
+      VITE_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-local-development-client-id}
+    ports:
+      - '${FRONTEND_PORT:-5173}:5173'
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+    depends_on:
+      api:
+        condition: service_healthy
+        restart: true
+
   api:
     build:
       context: .
@@ -60,5 +77,6 @@ services:
     stop_grace_period: 30s
 
 volumes:
+  frontend_node_modules:
   api_node_modules:
   postgres_data:

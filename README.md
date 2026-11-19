@@ -13,7 +13,8 @@ valida tamanho e assinatura binária (`.pdf`, `.docx`, `.doc`, `.txt`), armazena
 arquivo original de forma privada no AWS S3 e registra os metadados no PostgreSQL com
 compensação automática. O mesmo fluxo envia o documento e a instrução à OpenAI,
 persiste uma resposta textual válida e registra falhas sem marcar o documento como
-concluído. O ambiente Docker fornece a API e PostgreSQL para desenvolvimento e testes.
+concluído. O ambiente Docker fornece front-end, API e PostgreSQL para desenvolvimento
+e testes.
 
 ## Requisitos
 
@@ -38,9 +39,18 @@ Preencha `GOOGLE_CLIENT_ID` com o Client ID Web configurado no Google Cloud e aj
 chave ativa mantida somente no `.env`; não reutilize nem registre credenciais expostas.
 A API fica disponível por padrão em `http://localhost:3000/api/v1`.
 
+Em outro terminal, instale e execute o front-end React:
+
+```bash
+npm run frontend:install
+npm run frontend:dev
+```
+
+O aplicativo fica disponível em `http://localhost:5173`.
+
 ## Ambiente Docker
 
-Crie a configuração local e suba os dois serviços:
+Crie a configuração local e suba os três serviços:
 
 ```bash
 cp .env.example .env
@@ -48,13 +58,15 @@ npm run docker:up
 npm run docker:ps
 ```
 
+- Front-end: `http://localhost:5173`.
 - API: `http://localhost:3000/api/v1`.
 - PostgreSQL no host: `localhost:5433`.
 - PostgreSQL entre containers: `postgres:5432`.
 - Banco, usuário e senha locais: `jusdigital`.
 
-O código-fonte é montado no container e o NestJS executa com hot reload. Depois de
-alterar dependências, sincronize o volume de `node_modules` com a API parada:
+Os dois códigos-fonte são montados nos containers e Vite e NestJS executam com hot
+reload. Depois de alterar dependências do back-end, sincronize o volume de
+`node_modules` com a API parada:
 
 ```bash
 docker compose stop api
