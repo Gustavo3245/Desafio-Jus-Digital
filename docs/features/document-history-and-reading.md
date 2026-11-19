@@ -1,6 +1,6 @@
 ---
 title: Histórico e leitura de documentos do usuário
-status: in_progress
+status: implemented
 last_updated: 2026-11-19
 feature_id: FEAT-006
 requirements:
@@ -87,13 +87,13 @@ ou a existência de documentos pertencentes a outra pessoa.
 
 ## Critérios de aceitação
 
-- [ ] Dado um usuário com documentos, quando solicita a listagem, então recebe somente
+- [x] Dado um usuário com documentos, quando solicita a listagem, então recebe somente
       seus documentos em ordem decrescente, sem `storageKey` ou `userId`.
-- [ ] Dado um documento próprio, quando solicita por ID, então recebe pergunta e
+- [x] Dado um documento próprio, quando solicita por ID, então recebe pergunta e
       análise persistidas.
-- [ ] Dado logout seguido de novo login da mesma conta, quando solicita a listagem,
+- [x] Dado logout seguido de novo login da mesma conta, quando solicita a listagem,
       então o histórico anterior continua disponível.
-- [ ] Dado outro usuário, quando tenta listar ou abrir, então não recebe documentos do
+- [x] Dado outro usuário, quando tenta listar ou abrir, então não recebe documentos do
       proprietário nem confirma sua existência.
 
 ## Estratégia de teste
@@ -113,4 +113,9 @@ ou a existência de documentos pertencentes a outra pessoa.
 
 ## Evidência de implementação
 
-Preencher somente ao mudar o estado para `implemented`.
+- `DocumentsService` consulta o repositório sempre com o `userId` derivado da sessão.
+- `GET /api/v1/documents` lista o histórico e `GET /api/v1/documents/{id}` recupera
+  um documento próprio sem expor a chave do S3.
+- A página manual carrega o histórico após login e upload e permite abrir a análise.
+- Verificação em 2026-11-19: lint e build aprovados; 40 testes unitários, 14 testes de
+  integração com PostgreSQL e 19 testes E2E aprovados.
