@@ -1,4 +1,4 @@
-import { LockKeyhole, ShieldCheck, Sparkles } from 'lucide-react';
+import { FileCheck2, LockKeyhole, ShieldCheck } from 'lucide-react';
 import { Brand } from '../../shared/Brand.js';
 import { GoogleSignInButton } from './GoogleSignInButton.js';
 
@@ -9,45 +9,36 @@ interface LoginPageProps {
 
 export function LoginPage({ errorMessage, onRetry }: LoginPageProps) {
   return (
-    <main className="login-layout">
-      <section className="login-story" aria-labelledby="login-story-title">
+    <main className="auth-layout">
+      <aside className="auth-sidebar" aria-labelledby="auth-sidebar-title">
         <Brand inverse />
 
-        <div className="login-story__content">
-          <span className="eyebrow eyebrow--inverse">
-            <Sparkles size={16} aria-hidden="true" />
-            Documentos e IA, em um só lugar
+        <div className="auth-sidebar__content">
+          <span className="auth-sidebar__icon" aria-hidden="true">
+            <FileCheck2 size={32} strokeWidth={1.8} />
           </span>
-          <h1 id="login-story-title">
-            Seus documentos, com respostas mais claras.
-          </h1>
+          <h1 id="auth-sidebar-title">Documentos organizados e acessíveis.</h1>
           <p>
-            Envie, organize e analise documentos com IA em um ambiente privado e
-            simples de usar.
+            Centralize seus arquivos e encontre as informações de que precisa.
           </p>
         </div>
 
-        <DocumentLayers />
-
-        <p className="login-story__footnote">
+        <p className="auth-sidebar__footnote">
           <ShieldCheck size={18} aria-hidden="true" />
-          Seus arquivos permanecem associados somente à sua conta.
+          Ambiente seguro para seus documentos
         </p>
-      </section>
+      </aside>
 
-      <section className="login-access" aria-labelledby="login-access-title">
-        <div className="login-access__mobile-brand">
+      <section className="auth-access" aria-labelledby="login-access-title">
+        <div className="auth-access__mobile-brand">
           <Brand />
         </div>
 
-        <div className="login-card">
-          <span className="login-card__icon" aria-hidden="true">
-            <LockKeyhole size={22} />
-          </span>
-          <p className="eyebrow">Acesso seguro</p>
-          <h2 id="login-access-title">Boas-vindas</h2>
-          <p className="login-card__description">
-            Use sua conta Google para acessar seus documentos e análises.
+        <div className="auth-card">
+          <p className="auth-card__overline">Bem-vindo</p>
+          <h2 id="login-access-title">Acesse sua conta</h2>
+          <p className="auth-card__description">
+            Entre com sua conta Google para continuar.
           </p>
 
           {errorMessage ? (
@@ -61,42 +52,17 @@ export function LoginPage({ errorMessage, onRetry }: LoginPageProps) {
 
           <GoogleSignInButton />
 
-          <div className="privacy-note">
-            <ShieldCheck size={18} aria-hidden="true" />
-            <p>O acesso aos arquivos é privado e associado à sua conta.</p>
+          <div className="auth-card__privacy">
+            <LockKeyhole size={17} aria-hidden="true" />
+            <p>Seu acesso e seus documentos são privados.</p>
           </div>
         </div>
 
-        <p className="login-access__legal">
-          Ao continuar, você autoriza apenas os dados básicos necessários para
-          identificar sua conta.
+        <p className="auth-access__legal">
+          Ao continuar, usamos apenas os dados básicos da sua Conta Google para
+          identificar seu acesso.
         </p>
       </section>
     </main>
-  );
-}
-
-function DocumentLayers() {
-  return (
-    <div className="document-art" aria-hidden="true">
-      <div className="document-art__sheet document-art__sheet--back">
-        <span />
-        <span />
-        <span />
-      </div>
-      <div className="document-art__sheet document-art__sheet--middle">
-        <span />
-        <span />
-        <span />
-      </div>
-      <div className="document-art__sheet document-art__sheet--front">
-        <i>
-          <Sparkles size={18} />
-        </i>
-        <span />
-        <span />
-        <span />
-      </div>
-    </div>
   );
 }

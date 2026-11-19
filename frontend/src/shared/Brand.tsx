@@ -1,20 +1,19 @@
-import { FileText } from 'lucide-react';
+import { Files } from 'lucide-react';
 
 interface BrandProps {
-  compact?: boolean;
   inverse?: boolean;
 }
 
-export function Brand({ compact = false, inverse = false }: BrandProps) {
+export function Brand({ inverse = false }: BrandProps) {
   return (
     <div
-      className={`brand${compact ? ' brand--compact' : ''}${inverse ? ' brand--inverse' : ''}`}
-      aria-label="JusDigital"
+      className={`brand${inverse ? ' brand--inverse' : ''}`}
+      aria-label="Jus Digital"
     >
       <span className="brand__mark" aria-hidden="true">
-        <FileText size={20} strokeWidth={2.2} />
+        <Files size={19} strokeWidth={2} />
       </span>
-      <span className="brand__name">JusDigital</span>
+      <span className="brand__name">Jus Digital</span>
     </div>
   );
 }

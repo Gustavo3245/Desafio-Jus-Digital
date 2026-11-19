@@ -1,4 +1,4 @@
-import { ShieldCheck } from 'lucide-react';
+import { Files } from 'lucide-react';
 import { Brand } from '../../shared/Brand.js';
 import { Spinner } from '../../shared/Spinner.js';
 
@@ -6,11 +6,11 @@ export function SessionStatusPage() {
   const completingGoogle = window.location.pathname === '/auth/callback';
 
   return (
-    <main className="session-status-page">
-      <Brand />
-      <div className="session-status-card" role="status" aria-live="polite">
+    <main className="session-status-page" role="status" aria-live="polite">
+      <div className="session-status-card">
+        <Brand />
         <span className="session-status-card__icon" aria-hidden="true">
-          <ShieldCheck size={24} />
+          <Files size={25} />
         </span>
         <Spinner label="Verificando sua sessão" />
         <h1>
