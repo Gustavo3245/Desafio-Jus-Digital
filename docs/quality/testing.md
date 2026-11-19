@@ -30,7 +30,8 @@ sem valor contratual.
 
 - Login/sessão em cenário controlado.
 - Upload até análise concluída.
-- Listar, abrir e excluir.
+- Listar e abrir depois de logout e novo login.
+- Excluir quando a respectiva feature estiver implementada.
 - Isolamento entre dois usuários.
 - Arquivo inválido e falha da OpenAI.
 

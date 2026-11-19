@@ -33,7 +33,7 @@ de decorators.
 | `GET`    | `/documents/{id}/download` | Obter download autorizado         |
 | `DELETE` | `/documents/{id}`          | Excluir documento próprio         |
 
-Os endpoints de documentos permanecem propostos até suas respectivas feature specs.
+Download e exclusão permanecem propostos até suas respectivas feature specs.
 
 ## Autenticação Google
 
@@ -145,6 +145,50 @@ Em sucesso (`201 Created`), retorna o documento sem expor `storageKey`:
   responde `503` com `code: "EXTERNAL_SERVICE_UNAVAILABLE"`.
 - Resposta vazia ou inválida da análise: o registro fica `failed` e a API responde
   `502` com `code: "ANALYSIS_FAILED"`.
+
+## Histórico e leitura de documentos
+
+### `GET /api/v1/documents`
+
+Exige sessão válida. Retorna `200` com somente os documentos do usuário autenticado,
+ordenados por `createdAt` do mais recente para o mais antigo:
+
+```json
+{
+  "documents": [
+    {
+      "id": "opaque-document-id",
+      "title": "Contrato de Prestação de Serviços",
+      "instruction": "Resuma as cláusulas de rescisão e multa",
+      "originalName": "contrato.pdf",
+      "mimeType": "application/pdf",
+      "sizeBytes": 34816,
+      "status": "completed",
+      "analysis": "O contrato prevê rescisão com aviso de 30 dias.",
+      "failureCode": null,
+      "createdAt": "2026-11-19T12:00:00.000Z",
+      "updatedAt": "2026-11-19T12:00:05.000Z"
+    }
+  ]
+}
+```
+
+Usuário sem documentos recebe `{ "documents": [] }`. `userId` e `storageKey` nunca
+aparecem na resposta. Sessão ausente ou revogada responde `401`.
+
+### `GET /api/v1/documents/{id}`
+
+Exige sessão válida. Retorna `200` com `{ "document": ... }` no mesmo formato público
+da criação. A consulta combina `id` e o proprietário derivado da sessão.
+
+Documento inexistente ou pertencente a outra pessoa responde igualmente `404`:
+
+```json
+{
+  "code": "DOCUMENT_NOT_FOUND",
+  "message": "Document was not found"
+}
+```
 
 ## Códigos de erro iniciais
 

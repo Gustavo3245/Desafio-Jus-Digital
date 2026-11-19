@@ -129,6 +129,9 @@ docker compose logs --tail 100 api
   padrão e permite migração controlada de modelo.
 - Timeout, rate limit ou indisponibilidade retornam `503`; resposta vazia retorna
   `502`. Em ambos os casos, o registro permanece `failed`.
+- `GET /api/v1/documents` recupera o histórico da conta autenticada e
+  `GET /api/v1/documents/{id}` abre pergunta e análise. Logout encerra apenas a sessão;
+  o histórico permanece associado ao mesmo usuário Google.
 
 ### Teste manual sem AWS
 

@@ -61,6 +61,8 @@ A persistência relacional em PostgreSQL segue as decisões da
 - `analysis` é obrigatória quando `status = completed`.
 - Respostas da API nunca expõem `storageKey` diretamente.
 - Consultas combinam documento e proprietário ou aplicam autorização equivalente.
+- Revogar ou expirar uma sessão não remove usuário, documentos, perguntas ou análises;
+  um novo login para o mesmo `googleSub` recupera o mesmo usuário interno.
 
 ## Exclusão
 
