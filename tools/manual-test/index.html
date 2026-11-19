@@ -159,6 +159,29 @@
         white-space: pre-wrap;
       }
 
+      .history-list {
+        display: grid;
+        gap: 12px;
+      }
+
+      .history-item {
+        display: grid;
+        gap: 8px;
+        padding: 16px;
+        border: 1px solid #dbe1dc;
+        border-radius: 12px;
+        background: #f9faf9;
+      }
+
+      .history-item h3,
+      .history-item p {
+        margin: 0;
+      }
+
+      .history-item button {
+        justify-self: start;
+      }
+
       .hidden {
         display: none;
       }
@@ -250,6 +273,19 @@ Resuma o documento e liste os três pontos mais importantes.</textarea>
           Faça login e envie um documento para iniciar.
         </div>
       </section>
+
+      <section class="card" aria-labelledby="history-title">
+        <div class="row">
+          <div>
+            <h2 id="history-title">4. Histórico persistido</h2>
+            <p class="muted">Documentos vinculados à conta autenticada.</p>
+          </div>
+          <span id="history-status" class="badge">Aguardando login</span>
+        </div>
+        <div id="history" class="history-list">
+          <p class="muted">Entre com Google para carregar o histórico.</p>
+        </div>
+      </section>
     </main>
 
     <script type="module">
@@ -266,6 +302,8 @@ Resuma o documento e liste os três pontos mais importantes.</textarea>
       const submitButton = document.querySelector('#submit');
       const analysisStatus = document.querySelector('#analysis-status');
       const result = document.querySelector('#result');
+      const historyStatus = document.querySelector('#history-status');
+      const history = document.querySelector('#history');
       let authenticated = false;
       let sampleFile = null;
 
@@ -326,6 +364,75 @@ Resuma o documento e liste os três pontos mais importantes.</textarea>
         });
       }
 
+      async function openDocument(documentId) {
+        try {
+          const body = await readJson(
+            await fetch(`${apiBaseUrl}/documents/${documentId}`, {
+              credentials: 'include',
+            }),
+          );
+          result.textContent =
+            body.document.analysis ?? 'Análise indisponível.';
+          setBadge(analysisStatus, body.document.status, 'success');
+          window.scrollTo({ top: result.offsetTop - 120, behavior: 'smooth' });
+        } catch (error) {
+          result.textContent = error.message;
+          setBadge(analysisStatus, 'Falhou', 'error');
+        }
+      }
+
+      function renderHistory(documents) {
+        history.replaceChildren();
+        setBadge(
+          historyStatus,
+          `${documents.length} documento${documents.length === 1 ? '' : 's'}`,
+          'success',
+        );
+
+        if (documents.length === 0) {
+          const empty = document.createElement('p');
+          empty.className = 'muted';
+          empty.textContent = 'Nenhum documento enviado por esta conta.';
+          history.append(empty);
+          return;
+        }
+
+        for (const entry of documents) {
+          const item = document.createElement('article');
+          item.className = 'history-item';
+
+          const heading = document.createElement('h3');
+          heading.textContent = entry.title;
+          const metadata = document.createElement('p');
+          metadata.className = 'muted';
+          metadata.textContent = `${entry.originalName} • ${entry.status} • ${new Date(entry.createdAt).toLocaleString('pt-BR')}`;
+          const instruction = document.createElement('p');
+          instruction.textContent = `Pergunta: ${entry.instruction}`;
+          const open = document.createElement('button');
+          open.type = 'button';
+          open.className = 'secondary';
+          open.textContent = 'Abrir análise';
+          open.addEventListener('click', () => openDocument(entry.id));
+
+          item.append(heading, metadata, instruction, open);
+          history.append(item);
+        }
+      }
+
+      async function loadHistory() {
+        try {
+          const body = await readJson(
+            await fetch(`${apiBaseUrl}/documents`, {
+              credentials: 'include',
+            }),
+          );
+          renderHistory(body.documents);
+        } catch (error) {
+          history.textContent = error.message;
+          setBadge(historyStatus, 'Falhou', 'error');
+        }
+      }
+
       async function refreshSession() {
         const errorCode = new URLSearchParams(window.location.search).get(
           'error',
@@ -346,6 +453,7 @@ Resuma o documento e liste os três pontos mais importantes.</textarea>
           googleButton.classList.add('hidden');
           logoutButton.classList.remove('hidden');
           submitButton.disabled = false;
+          await loadHistory();
         } catch {
           authenticated = false;
           profile.textContent = 'Entre com sua conta Google para continuar.';
@@ -353,6 +461,9 @@ Resuma o documento e liste os três pontos mais importantes.</textarea>
           googleButton.classList.remove('hidden');
           logoutButton.classList.add('hidden');
           submitButton.disabled = true;
+          history.innerHTML =
+            '<p class="muted">Entre com Google para carregar o histórico.</p>';
+          setBadge(historyStatus, 'Aguardando login');
           renderGoogleButton();
         }
       }
@@ -424,6 +535,7 @@ Resuma o documento e liste os três pontos mais importantes.</textarea>
           const body = await readJson(response);
           result.textContent = body.document.analysis;
           setBadge(analysisStatus, body.document.status, 'success');
+          await loadHistory();
         } catch (error) {
           result.textContent = error.message;
           setBadge(analysisStatus, 'Falhou', 'error');
