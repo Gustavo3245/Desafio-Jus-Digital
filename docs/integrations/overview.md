@@ -31,6 +31,8 @@ validada na inicialização e traduzir erros externos para erros do domínio.
 - `DOCUMENT_STORAGE_DRIVER=s3` seleciona o adapter S3. Em desenvolvimento local,
   `memory` permite testar o restante do fluxo antes da configuração da AWS; esse
   valor é proibido em produção.
+- `AWS_S3_BUCKET` contém somente o nome do bucket. ARN e URI `s3://` são rejeitados na
+  inicialização para evitar falha tardia no SDK.
 - Bucket privado com bloqueio de acesso público.
 - IAM limitado às ações (`s3:PutObject`, `s3:GetObject`, `s3:DeleteObject`) e ao
   bucket necessários.
@@ -70,7 +72,7 @@ OPENAI_API_KEY=
 OPENAI_MODEL=gpt-4o-mini
 DOCUMENT_STORAGE_DRIVER=memory
 AWS_REGION=
-AWS_S3_BUCKET=
+AWS_S3_BUCKET=jusdigital-documents-dev-example
 AWS_ACCESS_KEY_ID=
 AWS_SECRET_ACCESS_KEY=
 ```

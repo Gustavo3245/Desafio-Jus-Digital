@@ -99,6 +99,8 @@ Created` com o documento `completed` e sem `storageKey`.
   executar a remoção compensatória do objeto no S3 antes de propagar a falha.
 - `STO-RULE-006` - Em `NODE_ENV=production`, a aplicação exige `AWS_REGION` e
   `AWS_S3_BUCKET` configurados e utiliza obrigatoriamente `S3DocumentStorageService`.
+- `STO-RULE-007` - `AWS_S3_BUCKET` contém somente o nome simples do bucket; ARN ou URI
+  `s3://` são erros de configuração rejeitados na inicialização.
 
 ## Estados e erros
 
@@ -168,15 +170,18 @@ Created` com o documento `completed` e sem `storageKey`.
 - Falhas de integração com o S3 podem registrar apenas o código/categoria do erro AWS
   e identificador de requisição, sem expor credenciais, chaves secretas ou bytes do
   documento.
+- A validação impede ARN/URI em `AWS_S3_BUCKET`, e o adapter registra metadados seguros
+  para diferenciar configuração inválida, permissão, região e indisponibilidade.
 
 ## Evidência de implementação
 
 - Código: `src/integrations/storage/`, `src/documents/document-file-validator.ts`,
   `src/documents/documents.service.ts`, `src/documents/documents.controller.ts`,
   `src/config/environment.schema.ts`, `.env.example` e `compose.yaml`.
-- Testes: `npm run lint` (0 avisos/erros em 52 arquivos), `npm test` (11 suítes,
-  30 testes unitários), `npm run test:integration` (14 testes contra PostgreSQL,
-  incluindo upload HTTP via `POST /api/v1/documents`), `npm run test:e2e` (2 suítes,
-  15 testes E2E HTTP) e `npm run build`, validados em 2026-11-18.
+- Testes: `npm run lint`, `npm test` (12 suítes/38 testes),
+  `npm run test:integration` (1 suíte/14 testes), `npm run test:e2e` (2 suítes/17
+  testes) e `npm run build`, validados em 2026-11-19.
+- AWS real: `PutObject` seguido de `DeleteObject` de um arquivo sintético passou em
+  2026-11-19 usando o mesmo container, região, bucket e credenciais da aplicação.
 - ADRs:
   [`ADR-0005`](../architecture/decisions/0005-s3-storage-and-upload-compensation.md).

@@ -110,6 +110,16 @@ dispositivo.
 - Configure no `.env` as variáveis `AWS_REGION`, `AWS_S3_BUCKET`, `AWS_ACCESS_KEY_ID`
   e `AWS_SECRET_ACCESS_KEY` de um usuário IAM com acesso restrito exclusivamente às
   operações `s3:PutObject`, `s3:GetObject` e `s3:DeleteObject` no bucket privado.
+- `AWS_S3_BUCKET` recebe somente o nome simples do bucket, por exemplo
+  `jusdigital-documents-dev-3245`; não use ARN (`arn:aws:s3:::`) nem URL `s3://`.
+
+Se o upload responder `Document storage service is temporarily unavailable`, consulte
+os logs seguros da API. Eles informam operação, categoria, status HTTP e request ID do
+S3 sem registrar bucket, chave do objeto, credenciais ou documento:
+
+```bash
+docker compose logs --tail 100 api
+```
 
 ## Análise com OpenAI
 

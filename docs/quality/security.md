@@ -49,6 +49,9 @@ last_updated: 2026-11-18
   para o modelo.
 - O adapter de armazenamento em memória serve somente ao desenvolvimento e aos
   testes; a validação de ambiente impede sua inicialização em produção.
+- Falhas do S3 registram apenas operação, nome/código seguro do erro, status HTTP e
+  request ID; bucket, `storageKey`, mensagem externa, credenciais e bytes não aparecem
+  nos logs.
 
 ## Checklist de revisão
 
