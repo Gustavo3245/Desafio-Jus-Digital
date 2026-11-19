@@ -1,5 +1,21 @@
 import { z } from 'zod';
 
+const s3BucketNameSchema = z
+  .string()
+  .trim()
+  .min(3, 'AWS_S3_BUCKET must contain a bucket name')
+  .max(63, 'AWS_S3_BUCKET must contain a bucket name')
+  .regex(
+    /^[a-z0-9][a-z0-9.-]*[a-z0-9]$/,
+    'AWS_S3_BUCKET must be a bucket name, not an ARN or s3:// URL',
+  )
+  .refine((name) => !name.includes('..'), {
+    message: 'AWS_S3_BUCKET must contain a valid bucket name',
+  })
+  .refine((name) => !/^\d{1,3}(?:\.\d{1,3}){3}$/.test(name), {
+    message: 'AWS_S3_BUCKET must contain a valid bucket name',
+  });
+
 export const environmentSchema = z
   .object({
     NODE_ENV: z
@@ -16,7 +32,7 @@ export const environmentSchema = z
     OPENAI_MODEL: z.string().trim().min(1).default('gpt-4o-mini'),
     DOCUMENT_STORAGE_DRIVER: z.enum(['s3', 'memory']).default('s3'),
     AWS_REGION: z.string().trim().min(1).default('us-east-1'),
-    AWS_S3_BUCKET: z.string().trim().min(1, 'AWS_S3_BUCKET is required'),
+    AWS_S3_BUCKET: s3BucketNameSchema,
     AWS_ACCESS_KEY_ID: z.string().trim().optional(),
     AWS_SECRET_ACCESS_KEY: z.string().trim().optional(),
     AWS_S3_ENDPOINT: z.url().optional(),

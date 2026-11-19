@@ -71,6 +71,22 @@ describe('validateEnvironment', () => {
     ).toThrow(/AWS_SECRET_ACCESS_KEY/);
   });
 
+  it('rejects an S3 ARN or URI where a bucket name is required', () => {
+    expect(() =>
+      validateEnvironment({
+        ...validConfig,
+        AWS_S3_BUCKET: 'arn:aws:s3:::jusdigital-documents',
+      }),
+    ).toThrow(/bucket name, not an ARN/);
+
+    expect(() =>
+      validateEnvironment({
+        ...validConfig,
+        AWS_S3_BUCKET: 's3://jusdigital-documents',
+      }),
+    ).toThrow(/bucket name, not an ARN/);
+  });
+
   it('rejects a missing OpenAI API key', () => {
     expect(() =>
       validateEnvironment({
