@@ -3,6 +3,8 @@
 
 # build output
 /dist
+/frontend/dist
+/frontend/coverage
 *.tsbuildinfo
 
 # test coverage
