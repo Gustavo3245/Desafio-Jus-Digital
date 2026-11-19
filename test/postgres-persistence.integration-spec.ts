@@ -478,13 +478,34 @@ describe('PostgreSQL persistence (integration)', () => {
         status: 'completed',
       });
 
-      // 6. Logout revokes session in PostgreSQL
+      // 6. Logout revokes only the session, preserving the document history
       await agentA
         .post('/api/v1/auth/logout')
         .set('Origin', 'http://localhost:5173')
         .expect(HttpStatus.NO_CONTENT);
 
       await agentA.get('/api/v1/auth/me').expect(HttpStatus.UNAUTHORIZED);
+
+      // 7. A new login for the same Google subject restores the PostgreSQL history
+      verifyIdToken.mockResolvedValueOnce(new LoginTicket('', updatedPayload));
+      const reauthenticated = await agentA
+        .post('/api/v1/auth/google')
+        .set('Origin', 'http://localhost:5173')
+        .send({ credential: 'valid-google-token-v3' })
+        .expect(HttpStatus.OK);
+      expect(reauthenticated.body.user.id).toBe(userIdA);
+
+      const restoredHistory = await agentA
+        .get('/api/v1/documents')
+        .expect(HttpStatus.OK);
+      expect(restoredHistory.body.documents).toEqual([
+        uploadResponse.body.document,
+      ]);
+
+      await agentA
+        .get(`/api/v1/documents/${uploadedDocumentId}`)
+        .expect(HttpStatus.OK)
+        .expect({ document: uploadResponse.body.document });
     });
   });
 });

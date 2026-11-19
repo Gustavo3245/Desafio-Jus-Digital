@@ -253,4 +253,90 @@ describe('Document upload and storage (e2e)', () => {
       }),
     ]);
   });
+
+  it('restores document history and detail after logout and login', async () => {
+    await signIn();
+    const upload = await agent
+      .post('/api/v1/documents')
+      .set('Origin', frontendOrigin)
+      .field('title', 'Histórico persistente')
+      .field('instruction', 'Resuma os pontos principais')
+      .attach('file', Buffer.from('Documento de histórico persistente'), {
+        filename: 'historico.txt',
+        contentType: 'text/plain',
+      })
+      .expect(HttpStatus.CREATED);
+    const documentId = upload.body.document.id as string;
+
+    const initialHistory = await agent
+      .get('/api/v1/documents')
+      .expect(HttpStatus.OK);
+    expect(initialHistory.body.documents).toEqual([
+      expect.objectContaining({
+        id: documentId,
+        instruction: 'Resuma os pontos principais',
+        status: 'completed',
+      }),
+    ]);
+    expect(initialHistory.body.documents[0]).not.toHaveProperty('storageKey');
+    expect(initialHistory.body.documents[0]).not.toHaveProperty('userId');
+
+    await agent
+      .post('/api/v1/auth/logout')
+      .set('Origin', frontendOrigin)
+      .expect(HttpStatus.NO_CONTENT);
+    await agent.get('/api/v1/documents').expect(HttpStatus.UNAUTHORIZED);
+
+    await signIn();
+    const restoredHistory = await agent
+      .get('/api/v1/documents')
+      .expect(HttpStatus.OK);
+    expect(restoredHistory.body).toEqual(initialHistory.body);
+
+    const detail = await agent
+      .get(`/api/v1/documents/${documentId}`)
+      .expect(HttpStatus.OK);
+    expect(detail.body.document).toEqual(upload.body.document);
+  });
+
+  it('does not list or reveal a document owned by another user', async () => {
+    await signIn();
+    const upload = await agent
+      .post('/api/v1/documents')
+      .set('Origin', frontendOrigin)
+      .field('title', 'Documento privado')
+      .field('instruction', 'Analise')
+      .attach('file', Buffer.from('Documento privado do primeiro usuário'), {
+        filename: 'privado.txt',
+        contentType: 'text/plain',
+      })
+      .expect(HttpStatus.CREATED);
+    const documentId = upload.body.document.id as string;
+
+    const otherPayload: TokenPayload = {
+      ...verifiedPayload,
+      sub: 'google-subject-other-user',
+      email: 'other@example.com',
+      name: 'Other User',
+    };
+    verifyIdToken.mockResolvedValueOnce(new LoginTicket('', otherPayload));
+    const otherAgent = request.agent(app.getHttpServer());
+    await otherAgent
+      .post('/api/v1/auth/google')
+      .set('Origin', frontendOrigin)
+      .send({ credential: 'other-google-id-token' })
+      .expect(HttpStatus.OK);
+
+    await otherAgent
+      .get('/api/v1/documents')
+      .expect(HttpStatus.OK)
+      .expect({ documents: [] });
+    const hidden = await otherAgent
+      .get(`/api/v1/documents/${documentId}`)
+      .expect(HttpStatus.NOT_FOUND);
+    expect(hidden.body).toEqual({
+      code: 'DOCUMENT_NOT_FOUND',
+      message: 'Document was not found',
+    });
+  });
 });
