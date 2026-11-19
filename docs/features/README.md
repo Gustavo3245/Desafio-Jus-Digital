@@ -19,7 +19,8 @@ Cada funcionalidade relevante possui uma especificação em
 | [`FEAT-003`](postgres-persistence.md)           | Persistência de usuários e documentos | Implementada |
 | [`FEAT-004`](document-upload-and-s3-storage.md) | Upload e armazenamento S3             | Implementada |
 | [`FEAT-005`](openai-document-analysis.md)       | Análise com OpenAI                    | Implementada |
-| `FEAT-006`                                      | Listagem, leitura e exclusão          | Não iniciada |
+| [`FEAT-006`](document-history-and-reading.md)   | Histórico, listagem e leitura         | Em andamento |
+| `FEAT-007`                                      | Download e exclusão                   | Não iniciada |
 
 Crie a spec imediatamente antes de trabalhar na funcionalidade, evitando detalhar
 todo o sistema com suposições que ainda não foram validadas.
