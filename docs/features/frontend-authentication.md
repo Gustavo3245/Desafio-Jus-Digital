@@ -15,9 +15,9 @@ requirements:
 
 ## Problema
 
-Oferecer uma entrada real e responsiva para o JusDigital, conectada à sessão segura
-do back-end, e permitir que a pessoa veja os dados básicos da própria conta e encerre
-a sessão sem expor a credencial Google ao JavaScript da aplicação depois do login.
+Oferecer uma entrada real e responsiva para o JusDigital, fiel à linguagem visual do
+Figma oficial, conectada à sessão segura do back-end e sem expor a credencial Google
+ao JavaScript da aplicação depois do login.
 
 ## Escopo
 
@@ -26,7 +26,7 @@ a sessão sem expor a credencial Google ao JavaScript da aplicação depois do l
 - Aplicação React e TypeScript isolada em `frontend/` no mesmo repositório.
 - Login com Google Identity Services usando redirect na mesma aba.
 - Verificação inicial de sessão e conclusão do callback.
-- Tela protegida de conta com foto, nome, e-mail, privacidade e logout.
+- Shell protegida provisória com perfil, estado vazio de documentos e logout.
 - Estados de loading, configuração ausente, sessão expirada e falha recuperável.
 - Layout responsivo em desktop, tablet, 390 px e limite de 320 px.
 - Serviço Docker de desenvolvimento para o front-end.
@@ -53,7 +53,7 @@ a sessão sem expor a credencial Google ao JavaScript da aplicação depois do l
 2. Sem sessão, mostra a tela de login e inicializa o botão oficial do Google.
 3. Google envia a credencial ao callback do back-end na mesma aba.
 4. O back-end cria a sessão e retorna para `/auth/callback`.
-5. O front-end confirma a sessão e abre a tela protegida de conta.
+5. O front-end confirma a sessão e abre a shell protegida de documentos.
 6. Ao sair, envia `POST /auth/logout`, limpa o estado local e volta ao login.
 
 ## Regras de negócio
@@ -68,7 +68,7 @@ a sessão sem expor a credencial Google ao JavaScript da aplicação depois do l
 
 | Situação                    | Comportamento esperado                    | Estado visual         |
 | --------------------------- | ----------------------------------------- | --------------------- |
-| Sessão válida               | Abrir conta protegida                     | Autenticado           |
+| Sessão válida               | Abrir shell protegida                     | Autenticado           |
 | Sessão ausente ou expirada  | Exibir login                              | Não autenticado       |
 | Google ainda carregando     | Bloquear ação e comunicar progresso       | Carregando            |
 | Configuração Google ausente | Explicar correção sem botão quebrado      | Configuração inválida |
@@ -94,7 +94,7 @@ a sessão sem expor a credencial Google ao JavaScript da aplicação depois do l
 - [ ] Dada uma pessoa sem sessão, quando abre o aplicativo, então vê o login aprovado
       e consegue iniciar Google redirect na mesma aba.
 - [ ] Dado um callback válido, quando o front-end confirma a sessão, então exibe foto,
-      nome e e-mail retornados pela API.
+      nome e e-mail no perfil da shell protegida.
 - [ ] Dada uma sessão válida, quando a página é recarregada, então a conta permanece
       autenticada sem reutilizar o ID token.
 - [ ] Dado logout, quando a API confirma a revogação, então o aplicativo volta ao

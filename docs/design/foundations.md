@@ -6,53 +6,53 @@ last_updated: 2026-11-19
 
 # Fundações visuais do JusDigital
 
-## Direção
+## Fonte canônica
 
-O produto adota uma interface suave, confiável e contemporânea, inspirada na clareza
-e organização do Dropbox Dash sem copiar sua identidade. A experiência deve parecer
-uma ferramenta de trabalho com documentos, não um sistema jurídico burocrático nem
-um chat genérico com IA.
+O [Figma oficial do desafio](https://www.figma.com/design/fjtXfs1g7LmDqsUToHAohZ/Propostas?node-id=0-1)
+é a fonte de verdade visual do produto. Decisões anteriores de redesign não devem ser
+usadas na implementação enquanto a exigência de fidelidade ao protótipo permanecer.
 
-A direção foi aprovada durante a exploração de design registrada no
-[chat de referência](https://chatgpt.com/s/cx_6aff1e5173d4819196ec14168d53c332).
-O Figma original do desafio continua sendo a referência estrutural para sidebar,
-documentos, upload e modal.
+O arquivo apresenta o fluxo de documentos, mas não possui uma tela de login pronta.
+A autenticação deve, portanto, reutilizar a mesma linguagem visual sem inventar um
+segundo sistema de design.
 
-## Princípios
+## Direção observada
 
-- Verde comunica confiança, navegação e ações operacionais.
-- Violeta identifica inteligência artificial e conteúdo gerado.
-- Bordas e diferenças de superfície separam regiões; sombras são discretas.
-- Proximidade, alinhamento e região comum agrupam conteúdo relacionado.
-- A mesma ação usa sempre o mesmo nome e tratamento visual.
-- Fotografias e símbolos jurídicos genéricos não fazem parte da interface.
+- Sidebar verde sólida, sem gradientes ou efeitos decorativos.
+- Conteúdo em superfícies brancas e cinza-claro.
+- Ações primárias em verde e ações secundárias discretas.
+- Tipografia sem serifa, compacta e funcional.
+- Bordas finas, raios pequenos e sombras mínimas.
+- Ícones lineares simples e alinhados com os rótulos.
+- Hierarquia baseada em espaçamento e contraste, não em ilustrações.
 
-## Tokens semânticos
+## Tokens de implementação
 
-| Papel            | Valor     | Uso                                           |
-| ---------------- | --------- | --------------------------------------------- |
-| Ação primária    | `#0F7A55` | CTA, navegação ativa e foco operacional       |
-| Primária forte   | `#075A40` | Hover e superfícies institucionais            |
-| Primária suave   | `#E9F6F0` | Seleção, badges e fundos destacados           |
-| IA               | `#5F3DC4` | Análise, processamento e conteúdo inteligente |
-| IA suave         | `#F2EDFF` | Blocos e estados da IA                        |
-| Texto principal  | `#252235` | Títulos e conteúdo                            |
-| Texto secundário | `#6E6A7D` | Metadados e ajuda                             |
-| Canvas           | `#F6F7F9` | Fundo geral                                   |
-| Superfície       | `#FFFFFF` | Cards, modais e painéis                       |
-| Borda            | `#DFE2E8` | Divisores e campos                            |
-| Erro             | `#C43D4D` | Falhas, exclusão e ações destrutivas          |
-| Alerta           | `#A35F00` | Limites, espera e atenção                     |
+Os valores abaixo reproduzem a aparência do protótipo público e centralizam eventuais
+ajustes futuros quando houver inspeção de camada pelo Dev Mode.
+
+| Papel            | Valor     | Uso                                      |
+| ---------------- | --------- | ---------------------------------------- |
+| Ação primária    | `#2FAA6F` | Sidebar, CTA e navegação ativa           |
+| Primária forte   | `#268E5D` | Hover e foco de ações                    |
+| Primária suave   | `#EDF8F2` | Estados vazios e fundos de ícones        |
+| Texto principal  | `#262626` | Títulos e conteúdo                       |
+| Texto secundário | `#6F6F73` | Descrições e metadados                   |
+| Texto discreto   | `#909094` | Observações de baixa ênfase              |
+| Canvas           | `#F7F7F8` | Fundo geral                              |
+| Superfície       | `#FFFFFF` | Conteúdo, cards e painéis                |
+| Borda            | `#DEDEE1` | Campos e divisores                       |
+| Borda suave      | `#ECECEE` | Separadores internos                     |
+| Erro             | `#B53A48` | Falhas de autenticação e ações inválidas |
 
 ## Tipografia e geometria
 
-- Família: Inter Variable, pesos 400, 500, 600 e 700, servida localmente.
-- Corpo: mínimo de `1rem`; metadados nunca menores que `0.8125rem`.
-- Espaçamento: escala baseada em 8 px, com meios passos de 4 px quando necessário.
-- Raios: 8 px em campos, 10 px em botões e 14 px em cards ou painéis.
-- Ícones: lineares, normalmente 20 px, com espessura consistente.
-- Motion: 160 a 220 ms; remover transições não essenciais com
-  `prefers-reduced-motion`.
+- Família: Inter Variable, servida localmente, com fallback para `system-ui`.
+- Pesos principais: 400, 600 e 650.
+- Espaçamento base: 8 px, admitindo passos de 4 px.
+- Raios: 6 px em botões e navegação; 8 a 9 px em painéis.
+- Sombras: apenas em painéis flutuantes, com baixa opacidade.
+- Ícones: lineares, entre 17 e 20 px em controles.
 
 ## Estados obrigatórios
 
