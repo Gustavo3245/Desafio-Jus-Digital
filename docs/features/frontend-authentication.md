@@ -1,6 +1,6 @@
 ---
 title: Front-end de autenticação e conta
-status: in_progress
+status: implemented
 last_updated: 2026-11-19
 feature_id: FEAT-008
 requirements:
@@ -91,17 +91,17 @@ ao JavaScript da aplicação depois do login.
 
 ## Critérios de aceitação
 
-- [ ] Dada uma pessoa sem sessão, quando abre o aplicativo, então vê o login aprovado
+- [x] Dada uma pessoa sem sessão, quando abre o aplicativo, então vê o login aprovado
       e consegue iniciar Google redirect na mesma aba.
-- [ ] Dado um callback válido, quando o front-end confirma a sessão, então exibe foto,
+- [x] Dado um callback válido, quando o front-end confirma a sessão, então exibe foto,
       nome e e-mail no perfil da shell protegida.
-- [ ] Dada uma sessão válida, quando a página é recarregada, então a conta permanece
+- [x] Dada uma sessão válida, quando a página é recarregada, então a conta permanece
       autenticada sem reutilizar o ID token.
-- [ ] Dado logout, quando a API confirma a revogação, então o aplicativo volta ao
+- [x] Dado logout, quando a API confirma a revogação, então o aplicativo volta ao
       login e uma nova consulta protegida é rejeitada.
-- [ ] Dada falha de API, SDK ou configuração, então o loading termina e há orientação
+- [x] Dada falha de API, SDK ou configuração, então o loading termina e há orientação
       recuperável.
-- [ ] Dadas larguras desktop, 768 px, 390 px e 320 px, então não há corte ou overflow.
+- [x] Dadas larguras desktop, 768 px, 390 px e 320 px, então não há corte ou overflow.
 
 ## Estratégia de teste
 
@@ -120,4 +120,11 @@ ao JavaScript da aplicação depois do login.
 
 ## Evidência de implementação
 
-Preencher somente ao mudar o estado para `implemented`.
+- Código: aplicação React em `frontend/`, Google Identity Services em modo redirect,
+  sessão via cookie, shell autenticada e serviço `frontend` no Compose.
+- Testes: 7 testes unitários do front-end, 47 testes unitários do back-end, 14 de
+  integração e 19 E2E aprovados; lint e builds dos dois pacotes aprovados em
+  2026-11-19.
+- Visual: comparação com o Figma oficial em desktop e validação responsiva em 390 px
+  e 320 px, sem overflow horizontal.
+- Docker: imagem do front-end construída e container saudável em `localhost:5173`.
