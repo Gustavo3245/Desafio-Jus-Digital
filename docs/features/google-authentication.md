@@ -1,7 +1,7 @@
 ---
 title: Autenticação com conta Google
-status: implemented
-last_updated: 2026-11-18
+status: in_progress
+last_updated: 2026-11-19
 feature_id: FEAT-002
 requirements:
   - AUTH-001
@@ -73,6 +73,9 @@ pelo back-end.
   cookie e do formulário sejam não vazios e idênticos.
 - `AUTH-RULE-008` - O retorno do callback usa somente a origem configurada no
   back-end e nunca inclui a credencial Google na URL.
+- `AUTH-RULE-009` - O cliente manual encerra a verificação inicial em tempo finito e
+  informa separadamente sessão ausente, API indisponível, SDK Google indisponível e
+  abertura incorreta por `file://`.
 
 ## Estados e erros
 
@@ -86,6 +89,8 @@ pelo back-end.
 | Callback válido                                   | Criar sessão e voltar ao front-end | `303`         |
 | CSRF ausente ou divergente no callback            | Não validar nem criar sessão       | `403`         |
 | Logout válido                                     | Revogar a sessão e limpar o cookie | `204`         |
+| Página manual aberta diretamente como arquivo     | Orientar abertura pelo Vite        | Erro local    |
+| API ou SDK Google sem resposta                    | Encerrar espera e orientar correção| Erro local    |
 
 ## Contratos afetados
 
@@ -120,6 +125,9 @@ pelo back-end.
       é válida, então a sessão é criada e o navegador retorna ao front-end.
 - [x] Dado um callback sem prova CSRF válida, quando o login é solicitado, então a
       resposta é `403` e nenhuma sessão é criada.
+- [ ] Dada a página manual aberta incorretamente ou uma dependência sem resposta,
+      quando a verificação inicial ocorre, então o estado deixa de ser `Verificando`
+      e apresenta uma orientação acionável.
 
 ## Estratégia de teste
 

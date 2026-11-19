@@ -15,7 +15,7 @@ Cada funcionalidade relevante possui uma especificação em
 | ID                                              | Funcionalidade                        | Estado       |
 | ----------------------------------------------- | ------------------------------------- | ------------ |
 | [`FEAT-001`](docker-development-environment.md) | Ambiente Docker                       | Implementada |
-| [`FEAT-002`](google-authentication.md)          | Autenticação Google                   | Implementada |
+| [`FEAT-002`](google-authentication.md)          | Autenticação Google                   | Em andamento |
 | [`FEAT-003`](postgres-persistence.md)           | Persistência de usuários e documentos | Implementada |
 | [`FEAT-004`](document-upload-and-s3-storage.md) | Upload e armazenamento S3             | Implementada |
 | [`FEAT-005`](openai-document-analysis.md)       | Análise com OpenAI                    | Implementada |
