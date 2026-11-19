@@ -289,8 +289,12 @@ Resuma o documento e liste os três pontos mais importantes.</textarea>
     </main>
 
     <script type="module">
-      const googleClientId = __GOOGLE_CLIENT_ID__;
-      const apiBaseUrl = __API_BASE_URL__;
+      const googleClientId =
+        typeof __GOOGLE_CLIENT_ID__ === 'string' ? __GOOGLE_CLIENT_ID__ : '';
+      const apiBaseUrl =
+        typeof __API_BASE_URL__ === 'string' ? __API_BASE_URL__ : '';
+      const apiTimeoutMs = 10_000;
+      const googleSdkTimeoutMs = 10_000;
 
       const profile = document.querySelector('#profile');
       const sessionStatus = document.querySelector('#session-status');
@@ -305,7 +309,16 @@ Resuma o documento e liste os três pontos mais importantes.</textarea>
       const historyStatus = document.querySelector('#history-status');
       const history = document.querySelector('#history');
       let authenticated = false;
+      let googleButtonState = 'idle';
       let sampleFile = null;
+
+      class HttpResponseError extends Error {
+        constructor(message, status) {
+          super(message);
+          this.name = 'HttpResponseError';
+          this.status = status;
+        }
+      }
 
       function setBadge(element, text, state = '') {
         element.textContent = text;
@@ -315,17 +328,47 @@ Resuma o documento e liste os três pontos mais importantes.</textarea>
       async function readJson(response) {
         const body = await response.json().catch(() => ({}));
         if (!response.ok) {
-          throw new Error(body.message ?? `Falha HTTP ${response.status}`);
+          throw new HttpResponseError(
+            body.message ?? `Falha HTTP ${response.status}`,
+            response.status,
+          );
         }
         return body;
+      }
+
+      async function apiFetch(path, options = {}) {
+        const controller = new AbortController();
+        const timeout = window.setTimeout(
+          () => controller.abort(),
+          apiTimeoutMs,
+        );
+
+        try {
+          return await fetch(`${apiBaseUrl}${path}`, {
+            ...options,
+            credentials: 'include',
+            signal: controller.signal,
+          });
+        } catch (error) {
+          if (error instanceof DOMException && error.name === 'AbortError') {
+            throw new Error(
+              'A API não respondeu em 10 segundos. Confirme se o ambiente Docker está ativo.',
+            );
+          }
+
+          throw new Error(
+            'Não foi possível acessar a API em http://localhost:3000. Confirme o Docker e a configuração de CORS.',
+          );
+        } finally {
+          window.clearTimeout(timeout);
+        }
       }
 
       async function completeGoogleSignIn(googleResponse) {
         try {
           await readJson(
-            await fetch(`${apiBaseUrl}/auth/google`, {
+            await apiFetch('/auth/google', {
               method: 'POST',
-              credentials: 'include',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ credential: googleResponse.credential }),
             }),
@@ -337,7 +380,22 @@ Resuma o documento e liste os três pontos mais importantes.</textarea>
         }
       }
 
-      function renderGoogleButton() {
+      async function waitForGoogleSdk() {
+        const deadline = Date.now() + googleSdkTimeoutMs;
+
+        while (Date.now() < deadline) {
+          if (window.google?.accounts?.id) return window.google.accounts.id;
+          await new Promise((resolve) => window.setTimeout(resolve, 100));
+        }
+
+        throw new Error(
+          'O Google Sign-In não carregou em 10 segundos. Verifique a internet ou bloqueadores do navegador.',
+        );
+      }
+
+      async function renderGoogleButton() {
+        if (googleButtonState !== 'idle') return;
+
         if (!googleClientId) {
           profile.textContent =
             'GOOGLE_CLIENT_ID não está configurado no .env.';
@@ -345,31 +403,34 @@ Resuma o documento e liste os três pontos mais importantes.</textarea>
           return;
         }
 
-        if (!window.google?.accounts?.id) {
-          window.setTimeout(renderGoogleButton, 100);
-          return;
-        }
+        googleButtonState = 'loading';
 
-        window.google.accounts.id.initialize({
-          client_id: googleClientId,
-          ux_mode: 'popup',
-          callback: completeGoogleSignIn,
-        });
-        window.google.accounts.id.renderButton(googleButton, {
-          type: 'standard',
-          theme: 'outline',
-          size: 'large',
-          text: 'signin_with',
-          shape: 'rectangular',
-        });
+        try {
+          const googleIdentity = await waitForGoogleSdk();
+          googleIdentity.initialize({
+            client_id: googleClientId,
+            ux_mode: 'popup',
+            callback: completeGoogleSignIn,
+          });
+          googleIdentity.renderButton(googleButton, {
+            type: 'standard',
+            theme: 'outline',
+            size: 'large',
+            text: 'signin_with',
+            shape: 'rectangular',
+          });
+          googleButtonState = 'ready';
+        } catch (error) {
+          googleButtonState = 'failed';
+          profile.textContent = error.message;
+          setBadge(sessionStatus, 'Google indisponível', 'error');
+        }
       }
 
       async function openDocument(documentId) {
         try {
           const body = await readJson(
-            await fetch(`${apiBaseUrl}/documents/${documentId}`, {
-              credentials: 'include',
-            }),
+            await apiFetch(`/documents/${documentId}`),
           );
           result.textContent =
             body.document.analysis ?? 'Análise indisponível.';
@@ -421,11 +482,7 @@ Resuma o documento e liste os três pontos mais importantes.</textarea>
 
       async function loadHistory() {
         try {
-          const body = await readJson(
-            await fetch(`${apiBaseUrl}/documents`, {
-              credentials: 'include',
-            }),
-          );
+          const body = await readJson(await apiFetch('/documents'));
           renderHistory(body.documents);
         } catch (error) {
           history.textContent = error.message;
@@ -443,10 +500,7 @@ Resuma o documento e liste os três pontos mais importantes.</textarea>
         }
 
         try {
-          const response = await fetch(`${apiBaseUrl}/auth/me`, {
-            credentials: 'include',
-          });
-          const body = await readJson(response);
+          const body = await readJson(await apiFetch('/auth/me'));
           authenticated = true;
           profile.textContent = `${body.user.name} — ${body.user.email}`;
           setBadge(sessionStatus, 'Autenticado', 'success');
@@ -454,17 +508,26 @@ Resuma o documento e liste os três pontos mais importantes.</textarea>
           logoutButton.classList.remove('hidden');
           submitButton.disabled = false;
           await loadHistory();
-        } catch {
+        } catch (error) {
           authenticated = false;
-          profile.textContent = 'Entre com sua conta Google para continuar.';
-          setBadge(sessionStatus, 'Não autenticado');
           googleButton.classList.remove('hidden');
           logoutButton.classList.add('hidden');
           submitButton.disabled = true;
-          history.innerHTML =
-            '<p class="muted">Entre com Google para carregar o histórico.</p>';
-          setBadge(historyStatus, 'Aguardando login');
-          renderGoogleButton();
+
+          if (error instanceof HttpResponseError && error.status === 401) {
+            profile.textContent = 'Entre com sua conta Google para continuar.';
+            setBadge(sessionStatus, 'Não autenticado');
+            history.textContent = 'Entre com Google para carregar o histórico.';
+            setBadge(historyStatus, 'Aguardando login');
+            void renderGoogleButton();
+            return;
+          }
+
+          profile.textContent = error.message;
+          setBadge(sessionStatus, 'Falha na verificação', 'error');
+          history.textContent =
+            'O histórico será carregado quando a API estiver disponível.';
+          setBadge(historyStatus, 'API indisponível', 'error');
         }
       }
 
@@ -472,9 +535,8 @@ Resuma o documento e liste os três pontos mais importantes.</textarea>
         logoutButton.disabled = true;
         try {
           await readJson(
-            await fetch(`${apiBaseUrl}/auth/logout`, {
+            await apiFetch('/auth/logout', {
               method: 'POST',
-              credentials: 'include',
             }),
           );
         } catch (error) {
@@ -527,9 +589,8 @@ Resuma o documento e liste os três pontos mais importantes.</textarea>
           const formData = new FormData(form);
           if (sampleFile) formData.set('file', sampleFile);
 
-          const response = await fetch(`${apiBaseUrl}/documents`, {
+          const response = await apiFetch('/documents', {
             method: 'POST',
-            credentials: 'include',
             body: formData,
           });
           const body = await readJson(response);
@@ -544,7 +605,23 @@ Resuma o documento e liste os três pontos mais importantes.</textarea>
         }
       });
 
-      refreshSession();
+      if (window.location.protocol === 'file:') {
+        const manualUrl = 'http://localhost:5173';
+        const link = document.createElement('a');
+        link.href = manualUrl;
+        link.textContent = manualUrl;
+        profile.replaceChildren(
+          'Esta página não funciona aberta diretamente como arquivo. Execute `npm run start:manual` e acesse ',
+          link,
+          '.',
+        );
+        setBadge(sessionStatus, 'Abertura incorreta', 'error');
+        result.textContent =
+          'Use a página servida pelo Vite para receber a configuração do Google e da API.';
+        setBadge(analysisStatus, 'Configuração necessária', 'error');
+      } else {
+        void refreshSession();
+      }
     </script>
   </body>
 </html>
