@@ -4,7 +4,7 @@ import {
   PutObjectCommand,
   type S3Client,
 } from '@aws-sdk/client-s3';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Environment } from '../../config/environment.schema.js';
 import {
@@ -20,6 +20,7 @@ export type S3ClientLike = Pick<S3Client, 'send'>;
 
 @Injectable()
 export class S3DocumentStorageService extends DocumentStorageService {
+  private readonly logger = new Logger(S3DocumentStorageService.name);
   private readonly bucket: string;
 
   constructor(
@@ -44,7 +45,8 @@ export class S3DocumentStorageService extends DocumentStorageService {
         }),
         { abortSignal: AbortSignal.timeout(DEFAULT_S3_TIMEOUT_MS) },
       );
-    } catch {
+    } catch (error) {
+      this.logFailure('put_object', error);
       throw new ExternalStorageUnavailableException();
     }
   }
@@ -66,6 +68,8 @@ export class S3DocumentStorageService extends DocumentStorageService {
       const bytes = await response.Body.transformToByteArray();
       return Buffer.from(bytes);
     } catch (error) {
+      this.logFailure('get_object', error);
+
       if (error instanceof ExternalStorageUnavailableException) {
         throw error;
       }
@@ -83,8 +87,36 @@ export class S3DocumentStorageService extends DocumentStorageService {
         }),
         { abortSignal: AbortSignal.timeout(DEFAULT_S3_TIMEOUT_MS) },
       );
-    } catch {
+    } catch (error) {
+      this.logFailure('delete_object', error);
       throw new ExternalStorageUnavailableException();
     }
   }
+
+  private logFailure(operation: string, error: unknown): void {
+    const sdkError = isRecord(error) ? error : {};
+    const metadata = isRecord(sdkError.$metadata) ? sdkError.$metadata : {};
+
+    this.logger.error({
+      event: 's3_document_storage_operation_failed',
+      operation,
+      errorName: error instanceof Error ? error.name : 'UnknownError',
+      errorCode:
+        typeof sdkError.Code === 'string'
+          ? sdkError.Code
+          : typeof sdkError.code === 'string'
+            ? sdkError.code
+            : undefined,
+      httpStatusCode:
+        typeof metadata.httpStatusCode === 'number'
+          ? metadata.httpStatusCode
+          : undefined,
+      requestId:
+        typeof metadata.requestId === 'string' ? metadata.requestId : undefined,
+    });
+  }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
 }

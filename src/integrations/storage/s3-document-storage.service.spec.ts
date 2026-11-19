@@ -3,6 +3,7 @@ import {
   GetObjectCommand,
   PutObjectCommand,
 } from '@aws-sdk/client-s3';
+import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Environment } from '../../config/environment.schema.js';
 import { ExternalStorageUnavailableException } from './document-storage.service.js';
@@ -24,9 +25,15 @@ describe('S3DocumentStorageService', () => {
     AWS_REGION: 'sa-east-1',
     AWS_S3_BUCKET: 'jusdigital-private-bucket',
   });
+  let logError: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     vi.clearAllMocks();
+    logError = vi.spyOn(Logger.prototype, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    logError.mockRestore();
   });
 
   it('uploads an object with private attachment and AES256 settings', async () => {
@@ -99,5 +106,13 @@ describe('S3DocumentStorageService', () => {
     await expect(
       service.deleteObject('users/user-1/documents/doc-1.pdf'),
     ).rejects.toBeInstanceOf(ExternalStorageUnavailableException);
+
+    expect(logError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event: 's3_document_storage_operation_failed',
+        errorName: 'Error',
+      }),
+    );
+    expect(JSON.stringify(logError.mock.calls)).not.toContain('secret details');
   });
 });
