@@ -10,6 +10,7 @@ import {
   inspectAndValidateDocumentFile,
   type UploadedDocumentFileInput,
 } from './document-file-validator.js';
+import { DocumentNotFoundException } from './document-not-found.exception.js';
 import type { Document } from './document.js';
 import { DocumentsRepository } from './documents.repository.js';
 
@@ -27,6 +28,20 @@ export class DocumentsService {
     private readonly storage: DocumentStorageService,
     private readonly analysis: DocumentAnalysisService,
   ) {}
+
+  async listDocuments(userId: string): Promise<Document[]> {
+    return this.documents.listByOwner(userId);
+  }
+
+  async getDocument(userId: string, documentId: string): Promise<Document> {
+    const document = await this.documents.findByIdAndOwner(documentId, userId);
+
+    if (!document) {
+      throw new DocumentNotFoundException();
+    }
+
+    return document;
+  }
 
   async createDocument(command: UploadDocumentCommand): Promise<Document> {
     const validatedFile = inspectAndValidateDocumentFile(command.file);

@@ -5,9 +5,11 @@ import {
   Catch,
   Controller,
   type ExceptionFilter,
+  Get,
   HttpCode,
   HttpStatus,
   PayloadTooLargeException,
+  Param,
   Post,
   UploadedFile,
   UseFilters,
@@ -55,6 +57,29 @@ class MulterFileSizeExceptionFilter implements ExceptionFilter {
 @UseFilters(MulterFileSizeExceptionFilter)
 export class DocumentsController {
   constructor(private readonly documents: DocumentsService) {}
+
+  @Get()
+  async list(
+    @CurrentUser() user: User,
+  ): Promise<{ documents: DocumentResponse[] }> {
+    const documents = await this.documents.listDocuments(user.id);
+
+    return {
+      documents: documents.map(toDocumentResponse),
+    };
+  }
+
+  @Get(':id')
+  async findOne(
+    @CurrentUser() user: User,
+    @Param('id') documentId: string,
+  ): Promise<{ document: DocumentResponse }> {
+    const document = await this.documents.getDocument(user.id, documentId);
+
+    return {
+      document: toDocumentResponse(document),
+    };
+  }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)

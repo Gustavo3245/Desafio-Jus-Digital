@@ -6,6 +6,7 @@ import {
 } from '../integrations/openai/document-analysis.service.js';
 import { InMemoryDocumentAnalysisService } from '../integrations/openai/in-memory-document-analysis.service.js';
 import { InvalidDocumentFileException } from './document-file-validator.js';
+import { DocumentNotFoundException } from './document-not-found.exception.js';
 import { DocumentsService } from './documents.service.js';
 import { InMemoryDocumentsRepository } from './in-memory-documents.repository.js';
 
@@ -172,5 +173,56 @@ describe('DocumentsService', () => {
         failureCode: 'ANALYSIS_INVALID_RESPONSE',
       }),
     ]);
+  });
+
+  it('lists and reads only documents owned by the authenticated user', async () => {
+    const owned = await service.createDocument({
+      userId: 'user-1',
+      title: 'Documento do usuário 1',
+      instruction: 'Resuma',
+      file: {
+        originalname: 'user-1.txt',
+        buffer: Buffer.from('Conteúdo pertencente ao usuário 1'),
+      },
+    });
+    await service.createDocument({
+      userId: 'user-2',
+      title: 'Documento do usuário 2',
+      instruction: 'Resuma',
+      file: {
+        originalname: 'user-2.txt',
+        buffer: Buffer.from('Conteúdo pertencente ao usuário 2'),
+      },
+    });
+
+    await expect(service.listDocuments('user-1')).resolves.toEqual([
+      expect.objectContaining({ id: owned.id, userId: 'user-1' }),
+    ]);
+    await expect(
+      service.getDocument('user-1', owned.id),
+    ).resolves.toMatchObject({
+      id: owned.id,
+      instruction: 'Resuma',
+      status: 'completed',
+    });
+  });
+
+  it('returns the same not-found error for missing and foreign documents', async () => {
+    const owned = await service.createDocument({
+      userId: 'user-1',
+      title: 'Documento privado',
+      instruction: 'Resuma',
+      file: {
+        originalname: 'private.txt',
+        buffer: Buffer.from('Conteúdo privado'),
+      },
+    });
+
+    await expect(
+      service.getDocument('user-2', owned.id),
+    ).rejects.toBeInstanceOf(DocumentNotFoundException);
+    await expect(
+      service.getDocument('user-1', 'missing-document'),
+    ).rejects.toBeInstanceOf(DocumentNotFoundException);
   });
 });
