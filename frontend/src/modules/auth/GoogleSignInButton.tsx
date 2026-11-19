@@ -8,11 +8,24 @@ export function GoogleSignInButton() {
   const container = useRef<HTMLDivElement>(null);
   const [state, setState] = useState<GoogleButtonState>('loading');
   const [attempt, setAttempt] = useState(0);
+  const [buttonWidth, setButtonWidth] = useState(0);
+
+  useEffect(() => {
+    const target = container.current;
+    if (!target) return;
+
+    const updateWidth = () => setButtonWidth(Math.floor(target.clientWidth));
+    const observer = new ResizeObserver(updateWidth);
+    observer.observe(target);
+    updateWidth();
+
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const target = container.current;
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    if (!target) return;
+    if (!target || buttonWidth === 0) return;
 
     if (!clientId) {
       setState('unconfigured');
@@ -42,7 +55,7 @@ export function GoogleSignInButton() {
           text: 'continue_with',
           shape: 'rectangular',
           logo_alignment: 'left',
-          width: Math.min(400, Math.max(240, target.clientWidth)),
+          width: Math.min(400, Math.max(240, buttonWidth)),
         });
         setState('ready');
       })
@@ -53,7 +66,7 @@ export function GoogleSignInButton() {
     return () => {
       active = false;
     };
-  }, [attempt]);
+  }, [attempt, buttonWidth]);
 
   return (
     <div className="google-access">
