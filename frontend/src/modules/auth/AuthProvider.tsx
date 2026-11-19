@@ -43,6 +43,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     );
 
     if (callbackError) {
+      window.history.replaceState(null, '', '/');
       setState({
         status: 'error',
         user: null,
@@ -66,6 +67,10 @@ export function AuthProvider({ children }: PropsWithChildren) {
       }
     } catch (error) {
       if (error instanceof AuthenticationHttpError && error.status === 401) {
+        if (window.location.pathname === '/auth/callback') {
+          window.history.replaceState(null, '', '/');
+        }
+
         setState({
           status: 'unauthenticated',
           user: null,
