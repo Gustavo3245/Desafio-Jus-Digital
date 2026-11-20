@@ -88,18 +88,18 @@ drag and drop e mantendo uma adaptação utilizável em tablet e mobile.
 
 ## Estados e erros
 
-| Situação            | Comportamento esperado                 | Estado visual |
-| ------------------- | -------------------------------------- | ------------- |
-| Nenhum arquivo      | Exibir orientação e formatos aceitos   | Estado vazio  |
-| Arquivo sobre zona  | Destacar borda e superfície            | Arraste ativo |
-| Arquivo selecionado | Abrir prévia e permitir edição         | Modal         |
-| Envio em andamento  | Bloquear fechamento e ação duplicada   | Loading       |
-| Falha segura        | Manter dados e orientar nova tentativa | Erro no modal |
-| Envio concluído     | Fechar modal e confirmar resultado     | Sucesso       |
-| Histórico carregado | Exibir cartões dentro do painel branco | Grade         |
-| Uma seleção         | Exibir análise e exclusão              | Ações         |
-| Várias seleções     | Exibir somente exclusão                | Ações         |
-| Exclusão solicitada | Pedir confirmação explícita            | Modal         |
+| Situação            | Comportamento esperado                                        | Estado visual    |
+| ------------------- | ------------------------------------------------------------- | ---------------- |
+| Nenhum arquivo      | Exibir orientação e formatos aceitos                          | Estado vazio     |
+| Arquivo sobre zona  | Destacar borda e superfície                                   | Arraste ativo    |
+| Arquivo selecionado | Abrir prévia e permitir edição                                | Modal            |
+| Envio em andamento  | Exibir modal de análise com GPT-4o-mini e bloquear fechamento | Loading no modal |
+| Falha segura        | Manter dados e orientar nova tentativa                        | Erro no modal    |
+| Envio concluído     | Fechar modal e confirmar resultado                            | Sucesso          |
+| Histórico carregado | Exibir cartões dentro do painel branco                        | Grade            |
+| Uma seleção         | Exibir análise e exclusão                                     | Ações            |
+| Várias seleções     | Exibir somente exclusão                                       | Ações            |
+| Exclusão solicitada | Pedir confirmação explícita                                   | Modal            |
 
 ## Contratos afetados
 

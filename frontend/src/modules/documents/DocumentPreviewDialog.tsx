@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { FormEvent, MouseEvent } from 'react';
-import { FileText, Save, X } from 'lucide-react';
+import { FileText, Save, Sparkles, X } from 'lucide-react';
 import { Spinner } from '../../shared/Spinner.js';
 import { DOCUMENT_LIMITS } from './document.constants.js';
 import { formatFileSize, getFileExtension } from './document-formatters.js';
@@ -79,6 +79,7 @@ export function DocumentPreviewDialog({
       ref={dialog}
       className="document-preview-dialog"
       aria-labelledby="document-preview-title"
+      aria-busy={isSaving}
       onCancel={(event) => {
         event.preventDefault();
         if (!isSaving) onClose();
@@ -86,7 +87,9 @@ export function DocumentPreviewDialog({
       onClick={handleBackdrop}
     >
       <header className="document-preview-dialog__header">
-        <h2 id="document-preview-title">Prévia do Documento</h2>
+        <h2 id="document-preview-title">
+          {isSaving ? 'Analisando Documento' : 'Prévia do Documento'}
+        </h2>
         <button
           type="button"
           aria-label="Fechar prévia"
@@ -99,77 +102,102 @@ export function DocumentPreviewDialog({
 
       <form className="document-preview-dialog__form" onSubmit={handleSubmit}>
         <div className="document-preview-dialog__content">
-          <div className="document-preview-dialog__file" aria-label={file.name}>
-            <span
-              className="document-preview-dialog__file-icon"
-              aria-hidden="true"
+          {isSaving ? (
+            <div
+              className="document-preview-dialog__analyzing"
+              role="status"
+              aria-live="polite"
             >
-              <FileText size={36} strokeWidth={1.6} />
-              <small>{getFileExtension(file.name).toUpperCase()}</small>
-            </span>
-            <p>{file.name}</p>
-            <small>{formatFileSize(file.size)}</small>
-          </div>
-
-          <label className="document-preview-dialog__field">
-            <span>Título</span>
-            <input
-              autoFocus
-              required
-              maxLength={DOCUMENT_LIMITS.titleLength}
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-            />
-            <small>
-              {title.length}/{DOCUMENT_LIMITS.titleLength}
-            </small>
-          </label>
-
-          <label className="document-preview-dialog__field">
-            <span>Instrução para IA</span>
-            <textarea
-              required
-              maxLength={DOCUMENT_LIMITS.instructionLength}
-              rows={3}
-              placeholder="Como a IA deve analisar este documento"
-              value={instruction}
-              onChange={(event) => setInstruction(event.target.value)}
-            />
-            <small>
-              {instruction.length}/
-              {DOCUMENT_LIMITS.instructionLength.toLocaleString('pt-BR')}
-            </small>
-          </label>
-
-          {errorMessage ? (
-            <div className="inline-alert inline-alert--error" role="alert">
-              <p>{errorMessage}</p>
+              <span
+                className="document-preview-dialog__analyzing-badge"
+                aria-hidden="true"
+              >
+                <Sparkles size={26} />
+              </span>
+              <Spinner label="Gerando análise com o GPT-4o-mini" />
+              <h3>Gerando análise com o GPT-4o-mini…</h3>
+              <p>
+                Estamos enviando seu documento e processando a instrução com
+                inteligência artificial. Aguarde alguns instantes.
+              </p>
+              <div className="document-preview-dialog__analyzing-file">
+                <strong>{title.trim() || file.name}</strong>
+                <small>
+                  {file.name} · {formatFileSize(file.size)}
+                </small>
+              </div>
             </div>
-          ) : null}
+          ) : (
+            <>
+              <div
+                className="document-preview-dialog__file"
+                aria-label={file.name}
+              >
+                <span
+                  className="document-preview-dialog__file-icon"
+                  aria-hidden="true"
+                >
+                  <FileText size={36} strokeWidth={1.6} />
+                  <small>{getFileExtension(file.name).toUpperCase()}</small>
+                </span>
+                <p>{file.name}</p>
+                <small>{formatFileSize(file.size)}</small>
+              </div>
+
+              <label className="document-preview-dialog__field">
+                <span>Título</span>
+                <input
+                  autoFocus
+                  required
+                  maxLength={DOCUMENT_LIMITS.titleLength}
+                  value={title}
+                  onChange={(event) => setTitle(event.target.value)}
+                />
+                <small>
+                  {title.length}/{DOCUMENT_LIMITS.titleLength}
+                </small>
+              </label>
+
+              <label className="document-preview-dialog__field">
+                <span>Instrução para IA</span>
+                <textarea
+                  required
+                  maxLength={DOCUMENT_LIMITS.instructionLength}
+                  rows={3}
+                  placeholder="Como a IA deve analisar este documento"
+                  value={instruction}
+                  onChange={(event) => setInstruction(event.target.value)}
+                />
+                <small>
+                  {instruction.length}/
+                  {DOCUMENT_LIMITS.instructionLength.toLocaleString('pt-BR')}
+                </small>
+              </label>
+
+              {errorMessage ? (
+                <div className="inline-alert inline-alert--error" role="alert">
+                  <p>{errorMessage}</p>
+                </div>
+              ) : null}
+            </>
+          )}
         </div>
 
-        <footer className="document-preview-dialog__actions">
-          <button
-            className="document-preview-dialog__cancel"
-            type="button"
-            disabled={isSaving}
-            onClick={onClose}
-          >
-            Cancelar
-          </button>
-          <button
-            className="document-preview-dialog__save"
-            type="submit"
-            disabled={isSaving}
-          >
-            {isSaving ? (
-              <Spinner label="Salvando documento" />
-            ) : (
+        {!isSaving ? (
+          <footer className="document-preview-dialog__actions">
+            <button
+              className="document-preview-dialog__cancel"
+              type="button"
+              onClick={onClose}
+            >
+              Cancelar
+            </button>
+            <button className="document-preview-dialog__save" type="submit">
               <Save size={17} aria-hidden="true" />
-            )}
-            {isSaving ? 'Salvando…' : 'Salvar'}
-          </button>
-        </footer>
+              Salvar
+            </button>
+          </footer>
+        ) : null}
       </form>
     </dialog>
   );
