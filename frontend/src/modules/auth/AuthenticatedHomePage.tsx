@@ -1,4 +1,5 @@
-import { FilePlus2, Files, LogOut } from 'lucide-react';
+import { Files, LogOut } from 'lucide-react';
+import { DocumentDropzone } from '../documents/DocumentDropzone.js';
 import { Brand } from '../../shared/Brand.js';
 import { Spinner } from '../../shared/Spinner.js';
 import { useAuthentication } from './AuthProvider.js';
@@ -48,10 +49,6 @@ export function AuthenticatedHomePage({ user }: AuthenticatedHomePageProps) {
       <main className="documents-placeholder">
         <header>
           <h1>Documentos</h1>
-          <button type="button" disabled title="Disponível na próxima etapa">
-            <FilePlus2 size={17} aria-hidden="true" />
-            Adicionar documento
-          </button>
         </header>
 
         {authentication.errorMessage ? (
@@ -60,13 +57,7 @@ export function AuthenticatedHomePage({ user }: AuthenticatedHomePageProps) {
           </div>
         ) : null}
 
-        <section className="documents-placeholder__empty">
-          <span aria-hidden="true">
-            <Files size={34} strokeWidth={1.5} />
-          </span>
-          <h2>Você ainda não tem documentos</h2>
-          <p>Os arquivos enviados aparecerão aqui.</p>
-        </section>
+        <DocumentDropzone />
       </main>
     </div>
   );
