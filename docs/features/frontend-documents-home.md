@@ -72,6 +72,8 @@ drag and drop e mantendo uma adaptação utilizável em tablet e mobile.
   múltipla permite somente exclusão.
 - `FRONT-DOCS-008` - Exclusão exige confirmação e falha parcial recarrega a fonte de
   verdade antes de exibir erro seguro.
+- `FRONT-DOCS-009` - Em notebook, meia tela e tablet, ações contextuais não alteram a
+  posição vertical da grade; no mobile estreito elas fluem sem cobrir os cartões.
 
 ## Estados e erros
 
@@ -146,6 +148,9 @@ drag and drop e mantendo uma adaptação utilizável em tablet e mobile.
 - Histórico e seleção: cartões, seleção única/múltipla, ações contextuais, modal de
   análise e confirmação de exclusão inspecionados em notebook, 920 px, 768 px, 390 px
   e 320 px; sem overflow horizontal.
+- Posicionamento contextual: em 920 px e 768 px, a coordenada vertical do primeiro
+  cartão permaneceu idêntica antes e depois da seleção; no mobile as ações fluem sem
+  overflow ou sobreposição.
 - Verificação em 2026-11-20: lint e builds aprovados, 54 testes unitários, 14 de
   integração, 21 E2E e 11 testes do pacote front-end aprovados.
 - ADRs: nenhuma.

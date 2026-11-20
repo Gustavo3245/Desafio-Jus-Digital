@@ -52,11 +52,17 @@ last_updated: 2026-11-20
   contagem selecionada e `Adicionar documento`.
 - Um documento selecionado revela `Excluir documentos` e `Visualizar análise`; com
   dois ou mais, somente exclusão permanece disponível, como no protótipo.
+- As ações contextuais abrem como popover ancorado ao cabeçalho e não participam do
+  fluxo da grade; selecionar um cartão não desloca os documentos verticalmente.
 
 ### Tablet e mobile
 
 - O cabeçalho e as ações quebram linha sem overflow; `Adicionar documento` mantém
   alvo de toque de 44 px.
+- Em larguras de até 600 px, as ações contextuais retornam ao fluxo vertical para não
+  cobrir cartões e preservar leitura e alvos de toque.
+- Entre 601 px e 1.080 px, exclusão e análise permanecem na linha do cabeçalho como
+  botões de ícone rotulados para tecnologias assistivas, evitando cobrir a grade.
 - A grade reduz colunas conforme o espaço, sem comprimir cartões ou truncar controles.
 - A seleção permanece explícita por texto para leitores de tela e por marcador, não
   apenas pela cor.
