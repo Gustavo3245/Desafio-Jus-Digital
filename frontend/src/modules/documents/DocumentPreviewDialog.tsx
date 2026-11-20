@@ -4,7 +4,12 @@ import { FileText, Save, X } from 'lucide-react';
 import { Spinner } from '../../shared/Spinner.js';
 import { DOCUMENT_LIMITS } from './document.constants.js';
 import { formatFileSize, getFileExtension } from './document-formatters.js';
-import { createDocumentsApi, toSafeDocumentError } from './documents-api.js';
+import {
+  createDocumentsApi,
+  toSafeDocumentError,
+  validateDocumentFields,
+  validateDocumentFile,
+} from './documents-api.js';
 import type { DocumentRecord } from './documents.types.js';
 
 interface DocumentPreviewDialogProps {
@@ -21,7 +26,9 @@ export function DocumentPreviewDialog({
   onSaved,
 }: DocumentPreviewDialogProps) {
   const dialog = useRef<HTMLDialogElement>(null);
-  const [title, setTitle] = useState(file.name);
+  const [title, setTitle] = useState(() =>
+    file.name.slice(0, DOCUMENT_LIMITS.titleLength),
+  );
   const [instruction, setInstruction] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -37,6 +44,14 @@ export function DocumentPreviewDialog({
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (isSaving) return;
+
+    const validationError =
+      validateDocumentFile(file) ??
+      validateDocumentFields({ title, instruction });
+    if (validationError) {
+      setErrorMessage(validationError);
+      return;
+    }
 
     setErrorMessage(null);
     setIsSaving(true);
@@ -105,6 +120,9 @@ export function DocumentPreviewDialog({
               value={title}
               onChange={(event) => setTitle(event.target.value)}
             />
+            <small>
+              {title.length}/{DOCUMENT_LIMITS.titleLength}
+            </small>
           </label>
 
           <label className="document-preview-dialog__field">

@@ -9,7 +9,7 @@ interface EmptyDocumentsDropzoneProps {
   isDragging: boolean;
   onDraggingChange: (isDragging: boolean) => void;
   onOpenFilePicker: () => void;
-  onSelectFile: (file?: File) => void;
+  onSelectFile: (file?: File, fileCount?: number) => void;
 }
 
 export function EmptyDocumentsDropzone({
@@ -32,7 +32,8 @@ export function EmptyDocumentsDropzone({
 
   const handleDrop = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
-    onSelectFile(event.dataTransfer.files[0]);
+    const { files } = event.dataTransfer;
+    onSelectFile(files[0], files.length);
   };
 
   return (

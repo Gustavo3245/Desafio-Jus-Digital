@@ -31,7 +31,7 @@ import { DocumentsService } from './documents.service.js';
 
 const createDocumentFieldsSchema = z.object({
   title: z
-    .string()
+    .string({ error: 'Document title is required' })
     .trim()
     .min(1, 'Document title is required')
     .max(
@@ -39,7 +39,7 @@ const createDocumentFieldsSchema = z.object({
       `Document title must be at most ${DOCUMENT_LIMITS.titleLength} characters`,
     ),
   instruction: z
-    .string()
+    .string({ error: 'Document instruction is required' })
     .trim()
     .min(1, 'Document instruction is required')
     .max(

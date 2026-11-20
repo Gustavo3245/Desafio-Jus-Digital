@@ -80,6 +80,11 @@ drag and drop e mantendo uma adaptação utilizável em tablet e mobile.
   acessível.
 - `FRONT-DOCS-011` - A análise suporta CommonMark/GFM sem executar HTML bruto nem
   carregar imagens remotas; links externos não recebem acesso ao `window.opener`.
+- `FRONT-DOCS-012` - Seleção de arquivo (por clique ou drag and drop) e envio validam
+  e exibem mensagens específicas para formato não suportado (`.pdf`, `.doc`, `.docx`,
+  `.txt`), arquivo vazio, arquivo acima de 10 MB, conteúdo binário incompatível e
+  campos obrigatórios ou fora dos limites (`title` até 150 caracteres e `instruction`
+  até 2.000 caracteres).
 
 ## Estados e erros
 

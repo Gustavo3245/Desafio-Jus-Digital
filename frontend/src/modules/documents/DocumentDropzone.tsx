@@ -6,7 +6,11 @@ import { DocumentAnalysisDialog } from './DocumentAnalysisDialog.js';
 import { DocumentDeleteDialog } from './DocumentDeleteDialog.js';
 import { DocumentPreviewDialog } from './DocumentPreviewDialog.js';
 import { EmptyDocumentsDropzone } from './EmptyDocumentsDropzone.js';
-import { ACCEPTED_DOCUMENT_TYPES } from './document.constants.js';
+import {
+  ACCEPTED_DOCUMENT_TYPES,
+  DOCUMENT_LIMITS,
+} from './document.constants.js';
+import { validateDocumentFile } from './documents-api.js';
 import { DocumentsGrid } from './DocumentsGrid.js';
 import { DocumentsPanelHeader } from './DocumentsPanelHeader.js';
 import { useDocumentLibrary } from './useDocumentLibrary.js';
@@ -15,6 +19,7 @@ export function DocumentDropzone() {
   const input = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [fileErrorMessage, setFileErrorMessage] = useState<string | null>(null);
   const library = useDocumentLibrary();
 
   const openFilePicker = () => {
@@ -23,12 +28,27 @@ export function DocumentDropzone() {
     input.current.click();
   };
 
-  const selectFile = (file?: File) => {
-    if (file) {
-      library.clearError();
-      setSelectedFile(file);
-    }
+  const selectFile = (file?: File, fileCount = 1) => {
     setIsDragging(false);
+
+    if (fileCount > DOCUMENT_LIMITS.filesPerUpload) {
+      setSelectedFile(null);
+      setFileErrorMessage('Selecione apenas um arquivo por vez.');
+      return;
+    }
+
+    if (!file) return;
+
+    const validationError = validateDocumentFile(file);
+    if (validationError) {
+      setSelectedFile(null);
+      setFileErrorMessage(validationError);
+      return;
+    }
+
+    setFileErrorMessage(null);
+    library.clearError();
+    setSelectedFile(file);
   };
 
   return (
@@ -48,9 +68,21 @@ export function DocumentDropzone() {
         type="file"
         accept={ACCEPTED_DOCUMENT_TYPES}
         onChange={(event: ChangeEvent<HTMLInputElement>) =>
-          selectFile(event.target.files?.[0])
+          selectFile(event.target.files?.[0], event.target.files?.length ?? 1)
         }
       />
+
+      {fileErrorMessage ? (
+        <div
+          className="documents-panel__error inline-alert inline-alert--error"
+          role="alert"
+        >
+          <p>{fileErrorMessage}</p>
+          <button type="button" onClick={openFilePicker}>
+            Selecionar outro arquivo
+          </button>
+        </div>
+      ) : null}
 
       {library.errorMessage ? (
         <div

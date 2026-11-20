@@ -127,7 +127,7 @@ describe('Document upload and storage (e2e)', () => {
       .expect(HttpStatus.UNAUTHORIZED);
   });
 
-  it('rejects missing, forged or oversized files with 400 INVALID_FILE', async () => {
+  it('rejects missing, unsupported, forged or oversized files with 400 INVALID_FILE and specific messages', async () => {
     await signIn();
 
     const missingFile = await agent
@@ -136,7 +136,41 @@ describe('Document upload and storage (e2e)', () => {
       .field('title', 'Contrato')
       .field('instruction', 'Analise')
       .expect(HttpStatus.BAD_REQUEST);
-    expect(missingFile.body).toMatchObject({ code: 'INVALID_FILE' });
+    expect(missingFile.body).toEqual({
+      code: 'INVALID_FILE',
+      message: 'Document file is required',
+    });
+
+    const unsupportedFile = await agent
+      .post('/api/v1/documents')
+      .set('Origin', frontendOrigin)
+      .field('title', 'Planilha')
+      .field('instruction', 'Analise')
+      .attach('file', Buffer.from('col1,col2\n1,2'), {
+        filename: 'planilha.csv',
+        contentType: 'text/csv',
+      })
+      .expect(HttpStatus.BAD_REQUEST);
+    expect(unsupportedFile.body).toEqual({
+      code: 'INVALID_FILE',
+      message:
+        'Unsupported document format; allowed formats are PDF, DOCX, DOC and TXT',
+    });
+
+    const emptyFile = await agent
+      .post('/api/v1/documents')
+      .set('Origin', frontendOrigin)
+      .field('title', 'Arquivo Vazio')
+      .field('instruction', 'Analise')
+      .attach('file', Buffer.alloc(0), {
+        filename: 'vazio.pdf',
+        contentType: 'application/pdf',
+      })
+      .expect(HttpStatus.BAD_REQUEST);
+    expect(emptyFile.body).toEqual({
+      code: 'INVALID_FILE',
+      message: 'Document file cannot be empty',
+    });
 
     const forgedPdf = await agent
       .post('/api/v1/documents')
@@ -148,7 +182,10 @@ describe('Document upload and storage (e2e)', () => {
         contentType: 'application/pdf',
       })
       .expect(HttpStatus.BAD_REQUEST);
-    expect(forgedPdf.body).toMatchObject({ code: 'INVALID_FILE' });
+    expect(forgedPdf.body).toEqual({
+      code: 'INVALID_FILE',
+      message: 'File content does not match a valid PDF document',
+    });
 
     const oversizedPdf = await agent
       .post('/api/v1/documents')
@@ -160,19 +197,59 @@ describe('Document upload and storage (e2e)', () => {
         contentType: 'application/pdf',
       })
       .expect(HttpStatus.BAD_REQUEST);
-    expect(oversizedPdf.body).toMatchObject({ code: 'INVALID_FILE' });
+    expect(oversizedPdf.body).toEqual({
+      code: 'INVALID_FILE',
+      message: 'Document file exceeds the 10 MB maximum size',
+    });
   });
 
-  it('rejects missing or blank title and instruction before uploading', async () => {
+  it('rejects missing, blank or over-limit title and instruction before uploading', async () => {
     await signIn();
 
-    await agent
+    const blankTitle = await agent
       .post('/api/v1/documents')
       .set('Origin', frontendOrigin)
       .field('title', '   ')
       .field('instruction', 'Analise')
       .attach('file', Buffer.from('%PDF-1.7\ncontent'), 'contrato.pdf')
       .expect(HttpStatus.BAD_REQUEST);
+    expect(blankTitle.body).toMatchObject({
+      message: ['title: Document title is required'],
+    });
+
+    const oversizedTitle = await agent
+      .post('/api/v1/documents')
+      .set('Origin', frontendOrigin)
+      .field('title', 'T'.repeat(151))
+      .field('instruction', 'Analise')
+      .attach('file', Buffer.from('%PDF-1.7\ncontent'), 'contrato.pdf')
+      .expect(HttpStatus.BAD_REQUEST);
+    expect(oversizedTitle.body).toMatchObject({
+      message: ['title: Document title must be at most 150 characters'],
+    });
+
+    const missingInstruction = await agent
+      .post('/api/v1/documents')
+      .set('Origin', frontendOrigin)
+      .field('title', 'Contrato')
+      .attach('file', Buffer.from('%PDF-1.7\ncontent'), 'contrato.pdf')
+      .expect(HttpStatus.BAD_REQUEST);
+    expect(missingInstruction.body).toMatchObject({
+      message: ['instruction: Document instruction is required'],
+    });
+
+    const oversizedInstruction = await agent
+      .post('/api/v1/documents')
+      .set('Origin', frontendOrigin)
+      .field('title', 'Contrato')
+      .field('instruction', 'I'.repeat(2_001))
+      .attach('file', Buffer.from('%PDF-1.7\ncontent'), 'contrato.pdf')
+      .expect(HttpStatus.BAD_REQUEST);
+    expect(oversizedInstruction.body).toMatchObject({
+      message: [
+        'instruction: Document instruction must be at most 2000 characters',
+      ],
+    });
   });
 
   it('returns 503 EXTERNAL_SERVICE_UNAVAILABLE and persists nothing when storage fails', async () => {

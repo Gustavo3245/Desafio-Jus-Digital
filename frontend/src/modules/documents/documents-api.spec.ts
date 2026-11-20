@@ -1,8 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
+import { DOCUMENT_LIMITS } from './document.constants.js';
 import {
   createDocumentsApi,
   DocumentHttpError,
   toSafeDocumentError,
+  validateDocumentFields,
+  validateDocumentFile,
 } from './documents-api.js';
 import type { DocumentRecord } from './documents.types.js';
 
@@ -54,25 +57,177 @@ describe('createDocumentsApi', () => {
     expect(form.get('instruction')).toBe('Resuma o documento');
   });
 
-  it('exposes a safe error category without leaking the response', async () => {
+  it('exposes specific error messages for invalid file and field errors', async () => {
     const fetchImplementation = vi.fn<typeof fetch>().mockResolvedValue(
-      new Response(JSON.stringify({ code: 'INVALID_FILE' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      }),
+      new Response(
+        JSON.stringify({
+          code: 'INVALID_FILE',
+          message:
+            'Unsupported document format; allowed formats are PDF, DOCX, DOC and TXT',
+        }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        },
+      ),
     );
     const api = createDocumentsApi('http://api.test', fetchImplementation);
 
     await expect(
       api.createDocument({
-        file: new File(['bad'], 'arquivo.pdf'),
+        file: new File(['bad'], 'imagem.png'),
         title: 'Arquivo',
         instruction: 'Analise',
       }),
-    ).rejects.toEqual(new DocumentHttpError(400, 'INVALID_FILE'));
+    ).rejects.toEqual(
+      new DocumentHttpError(
+        400,
+        'INVALID_FILE',
+        'Unsupported document format; allowed formats are PDF, DOCX, DOC and TXT',
+      ),
+    );
+
+    expect(
+      toSafeDocumentError(
+        new DocumentHttpError(
+          400,
+          'INVALID_FILE',
+          'Unsupported document format; allowed formats are PDF, DOCX, DOC and TXT',
+        ),
+      ),
+    ).toBe(
+      'Formato de arquivo não suportado. Envie um arquivo PDF, DOC, DOCX ou TXT.',
+    );
+    expect(
+      toSafeDocumentError(
+        new DocumentHttpError(
+          400,
+          'INVALID_FILE',
+          'Document file exceeds the 10 MB maximum size',
+        ),
+      ),
+    ).toBe('O arquivo excede o tamanho máximo de 10 MB.');
+    expect(
+      toSafeDocumentError(
+        new DocumentHttpError(
+          400,
+          'INVALID_FILE',
+          'Document file cannot be empty',
+        ),
+      ),
+    ).toBe(
+      'O arquivo selecionado está vazio. Escolha um documento com conteúdo.',
+    );
+    expect(
+      toSafeDocumentError(
+        new DocumentHttpError(
+          400,
+          'INVALID_FILE',
+          'File content does not match a valid PDF document',
+        ),
+      ),
+    ).toBe(
+      'O conteúdo do arquivo é inválido ou não corresponde ao formato informado.',
+    );
     expect(
       toSafeDocumentError(new DocumentHttpError(400, 'INVALID_FILE')),
     ).toBe('O arquivo não é válido. Confira o formato e o limite de 10 MB.');
+    expect(
+      toSafeDocumentError(
+        new DocumentHttpError(400, null, 'title: Document title is required'),
+      ),
+    ).toBe('O título do documento é obrigatório.');
+    expect(
+      toSafeDocumentError(
+        new DocumentHttpError(
+          400,
+          null,
+          'title: Document title must be at most 150 characters',
+        ),
+      ),
+    ).toBe('O título deve ter no máximo 150 caracteres.');
+    expect(
+      toSafeDocumentError(
+        new DocumentHttpError(
+          400,
+          null,
+          'instruction: Document instruction is required',
+        ),
+      ),
+    ).toBe('A instrução para a IA é obrigatória.');
+    expect(
+      toSafeDocumentError(
+        new DocumentHttpError(
+          400,
+          null,
+          'instruction: Document instruction must be at most 2000 characters',
+        ),
+      ),
+    ).toBe('A instrução deve ter no máximo 2.000 caracteres.');
+  });
+
+  it('validates file extension, empty size and 10 MB limit on the client', () => {
+    expect(
+      validateDocumentFile({ name: 'contrato.pdf', size: 1_024 }),
+    ).toBeNull();
+    expect(
+      validateDocumentFile({ name: 'minuta.DOCX', size: 2_048 }),
+    ).toBeNull();
+    expect(validateDocumentFile({ name: 'laudo.doc', size: 512 })).toBeNull();
+    expect(validateDocumentFile({ name: 'notas.txt', size: 128 })).toBeNull();
+
+    expect(validateDocumentFile({ name: 'foto.png', size: 1_024 })).toBe(
+      'Formato de arquivo não suportado. Envie um arquivo PDF, DOC, DOCX ou TXT.',
+    );
+    expect(validateDocumentFile({ name: 'sem-extensao', size: 1_024 })).toBe(
+      'Formato de arquivo não suportado. Envie um arquivo PDF, DOC, DOCX ou TXT.',
+    );
+    expect(validateDocumentFile({ name: 'vazio.pdf', size: 0 })).toBe(
+      'O arquivo selecionado está vazio. Escolha um documento com conteúdo.',
+    );
+    expect(
+      validateDocumentFile({
+        name: 'grande.pdf',
+        size: DOCUMENT_LIMITS.sizeBytes + 1,
+      }),
+    ).toBe('O arquivo excede o tamanho máximo de 10 MB.');
+  });
+
+  it('validates required fields and character limits for title and instruction', () => {
+    expect(
+      validateDocumentFields({
+        title: 'Contrato Social',
+        instruction: 'Resuma as cláusulas principais',
+      }),
+    ).toBeNull();
+
+    expect(
+      validateDocumentFields({
+        title: '   ',
+        instruction: 'Resuma',
+      }),
+    ).toBe('O título do documento é obrigatório.');
+
+    expect(
+      validateDocumentFields({
+        title: 'A'.repeat(DOCUMENT_LIMITS.titleLength + 1),
+        instruction: 'Resuma',
+      }),
+    ).toBe('O título deve ter no máximo 150 caracteres.');
+
+    expect(
+      validateDocumentFields({
+        title: 'Contrato',
+        instruction: '   ',
+      }),
+    ).toBe('A instrução para a IA é obrigatória.');
+
+    expect(
+      validateDocumentFields({
+        title: 'Contrato',
+        instruction: 'I'.repeat(DOCUMENT_LIMITS.instructionLength + 1),
+      }),
+    ).toBe('A instrução deve ter no máximo 2.000 caracteres.');
   });
 
   it('lists and reads persisted documents with the authenticated session', async () => {
