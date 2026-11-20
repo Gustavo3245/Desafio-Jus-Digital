@@ -1,30 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
-import type { ChangeEvent, DragEvent, KeyboardEvent } from 'react';
-import {
-  Check,
-  Eye,
-  FileSearch,
-  FileText,
-  Plus,
-  RefreshCw,
-  Trash2,
-} from 'lucide-react';
+import type { ChangeEvent } from 'react';
+import { RefreshCw } from 'lucide-react';
 import { Spinner } from '../../shared/Spinner.js';
 import { DocumentAnalysisDialog } from './DocumentAnalysisDialog.js';
 import { DocumentDeleteDialog } from './DocumentDeleteDialog.js';
 import { DocumentPreviewDialog } from './DocumentPreviewDialog.js';
-import {
-  ACCEPTED_DOCUMENT_TYPES,
-  DOCUMENT_FORMATS_LABEL,
-  DOCUMENT_LIMITS,
-} from './document.constants.js';
-import {
-  formatDocumentDate,
-  formatFileSize,
-  getFileExtension,
-} from './document-formatters.js';
+import { EmptyDocumentsDropzone } from './EmptyDocumentsDropzone.js';
+import { ACCEPTED_DOCUMENT_TYPES } from './document.constants.js';
 import { createDocumentsApi, toSafeDocumentError } from './documents-api.js';
 import type { DocumentRecord } from './documents.types.js';
+import { DocumentsGrid } from './DocumentsGrid.js';
+import { DocumentsPanelHeader } from './DocumentsPanelHeader.js';
 
 const documentsApi = createDocumentsApi(import.meta.env.VITE_API_BASE_URL);
 
@@ -142,57 +128,16 @@ export function DocumentDropzone() {
     }
   };
 
-  const totalLabel = `${documents.length} ${documents.length === 1 ? 'Documento' : 'Documentos'}`;
-  const selectedLabel = `${selectedIds.size} ${selectedIds.size === 1 ? 'documento selecionado' : 'documentos selecionados'}`;
-
   return (
     <section className="documents-upload-panel" aria-label="Seus documentos">
-      <div className="documents-panel__header">
-        {documents.length > 0 ? <h2>{totalLabel}</h2> : <span />}
-
-        <div className="documents-upload-panel__actions">
-          {selectedIds.size > 0 ? (
-            <span className="documents-selection-count" aria-live="polite">
-              {selectedLabel}
-            </span>
-          ) : null}
-          <button type="button" onClick={openFilePicker}>
-            <Plus size={18} aria-hidden="true" />
-            Adicionar documento
-          </button>
-
-          {selectedIds.size > 0 ? (
-            <div className="documents-selection-actions">
-              <button
-                type="button"
-                aria-label="Excluir documentos"
-                title="Excluir documentos"
-                onClick={() => setIsDeleteOpen(true)}
-              >
-                <Trash2 size={19} aria-hidden="true" />
-                <span>Excluir documentos</span>
-              </button>
-              {selectedIds.size === 1 ? (
-                <button
-                  className="documents-selection-actions__analysis"
-                  type="button"
-                  aria-label="Visualizar análise"
-                  title="Visualizar análise"
-                  disabled={isOpeningAnalysis}
-                  onClick={() => void openAnalysis()}
-                >
-                  {isOpeningAnalysis ? (
-                    <Spinner label="Abrindo análise" />
-                  ) : (
-                    <Eye size={20} aria-hidden="true" />
-                  )}
-                  <span>Visualizar análise</span>
-                </button>
-              ) : null}
-            </div>
-          ) : null}
-        </div>
-      </div>
+      <DocumentsPanelHeader
+        documentCount={documents.length}
+        selectedCount={selectedIds.size}
+        isOpeningAnalysis={isOpeningAnalysis}
+        onAddDocument={openFilePicker}
+        onDelete={() => setIsDeleteOpen(true)}
+        onOpenAnalysis={() => void openAnalysis()}
+      />
 
       <input
         ref={input}
@@ -223,78 +168,18 @@ export function DocumentDropzone() {
           <span>Carregando documentos…</span>
         </div>
       ) : documents.length > 0 ? (
-        <div className="documents-grid" role="list" aria-label={totalLabel}>
-          {documents.map((document) => {
-            const isSelected = selectedIds.has(document.id);
-            return (
-              <div key={document.id} role="listitem">
-                <button
-                  className={`document-card${isSelected ? ' document-card--selected' : ''}`}
-                  type="button"
-                  aria-pressed={isSelected}
-                  onClick={() => toggleDocument(document.id)}
-                >
-                  <span className="document-card__check" aria-hidden="true">
-                    {isSelected ? <Check size={15} strokeWidth={3} /> : null}
-                  </span>
-                  <span className="document-card__file" aria-hidden="true">
-                    <FileText size={29} strokeWidth={1.5} />
-                    <small>{getFileExtension(document.originalName)}</small>
-                  </span>
-                  <strong title={document.title}>{document.title}</strong>
-                  <time dateTime={document.createdAt}>
-                    {formatDocumentDate(document.createdAt)}
-                  </time>
-                  <small>
-                    {formatFileSize(document.sizeBytes)} · .
-                    {getFileExtension(document.originalName)}
-                  </small>
-                </button>
-              </div>
-            );
-          })}
-        </div>
+        <DocumentsGrid
+          documents={documents}
+          selectedIds={selectedIds}
+          onToggle={toggleDocument}
+        />
       ) : (
-        <div
-          className={`document-dropzone${isDragging ? ' document-dropzone--active' : ''}`}
-          role="button"
-          tabIndex={0}
-          aria-label="Selecionar ou arrastar documento"
-          onClick={openFilePicker}
-          onKeyDown={(event: KeyboardEvent<HTMLDivElement>) => {
-            if (event.key !== 'Enter' && event.key !== ' ') return;
-            event.preventDefault();
-            openFilePicker();
-          }}
-          onDragEnter={(event) => {
-            event.preventDefault();
-            setIsDragging(true);
-          }}
-          onDragOver={(event) => event.preventDefault()}
-          onDragLeave={(event) => {
-            if (
-              !event.currentTarget.contains(event.relatedTarget as Node | null)
-            ) {
-              setIsDragging(false);
-            }
-          }}
-          onDrop={(event: DragEvent<HTMLDivElement>) => {
-            event.preventDefault();
-            selectFile(event.dataTransfer.files[0]);
-          }}
-        >
-          <span className="document-dropzone__icon" aria-hidden="true">
-            <FileSearch size={38} />
-          </span>
-          <h2>Você ainda não tem documentos</h2>
-          <p>
-            Arraste um arquivo para esta área ou clique em “Adicionar
-            documento”.
-          </p>
-          <small>
-            {DOCUMENT_FORMATS_LABEL} · até {DOCUMENT_LIMITS.sizeMegabytes} MB
-          </small>
-        </div>
+        <EmptyDocumentsDropzone
+          isDragging={isDragging}
+          onDraggingChange={setIsDragging}
+          onOpenFilePicker={openFilePicker}
+          onSelectFile={selectFile}
+        />
       )}
 
       {selectedFile ? (
