@@ -1,8 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import { extname } from 'node:path';
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { DOCUMENT_LIMITS } from './document.constants.js';
 
-export const MAX_DOCUMENT_SIZE_BYTES = 10 * 1024 * 1024;
+export const MAX_DOCUMENT_SIZE_BYTES = DOCUMENT_LIMITS.sizeBytes;
 const MAX_ORIGINAL_NAME_LENGTH = 255;
 
 const PDF_MAGIC = Buffer.from([0x25, 0x50, 0x44, 0x46, 0x2d]); // %PDF-
@@ -17,6 +18,26 @@ export type SupportedDocumentMimeType =
   | 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
   | 'application/msword'
   | 'text/plain';
+
+const MIME_TYPE_BY_EXTENSION = {
+  pdf: 'application/pdf',
+  docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  doc: 'application/msword',
+  txt: 'text/plain',
+} as const satisfies Record<
+  SupportedDocumentExtension,
+  SupportedDocumentMimeType
+>;
+
+const CONTENT_VALIDATOR_BY_EXTENSION: Record<
+  SupportedDocumentExtension,
+  (buffer: Buffer) => boolean
+> = {
+  pdf: (buffer) => hasPrefix(buffer, PDF_MAGIC),
+  docx: isDocxArchive,
+  doc: (buffer) => hasPrefix(buffer, OLE2_MAGIC),
+  txt: isValidUtf8Text,
+};
 
 export interface UploadedDocumentFileInput {
   originalname: string;
@@ -110,86 +131,42 @@ export function inspectAndValidateDocumentFile(
     throw new InvalidDocumentFileException('Document file cannot be empty');
   }
 
-  if (sizeBytes > MAX_DOCUMENT_SIZE_BYTES) {
+  if (sizeBytes > DOCUMENT_LIMITS.sizeBytes) {
     throw new InvalidDocumentFileException(
-      'Document file exceeds the 10 MB maximum size',
+      `Document file exceeds the ${DOCUMENT_LIMITS.sizeMegabytes} MB maximum size`,
     );
   }
 
   const originalName = sanitizeOriginalFileName(file.originalname);
   const rawExtension = extname(originalName).toLowerCase().replace(/^\./, '');
 
-  switch (rawExtension) {
-    case 'pdf': {
-      if (!hasPrefix(file.buffer, PDF_MAGIC)) {
-        throw new InvalidDocumentFileException(
-          'File content does not match a valid PDF document',
-        );
-      }
-
-      return {
-        originalName,
-        extension: 'pdf',
-        mimeType: 'application/pdf',
-        sizeBytes,
-        buffer: file.buffer,
-      };
-    }
-
-    case 'docx': {
-      if (!isDocxArchive(file.buffer)) {
-        throw new InvalidDocumentFileException(
-          'File content does not match a valid DOCX document',
-        );
-      }
-
-      return {
-        originalName,
-        extension: 'docx',
-        mimeType:
-          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        sizeBytes,
-        buffer: file.buffer,
-      };
-    }
-
-    case 'doc': {
-      if (!hasPrefix(file.buffer, OLE2_MAGIC)) {
-        throw new InvalidDocumentFileException(
-          'File content does not match a valid DOC document',
-        );
-      }
-
-      return {
-        originalName,
-        extension: 'doc',
-        mimeType: 'application/msword',
-        sizeBytes,
-        buffer: file.buffer,
-      };
-    }
-
-    case 'txt': {
-      if (!isValidUtf8Text(file.buffer)) {
-        throw new InvalidDocumentFileException(
-          'File content does not match a valid UTF-8 text document',
-        );
-      }
-
-      return {
-        originalName,
-        extension: 'txt',
-        mimeType: 'text/plain',
-        sizeBytes,
-        buffer: file.buffer,
-      };
-    }
-
-    default:
-      throw new InvalidDocumentFileException(
-        'Unsupported document format; allowed formats are PDF, DOCX, DOC and TXT',
-      );
+  if (!isSupportedDocumentExtension(rawExtension)) {
+    throw new InvalidDocumentFileException(
+      'Unsupported document format; allowed formats are PDF, DOCX, DOC and TXT',
+    );
   }
+
+  if (!CONTENT_VALIDATOR_BY_EXTENSION[rawExtension](file.buffer)) {
+    const format =
+      rawExtension === 'txt' ? 'UTF-8 text' : rawExtension.toUpperCase();
+    throw new InvalidDocumentFileException(
+      `File content does not match a valid ${format} document`,
+    );
+  }
+
+  return {
+    originalName,
+    extension: rawExtension,
+    mimeType: MIME_TYPE_BY_EXTENSION[rawExtension],
+    sizeBytes,
+    buffer: file.buffer,
+  };
+}
+
+function isSupportedDocumentExtension(
+  extension: string,
+): extension is SupportedDocumentExtension {
+  return extension in MIME_TYPE_BY_EXTENSION;
 }
 
 export function buildDocumentStorageKey(

@@ -20,6 +20,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import type { Response } from 'express';
 import { z } from 'zod';
 import type { User } from '../users/user.js';
+import { DOCUMENT_LIMITS } from './document.constants.js';
 import {
   InvalidDocumentFileException,
   MAX_DOCUMENT_SIZE_BYTES,
@@ -33,12 +34,18 @@ const createDocumentFieldsSchema = z.object({
     .string()
     .trim()
     .min(1, 'Document title is required')
-    .max(150, 'Document title must be at most 150 characters'),
+    .max(
+      DOCUMENT_LIMITS.titleLength,
+      `Document title must be at most ${DOCUMENT_LIMITS.titleLength} characters`,
+    ),
   instruction: z
     .string()
     .trim()
     .min(1, 'Document instruction is required')
-    .max(2_000, 'Document instruction must be at most 2000 characters'),
+    .max(
+      DOCUMENT_LIMITS.instructionLength,
+      `Document instruction must be at most ${DOCUMENT_LIMITS.instructionLength} characters`,
+    ),
 });
 
 type CreateDocumentRequest = z.infer<typeof createDocumentFieldsSchema>;
@@ -48,7 +55,7 @@ class MulterFileSizeExceptionFilter implements ExceptionFilter {
   catch(_exception: PayloadTooLargeException, host: ArgumentsHost): void {
     const response = host.switchToHttp().getResponse<Response>();
     const invalidFile = new InvalidDocumentFileException(
-      'Document file exceeds the 10 MB maximum size',
+      `Document file exceeds the ${DOCUMENT_LIMITS.sizeMegabytes} MB maximum size`,
     );
     response.status(invalidFile.getStatus()).json(invalidFile.getResponse());
   }
