@@ -1,6 +1,11 @@
-import { useEffect, useRef } from 'react';
+import { lazy, Suspense, useEffect, useRef } from 'react';
 import { FileText, X } from 'lucide-react';
 import type { DocumentRecord } from './documents.types.js';
+
+const DocumentAnalysisMarkdown = lazy(async () => {
+  const module = await import('./DocumentAnalysisMarkdown.js');
+  return { default: module.DocumentAnalysisMarkdown };
+});
 
 interface DocumentAnalysisDialogProps {
   document: DocumentRecord;
@@ -71,9 +76,13 @@ export function DocumentAnalysisDialog({
 
         <section aria-labelledby="document-ai-analysis-title">
           <h3 id="document-ai-analysis-title">Análise da IA</h3>
-          <p className="document-analysis-dialog__analysis">
-            {analysisMessage(document)}
-          </p>
+          <div className="document-analysis-dialog__analysis">
+            <Suspense fallback={<p>Formatando análise…</p>}>
+              <DocumentAnalysisMarkdown>
+                {analysisMessage(document)}
+              </DocumentAnalysisMarkdown>
+            </Suspense>
+          </div>
         </section>
       </div>
     </dialog>
