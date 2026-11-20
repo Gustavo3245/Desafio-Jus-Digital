@@ -1,6 +1,6 @@
 ---
 title: Exclusão de documentos próprios
-status: accepted
+status: implemented
 last_updated: 2026-11-20
 feature_id: FEAT-007
 requirements:
@@ -84,13 +84,13 @@ recursos de outra pessoa.
 
 ## Critérios de aceitação
 
-- [ ] Dado um documento próprio, quando a exclusão é confirmada, então objeto e
+- [x] Dado um documento próprio, quando a exclusão é confirmada, então objeto e
       referência são removidos e a API responde `204`.
-- [ ] Dado um documento de outro usuário ou inexistente, quando a exclusão é
+- [x] Dado um documento de outro usuário ou inexistente, quando a exclusão é
       solicitada, então a API responde o mesmo `404` e não remove o objeto.
-- [ ] Dada falha no storage, quando a exclusão é solicitada, então o registro
+- [x] Dada falha no storage, quando a exclusão é solicitada, então o registro
       permanece no banco e a API retorna erro seguro.
-- [ ] Dados vários documentos selecionados, quando a pessoa confirma, então cada
+- [x] Dados vários documentos selecionados, quando a pessoa confirma, então cada
       documento próprio é removido e a lista é atualizada.
 
 ## Estratégia de teste
@@ -109,8 +109,9 @@ recursos de outra pessoa.
 
 ## Evidência de implementação
 
-Preencher somente ao mudar o estado para `implemented`.
-
-- Código: pendente.
-- Testes: pendente.
+- Código: `DocumentsService.deleteDocument`, `DELETE /api/v1/documents/{id}` e fluxo
+  de seleção/exclusão em `frontend/src/modules/documents/`.
+- Testes: ordem e falhas no serviço, autorização E2E e cliente HTTP; em 2026-11-20,
+  lint e builds aprovados, 54 testes unitários, 14 de integração, 21 E2E e 11 testes
+  do pacote front-end aprovados.
 - ADRs: [`ADR-0008`](../architecture/decisions/0008-document-deletion-order.md).

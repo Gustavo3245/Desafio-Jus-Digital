@@ -1,7 +1,7 @@
 ---
 title: Requisitos do produto
 status: accepted
-last_updated: 2026-11-16
+last_updated: 2026-11-20
 ---
 
 # Requisitos do produto
@@ -74,5 +74,4 @@ documentos.
 
 - Tipos e tamanho máximo aceitos.
 - Formato final da resposta da IA.
-- Política de retenção após exclusão.
 - Hospedagem do banco e do back-end.

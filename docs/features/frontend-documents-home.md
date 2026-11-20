@@ -113,11 +113,11 @@ drag and drop e mantendo uma adaptação utilizável em tablet e mobile.
       oferece nova tentativa sem revelar detalhes externos.
 - [x] Dados tablet e mobile, então a ação e a zona permanecem visíveis, operáveis e
       sem overflow horizontal.
-- [ ] Dado histórico persistido, então todos os documentos aparecem dentro do painel
+- [x] Dado histórico persistido, então todos os documentos aparecem dentro do painel
       branco com metadados essenciais e seleção acessível.
-- [ ] Dado exatamente um documento selecionado, então análise e exclusão ficam
+- [x] Dado exatamente um documento selecionado, então análise e exclusão ficam
       disponíveis; com vários, somente exclusão fica disponível.
-- [ ] Dada exclusão confirmada, então a grade reflete a resposta da API e mantém
+- [x] Dada exclusão confirmada, então a grade reflete a resposta da API e mantém
       consistência após falha parcial.
 
 ## Estratégia de teste
@@ -133,7 +133,8 @@ drag and drop e mantendo uma adaptação utilizável em tablet e mobile.
 ## Evidência de implementação
 
 - Código: `frontend/src/modules/documents/DocumentDropzone.tsx`,
-  `DocumentPreviewDialog.tsx`, `documents-api.ts` e estilos da tela.
+  `DocumentPreviewDialog.tsx`, `DocumentAnalysisDialog.tsx`,
+  `DocumentDeleteDialog.tsx`, `documents-api.ts` e estilos da tela.
 - Testes: cliente HTTP coberto por testes de multipart, credenciais, resposta e erro
   seguro; lint, testes e builds registrados na entrega.
 - Visual: notebook, 920 px, 768 px, 390 px e 320 px inspecionados no navegador;
@@ -142,4 +143,9 @@ drag and drop e mantendo uma adaptação utilizável em tablet e mobile.
 - Modal: inspecionado em 1366 px, 920 px, 768 px, 390 px e 320 px; cabeçalho, conteúdo
   e rodapé permaneceram contidos, as ações ficaram visíveis e o fechamento por
   `Escape` foi confirmado.
+- Histórico e seleção: cartões, seleção única/múltipla, ações contextuais, modal de
+  análise e confirmação de exclusão inspecionados em notebook, 920 px, 768 px, 390 px
+  e 320 px; sem overflow horizontal.
+- Verificação em 2026-11-20: lint e builds aprovados, 54 testes unitários, 14 de
+  integração, 21 E2E e 11 testes do pacote front-end aprovados.
 - ADRs: nenhuma.

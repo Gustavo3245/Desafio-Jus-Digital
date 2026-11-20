@@ -20,7 +20,7 @@ Cada funcionalidade relevante possui uma especificação em
 | [`FEAT-004`](document-upload-and-s3-storage.md) | Upload e armazenamento S3             | Implementada |
 | [`FEAT-005`](openai-document-analysis.md)       | Análise com OpenAI                    | Implementada |
 | [`FEAT-006`](document-history-and-reading.md)   | Histórico, listagem e leitura         | Implementada |
-| [`FEAT-007`](document-deletion.md)              | Exclusão de documentos                | Em andamento |
+| [`FEAT-007`](document-deletion.md)              | Exclusão de documentos                | Implementada |
 | [`FEAT-008`](frontend-authentication.md)        | Front-end de autenticação e conta     | Implementada |
 | [`FEAT-009`](frontend-documents-home.md)        | Front-end inicial de documentos       | Implementada |
 
