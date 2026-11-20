@@ -1,7 +1,7 @@
 ---
 title: Análise de documentos com OpenAI
 status: implemented
-last_updated: 2026-11-18
+last_updated: 2026-11-20
 feature_id: FEAT-005
 requirements:
   - AI-001
@@ -32,6 +32,8 @@ ao cliente.
 - Adapter em memória para testes sem chamadas externas pagas.
 - Página local para teste manual autenticado da integração real, usando storage em
   memória enquanto a AWS não estiver configurada.
+- Persistência textual de respostas Markdown e renderização segura de CommonMark/GFM
+  no modal do front-end.
 
 ### Não incluído
 
@@ -72,6 +74,8 @@ ao cliente.
   estado `failed`, nunca `completed`.
 - `AI-RULE-006` - Conteúdo integral do documento, prompt e resposta não aparecem em
   logs de aplicação.
+- `AI-RULE-007` - A análise é persistida como texto original; Markdown é interpretado
+  somente na apresentação, sem habilitar HTML bruto ou imagens remotas.
 
 ## Estados e erros
 
@@ -97,6 +101,8 @@ ao cliente.
 - O arquivo em Base64 existe somente durante a chamada e não é escrito em logs.
 - Erros externos são convertidos em categorias internas sem corpo de resposta ou
   identificadores da OpenAI.
+- O front-end não usa `dangerouslySetInnerHTML`; HTML bruto e imagens Markdown são
+  descartados, e links externos usam isolamento de `opener`.
 
 ## Critérios de aceitação
 
@@ -107,6 +113,8 @@ ao cliente.
 - [x] Dada uma resposta vazia, quando a análise é processada, então o documento fica
       `failed` e a API retorna `502` com `ANALYSIS_FAILED`.
 - [x] Nenhum teste padrão realiza chamada real ou consome créditos da OpenAI.
+- [x] Respostas Markdown válidas são apresentadas semanticamente sem executar HTML
+      bruto nem carregar imagens remotas.
 
 ## Estratégia de teste
 

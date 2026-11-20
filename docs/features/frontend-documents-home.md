@@ -33,6 +33,7 @@ drag and drop e mantendo uma adaptação utilizável em tablet e mobile.
 - Seleção individual e múltipla, contador e ações contextuais fiéis ao protótipo.
 - Modal de análise para uma seleção e exclusão confirmada de uma ou várias seleções.
 - Atualização imediata da lista após upload e recarga segura em falha parcial.
+- Renderização segura de análises em CommonMark/GFM, carregada sob demanda.
 
 ### Não incluído
 
@@ -77,6 +78,8 @@ drag and drop e mantendo uma adaptação utilizável em tablet e mobile.
 - `FRONT-DOCS-010` - A barra mobile exibe foto, nome, e-mail e logout da conta sem
   overflow; nome e e-mail longos usam truncamento visual e preservam seu conteúdo
   acessível.
+- `FRONT-DOCS-011` - A análise suporta CommonMark/GFM sem executar HTML bruto nem
+  carregar imagens remotas; links externos não recebem acesso ao `window.opener`.
 
 ## Estados e erros
 
@@ -100,6 +103,9 @@ drag and drop e mantendo uma adaptação utilizável em tablet e mobile.
 - Dados: nenhum.
 - Integrações: nenhuma.
 - Design: [`../design/documents.md`](../design/documents.md).
+- Dependências: `react-markdown` evita parser próprio incompleto e renderiza React sem
+  `dangerouslySetInnerHTML`; `remark-gfm` adiciona tabelas, checklists, links literais
+  e tachado. Ambas ficam no chunk sob demanda do modal de análise.
 
 ## Segurança e privacidade
 
@@ -124,6 +130,8 @@ drag and drop e mantendo uma adaptação utilizável em tablet e mobile.
       disponíveis; com vários, somente exclusão fica disponível.
 - [x] Dada exclusão confirmada, então a grade reflete a resposta da API e mantém
       consistência após falha parcial.
+- [x] Dada análise Markdown, então estruturas textuais são renderizadas com semântica
+      e conteúdo ativo não confiável permanece bloqueado.
 
 ## Estratégia de teste
 
@@ -156,6 +164,10 @@ drag and drop e mantendo uma adaptação utilizável em tablet e mobile.
   overflow ou sobreposição.
 - Perfil mobile: foto, nome, e-mail e logout inspecionados com conteúdo longo em 390
   px e 320 px; textos foram truncados visualmente e não houve overflow horizontal.
+- Markdown: parser CommonMark/GFM carregado sob demanda, com testes para listas,
+  ênfase, tabelas, checklists, links seguros, bloqueio de HTML e imagens remotas.
+- Renderização Markdown inspecionada em desktop e 390 px com títulos, lista numerada,
+  citação, tabela e código inline; modal e conteúdo permaneceram sem overflow global.
 - Verificação em 2026-11-20: lint e builds aprovados, 54 testes unitários, 14 de
-  integração, 21 E2E e 11 testes do pacote front-end aprovados.
+  integração, 21 E2E e 14 testes do pacote front-end aprovados.
 - ADRs: nenhuma.

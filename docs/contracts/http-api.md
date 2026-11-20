@@ -136,6 +136,10 @@ Em sucesso (`201 Created`), retorna o documento sem expor `storageKey`:
 }
 ```
 
+O campo `analysis` é texto UTF-8 e pode conter CommonMark/GFM produzido pelo modelo.
+O servidor persiste o valor original; clientes devem renderizá-lo como conteúdo não
+confiável, sem habilitar HTML bruto.
+
 - Campos de texto ausentes ou fora do limite: `400`.
 - Arquivo ausente, vazio, acima de 10 MB ou com conteúdo incompatível: `400` com
   `code: "INVALID_FILE"`.

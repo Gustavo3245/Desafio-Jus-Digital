@@ -76,6 +76,9 @@ last_updated: 2026-11-20
   cabeçalho `Prévia do Documento` do protótipo.
 - Metadados, título, instrução e `Análise da IA` são agrupados em regiões separadas;
   conteúdo longo rola dentro do modal.
+- A análise interpreta CommonMark/GFM com hierarquia compacta para títulos, listas,
+  ênfase, links, citações, tabelas, checklists e código; o contêiner permite rolagem
+  horizontal apenas para conteúdo tabular ou código que não possa quebrar linha.
 - Estados `processing` e `failed` recebem mensagens seguras no lugar de uma análise
   inexistente.
 - No mobile o modal usa a largura disponível, preserva margens de 12 px e mantém a
