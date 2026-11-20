@@ -34,6 +34,7 @@ esta prática com Domain-Driven Design, também conhecido como DDD.
 | Design do aplicativo          | [`skills/application-design/SKILL.md`](skills/application-design/SKILL.md) |
 | Fundações visuais             | [`design/foundations.md`](design/foundations.md)                           |
 | Telas de autenticação         | [`design/authentication.md`](design/authentication.md)                     |
+| Tela de documentos            | [`design/documents.md`](design/documents.md)                               |
 | Padrão editorial              | [`standards.md`](standards.md)                                             |
 
 ## Ciclo de uma funcionalidade
