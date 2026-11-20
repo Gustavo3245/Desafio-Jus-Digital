@@ -40,6 +40,26 @@ last_updated: 2026-11-19
 - O foco é visível, a zona responde a `Enter` e espaço e os estados não dependem
   apenas de cor.
 
+## Prévia do documento
+
+### Notebook e tela dividida
+
+- A seleção abre um modal branco centralizado sobre overlay cinza, seguindo o frame
+  público do protótipo.
+- O cabeçalho contém `Prévia do Documento` e a ação de fechar.
+- Arquivo, tamanho e tipo formam o primeiro grupo; título e instrução formam o grupo
+  de edição; `Salvar` permanece no rodapé, alinhado à direita.
+- Campos usam superfície cinza-clara, raio pequeno e foco verde, conforme as fundações.
+
+### Tablet e mobile
+
+- O modal usa a largura disponível com margem mínima de 12 px e altura limitada ao
+  viewport.
+- O conteúdo possui rolagem interna; o rodapé de ações permanece separado e os botões
+  crescem igualmente no mobile.
+- Fechar por `Escape` ou backdrop é bloqueado durante o envio para evitar estado
+  ambíguo; foco e leitura permanecem contidos no modal nativo.
+
 ## Limite de fidelidade
 
 O frame público foi inspecionado visualmente no navegador. A integração de camadas
