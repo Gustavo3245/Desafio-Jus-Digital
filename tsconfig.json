@@ -15,9 +15,13 @@
     "outDir": "./dist",
     "rootDir": ".",
     "incremental": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "skipLibCheck": true,
     "strict": true,
     "strictPropertyInitialization": false,
     "types": ["vitest/globals", "node"]
-  }
+  },
+  "include": ["src", "test", "*.ts"],
+  "exclude": ["node_modules", "dist", "frontend"]
 }
