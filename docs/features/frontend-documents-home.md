@@ -64,7 +64,9 @@ drag and drop e mantendo uma adaptação utilizável em tablet e mobile.
 - `FRONT-DOCS-002` - A interface anuncia somente os tipos aceitos pelo contrato atual.
 - `FRONT-DOCS-003` - Selecionar um arquivo não inicia upload antes da confirmação do
   formulário de título e instrução.
-- `FRONT-DOCS-004` - A zona de drop permanece operável por teclado e toque.
+- `FRONT-DOCS-004` - A zona de drop permanece operável por teclado e toque, e o painel
+  de documentos aceita drag and drop tanto no estado vazio quanto com histórico já
+  carregado na grade.
 - `FRONT-DOCS-005` - O envio usa `credentials: include`, bloqueia submissão duplicada
   e nunca registra arquivo, título ou instrução.
 - `FRONT-DOCS-006` - O modal preserva foco, fechamento por teclado e ações acessíveis

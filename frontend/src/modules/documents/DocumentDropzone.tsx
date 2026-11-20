@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
-import type { ChangeEvent } from 'react';
-import { RefreshCw } from 'lucide-react';
+import type { ChangeEvent, DragEvent } from 'react';
+import { FileUp, RefreshCw } from 'lucide-react';
 import { Spinner } from '../../shared/Spinner.js';
 import { DocumentAnalysisDialog } from './DocumentAnalysisDialog.js';
 import { DocumentDeleteDialog } from './DocumentDeleteDialog.js';
@@ -8,6 +8,7 @@ import { DocumentPreviewDialog } from './DocumentPreviewDialog.js';
 import { EmptyDocumentsDropzone } from './EmptyDocumentsDropzone.js';
 import {
   ACCEPTED_DOCUMENT_TYPES,
+  DOCUMENT_FORMATS_LABEL,
   DOCUMENT_LIMITS,
 } from './document.constants.js';
 import { validateDocumentFile } from './documents-api.js';
@@ -15,12 +16,20 @@ import { DocumentsGrid } from './DocumentsGrid.js';
 import { DocumentsPanelHeader } from './DocumentsPanelHeader.js';
 import { useDocumentLibrary } from './useDocumentLibrary.js';
 
+function hasDraggedFiles(event: DragEvent<HTMLElement>): boolean {
+  return Array.from(event.dataTransfer.types).includes('Files');
+}
+
 export function DocumentDropzone() {
   const input = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileErrorMessage, setFileErrorMessage] = useState<string | null>(null);
   const library = useDocumentLibrary();
+
+  const isModalOpen = Boolean(
+    selectedFile || library.analysisDocument || library.isDeleteOpen,
+  );
 
   const openFilePicker = () => {
     if (!input.current) return;
@@ -51,8 +60,44 @@ export function DocumentDropzone() {
     setSelectedFile(file);
   };
 
+  const handlePanelDragEnter = (event: DragEvent<HTMLElement>) => {
+    if (isModalOpen || !hasDraggedFiles(event)) return;
+    event.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handlePanelDragOver = (event: DragEvent<HTMLElement>) => {
+    if (isModalOpen || !hasDraggedFiles(event)) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'copy';
+    if (!isDragging) setIsDragging(true);
+  };
+
+  const handlePanelDragLeave = (event: DragEvent<HTMLElement>) => {
+    if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+      setIsDragging(false);
+    }
+  };
+
+  const handlePanelDrop = (event: DragEvent<HTMLElement>) => {
+    if (isModalOpen || !hasDraggedFiles(event)) return;
+    event.preventDefault();
+    const { files } = event.dataTransfer;
+    selectFile(files[0], files.length);
+  };
+
+  const showPopulatedDropOverlay =
+    isDragging && !library.isLoading && library.documents.length > 0;
+
   return (
-    <section className="documents-upload-panel" aria-label="Seus documentos">
+    <section
+      className={`documents-upload-panel${showPopulatedDropOverlay ? ' documents-upload-panel--dragging' : ''}`}
+      aria-label="Seus documentos"
+      onDragEnter={handlePanelDragEnter}
+      onDragOver={handlePanelDragOver}
+      onDragLeave={handlePanelDragLeave}
+      onDrop={handlePanelDrop}
+    >
       <DocumentsPanelHeader
         documentCount={library.documents.length}
         selectedCount={library.selectedIds.size}
@@ -94,6 +139,25 @@ export function DocumentDropzone() {
             <RefreshCw size={16} aria-hidden="true" />
             Tentar novamente
           </button>
+        </div>
+      ) : null}
+
+      {showPopulatedDropOverlay ? (
+        <div
+          className="documents-upload-panel__drop-overlay"
+          role="status"
+          aria-live="polite"
+        >
+          <span
+            className="documents-upload-panel__drop-icon"
+            aria-hidden="true"
+          >
+            <FileUp size={32} />
+          </span>
+          <strong>Solte o arquivo aqui para adicionar um novo documento</strong>
+          <small>
+            {DOCUMENT_FORMATS_LABEL} · até {DOCUMENT_LIMITS.sizeMegabytes} MB
+          </small>
         </div>
       ) : null}
 
