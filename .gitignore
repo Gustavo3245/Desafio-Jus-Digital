@@ -31,3 +31,10 @@ pnpm-debug.log*
 .idea/
 .vscode/
 
+# terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+.terraform.lock.hcl
+

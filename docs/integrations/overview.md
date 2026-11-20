@@ -1,7 +1,7 @@
 ---
 title: Integrações externas
-status: draft
-last_updated: 2026-11-18
+status: accepted
+last_updated: 2026-11-20
 ---
 
 # Integrações externas
@@ -42,6 +42,10 @@ validada na inicialização e traduzir erros externos para erros do domínio.
 - Armazenar apenas `storageKey` e metadados no banco.
 - Compensação automática (`DeleteObject`) se a gravação no banco falhar após o upload,
   conforme [`ADR-0005`](../architecture/decisions/0005-s3-storage-and-upload-compensation.md).
+- Provisionamento declarativo (IaC) do bucket privado, bloqueio de acesso público,
+  criptografia `AES256` e política IAM de privilégio mínimo versionado em
+  [`infra/main.tf`](../../infra/main.tf), e blueprint de deploy da API em
+  [`render.yaml`](../../render.yaml).
 
 ## OpenAI
 

@@ -78,7 +78,10 @@ O back-end NestJS reside na raiz do repositório e o front-end React é mantido 
 ├── frontend/            # Aplicação front-end (React 19 + Vite)
 │   ├── docker/          # Entrypoint com sincronização automática de dependências
 │   ├── src/             # Módulos de autenticação, documentos e componentes UI
-│   └── Dockerfile       # Imagem de desenvolvimento do front-end
+│   ├── Dockerfile       # Imagem de desenvolvimento do front-end
+│   └── vercel.json      # Rewrites de proxy da API (/api/v1) e fallback SPA
+├── infra/               # Infraestrutura como Código (Terraform AWS S3 + IAM)
+│   └── main.tf          # Bucket privado, bloqueio público, criptografia AES256 e política IAM
 ├── src/                 # Aplicação back-end (NestJS 12)
 │   ├── auth/            # Autenticação Google, CSRF, guards e store de sessão Postgres
 │   ├── config/          # Validação estrita de variáveis de ambiente com Zod
@@ -89,7 +92,8 @@ O back-end NestJS reside na raiz do repositório e o front-end React é mantido 
 │   └── users/           # Domínio e repositório PostgreSQL de usuários
 ├── test/                # Suítes E2E HTTP e testes de integração PostgreSQL
 ├── compose.yaml         # Orquestração Docker para front-end, API e PostgreSQL
-└── Dockerfile           # Build multi-stage do back-end (development, build e runtime)
+├── Dockerfile           # Build multi-stage do back-end (development, build e runtime)
+└── render.yaml          # Blueprint declarativo (IaC) para deploy do container no Render
 ```
 
 ---
@@ -263,10 +267,14 @@ npm run frontend:build     # Checagem de tipos (tsc -b) e bundle de produção V
 npm run format             # Formata código e documentação com Prettier
 ```
 
-### Pipeline de CI/CD (GitHub Actions)
+### Pipeline de CI/CD (GitHub Actions) e IaC
 
 - **Integração Contínua ([`.github/workflows/ci.yml`](.github/workflows/ci.yml))**: executada em todo `push` e `pull_request` para `main` e `development`. Roda 5 jobs em paralelo sob Node.js 26 LTS (`lint-and-format`, `frontend-quality`, `backend-unit-and-e2e`, `backend-integration` com container `postgres:18-bookworm` e `docker-build`), consolidados pelo gate `ci-status`.
 - **Entrega Contínua ([`.github/workflows/cd.yml`](.github/workflows/cd.yml))**: executada em tags `v*` e merges na `main`, publicando as imagens multi-stage da API e do front-end no GitHub Container Registry (`ghcr.io`).
+- **Infraestrutura como Código (IaC)**:
+  - [`infra/main.tf`](infra/main.tf): manifesto Terraform para provisionamento do bucket AWS S3 privado, bloqueio total de acesso público (`PublicAccessBlock`), criptografia server-side `AES256` e política IAM de privilégio mínimo restrita ao prefixo `users/*`.
+  - [`render.yaml`](render.yaml): Blueprint declarativo para implantação do container da API no Render com health check em `/api/v1/health`.
+  - [`frontend/vercel.json`](frontend/vercel.json): regras declarativas de rewrite da API (`/api/v1/:path*`) e roteamento SPA na Vercel.
 
 ---
 
@@ -280,7 +288,7 @@ O projeto adota **desenvolvimento orientado à documentação**. Todas as decis�
 | Requisitos Funcionais e de Qualidade                        | [`docs/product/requirements.md`](docs/product/requirements.md)                   |
 | Visão Geral da Arquitetura                                  | [`docs/architecture/overview.md`](docs/architecture/overview.md)                 |
 | Modelo de Dados Relacional                                  | [`docs/architecture/data-model.md`](docs/architecture/data-model.md)             |
-| Especificações de Funcionalidades (`FEAT-001` a `FEAT-010`) | [`docs/features/README.md`](docs/features/README.md)                             |
+| Especificações de Funcionalidades (`FEAT-001` a `FEAT-011`) | [`docs/features/README.md`](docs/features/README.md)                             |
 | Decisões Arquiteturais (`ADR-0001` a `ADR-0009`)            | [`docs/architecture/decisions/README.md`](docs/architecture/decisions/README.md) |
 | Contrato da API HTTP                                        | [`docs/contracts/http-api.md`](docs/contracts/http-api.md)                       |
 | Integrações Externas (Google, AWS, OpenAI)                  | [`docs/integrations/overview.md`](docs/integrations/overview.md)                 |
