@@ -65,8 +65,11 @@ npm run docker:ps
 - Banco, usuário e senha locais: `jusdigital`.
 
 Os dois códigos-fonte são montados nos containers e Vite e NestJS executam com hot
-reload. Depois de alterar dependências do back-end, sincronize o volume de
-`node_modules` com a API parada:
+reload. O front-end detecta mudanças em `frontend/package-lock.json` na inicialização
+e sincroniza automaticamente seu volume de `node_modules` antes de iniciar o Vite.
+
+Depois de alterar dependências do back-end, sincronize o volume de `node_modules` com
+a API parada:
 
 ```bash
 docker compose stop api

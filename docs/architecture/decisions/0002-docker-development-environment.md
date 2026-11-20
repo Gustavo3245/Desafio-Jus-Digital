@@ -1,10 +1,10 @@
 ---
-title: ADR-0002 - Ambiente Docker para API e PostgreSQL
+title: ADR-0002 - Ambiente Docker de desenvolvimento
 status: accepted
-date: 2026-11-18
+date: 2026-11-20
 ---
 
-# ADR-0002 - Ambiente Docker para API e PostgreSQL
+# ADR-0002 - Ambiente Docker de desenvolvimento
 
 ## Contexto
 
@@ -52,6 +52,12 @@ build e runtime. O runtime contém somente dependências de produção e `dist`,
 como o usuário `node`. O Compose usa o estágio de desenvolvimento com bind mount,
 volume isolado para `node_modules` e hot reload.
 
+O front-end também usa um volume isolado para `node_modules`. Na inicialização, seu
+entrypoint compara a impressão SHA-256 do `package-lock.json` montado com a impressão
+registrada no volume. Quando elas divergem, executa `npm ci` antes do Vite; quando são
+iguais, inicia sem reinstalar. Isso mantém o volume persistente compatível com o
+código após adições ou remoções de dependências.
+
 O PostgreSQL persiste em volume montado em `/var/lib/postgresql`, caminho da imagem
 oficial a partir da versão 18. A API depende do health check do banco com
 `condition: service_healthy`. `DATABASE_URL` é disponibilizada, mas permanece sem uso
@@ -69,8 +75,10 @@ até `FEAT-003` introduzir o adapter de persistência.
 ### Negativas ou trade-offs
 
 - Atualizações de patch das imagens são explícitas e precisam de revisão.
-- O volume de `node_modules` deve ser recriado após mudanças incompatíveis de
-  dependências.
+- A primeira inicialização do front-end após uma mudança no lockfile demora o tempo
+  necessário para executar `npm ci` e requer acesso ao registry configurado.
+- A sincronização automática cobre o front-end; o volume do back-end ainda usa o
+  comando operacional documentado após mudanças de dependências.
 - O ambiente Compose atual é de desenvolvimento e não representa uma implantação de
   produção.
 

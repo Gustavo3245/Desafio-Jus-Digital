@@ -1,7 +1,7 @@
 ---
 title: Ambiente Docker de desenvolvimento
 status: implemented
-last_updated: 2026-11-18
+last_updated: 2026-11-20
 feature_id: FEAT-001
 requirements:
   - DEV-001
@@ -13,25 +13,26 @@ requirements:
 
 ## Problema
 
-Fornecer um ambiente reproduzível para desenvolver e testar o back-end com a mesma
-versão de Node.js do projeto e uma instância PostgreSQL pronta para conexões, sem
-depender de instalações locais além do Docker.
+Fornecer um ambiente reproduzível para desenvolver e testar o front-end e o back-end
+com a mesma versão de Node.js do projeto e uma instância PostgreSQL pronta para
+conexões, sem depender de instalações locais além do Docker.
 
 ## Escopo
 
 ### Incluído
 
 - Imagem do back-end com estágios de desenvolvimento, build e execução.
-- Orquestração da API e PostgreSQL por Docker Compose.
+- Imagem de desenvolvimento do front-end com Vite e hot reload.
+- Orquestração do front-end, API e PostgreSQL por Docker Compose.
+- Sincronização automática das dependências do front-end quando seu lockfile mudar.
 - Persistência dos dados locais do PostgreSQL em volume nomeado.
-- Health checks da API e do banco.
+- Health checks do front-end, da API e do banco.
 - Variáveis de ambiente locais com valores não secretos de desenvolvimento.
 - Comandos documentados para subir, testar, inspecionar e remover o ambiente.
 
 ### Não incluído
 
 - ORM, migrations, tabelas ou repositories PostgreSQL.
-- Imagem ou serviço do front-end.
 - Configuração de produção, CI/CD ou publicação em registry.
 - Backup, alta disponibilidade ou observabilidade do banco.
 
@@ -51,7 +52,9 @@ depender de instalações locais além do Docker.
 2. Executa `docker compose up --build`.
 3. O PostgreSQL inicializa e passa no health check.
 4. A API inicia com hot reload e passa no health check HTTP.
-5. Alterações em arquivos locais são refletidas no container de desenvolvimento.
+5. O front-end sincroniza dependências alteradas, inicia o Vite e passa no health
+   check HTTP.
+6. Alterações em arquivos locais são refletidas nos containers de desenvolvimento.
 
 ## Regras de negócio
 
@@ -62,6 +65,8 @@ depender de instalações locais além do Docker.
 - `DEV-RULE-005` - Dados do banco sobrevivem à recriação de containers por volume.
 - `DEV-RULE-006` - Nenhuma migration ou tabela é criada nesta entrega.
 - `DEV-RULE-007` - Segredos reais não são adicionados às imagens ou ao repositório.
+- `DEV-RULE-008` - O volume de dependências do front-end deve refletir o
+  `package-lock.json` montado antes de iniciar o Vite.
 
 ## Estados e erros
 
@@ -70,6 +75,7 @@ depender de instalações locais além do Docker.
 | PostgreSQL ainda inicializando | API aguarda o health check                               | `starting`      |
 | PostgreSQL indisponível        | API não é iniciada pelo Compose                          | `unhealthy`     |
 | API disponível                 | Health check HTTP aprovado                               | `healthy`       |
+| Lockfile do front-end alterado | Dependências do volume são reinstaladas com `npm ci`     | sincronização   |
 | Variável Google ausente        | Valor local permite subir; login real exige configuração | desenvolvimento |
 
 ## Contratos afetados
@@ -94,6 +100,8 @@ depender de instalações locais além do Docker.
 - [x] PostgreSQL fica saudável e preserva dados no volume nomeado.
 - [x] A API fica saudável em `/api/v1/health` após o banco.
 - [x] Testes e build podem ser executados no serviço da API.
+- [x] Front-end inicia saudável e resolve dependências adicionadas ao lockfile sem
+      recriar seu volume manualmente.
 - [x] Nenhuma migration ou tabela da aplicação é criada.
 
 ## Estratégia de teste
@@ -113,10 +121,15 @@ depender de instalações locais além do Docker.
 
 ## Evidência de implementação
 
-- Código: `Dockerfile`, `.dockerignore`, `compose.yaml`, `.env.example` e scripts
-  `docker:*` em `package.json`.
+- Código: `Dockerfile`, `frontend/Dockerfile`,
+  `frontend/docker/development-entrypoint.sh`, arquivos `.dockerignore`,
+  `compose.yaml`, `.env.example` e scripts `docker:*` em `package.json`.
 - Testes: imagem `runtime` construída; usuário e conteúdo inspecionados;
   `docker compose config`; API e PostgreSQL saudáveis; endpoint de saúde aprovado;
   cluster PostgreSQL preservado após reinício; zero tabelas de aplicação; lint, build,
   7 testes unitários e 4 testes E2E aprovados dentro do container em 2026-11-18.
+- Regressão de 2026-11-20: front-end saudável; lockfile divergente detectado;
+  `react-markdown` e `remark-gfm` instalados no volume; componente transformado pelo
+  Vite; 14 testes do front-end, 54 testes unitários e 21 testes E2E aprovados; builds
+  do front-end e do back-end concluídos.
 - ADRs: [`ADR-0002`](../architecture/decisions/0002-docker-development-environment.md).

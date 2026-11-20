@@ -22,7 +22,7 @@ módulo. Não crie ADR para detalhes locais facilmente alteráveis.
 | ADR                                                        | Estado | Decisão                                                 |
 | ---------------------------------------------------------- | ------ | ------------------------------------------------------- |
 | [`ADR-0001`](0001-google-id-token-and-server-session.md)   | Aceita | Google ID token e sessão própria no servidor            |
-| [`ADR-0002`](0002-docker-development-environment.md)       | Aceita | Ambiente Docker para API e PostgreSQL                   |
+| [`ADR-0002`](0002-docker-development-environment.md)       | Aceita | Ambiente Docker de desenvolvimento                      |
 | [`ADR-0003`](0003-google-sign-in-redirect.md)              | Aceita | Google Sign-In na mesma aba                             |
 | [`ADR-0004`](0004-drizzle-orm-and-postgres-persistence.md) | Aceita | Drizzle ORM e persistência PostgreSQL                   |
 | [`ADR-0005`](0005-s3-storage-and-upload-compensation.md)   | Aceita | Armazenamento privado no AWS S3 e compensação no upload |
