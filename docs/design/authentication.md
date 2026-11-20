@@ -30,18 +30,33 @@ linguagem do fluxo de documentos.
 
 ### Composição
 
-- Desktop: duas regiões com exatamente 50% da largura disponível. A região verde
-  agrupa marca, proposta de valor e garantia de segurança; a região clara centraliza
-  o painel de autenticação e sua nota legal.
-- Alinhamento e região comum definem os dois grupos principais; proximidade mantém
-  título e apoio como uma unidade, enquanto espaço negativo separa a ação Google das
-  informações secundárias.
-- Não usar gradientes, ilustrações abstratas, cor violeta ou cards excessivamente
-  arredondados, pois esses elementos não aparecem no baseline.
-- Tablet e mobile: a região verde vira uma faixa horizontal que ocupa toda a parte
-  superior; o título fica centralizado e integralmente contido nessa faixa. Marca,
-  painel de acesso e nota legal permanecem centralizados abaixo dela, com largura
-  fluida e limite legível a partir de 320 px.
+- Referência de composição aprovada: imagem de login fornecida em 2026-11-19. A
+  referência orienta somente estrutura, hierarquia e organização; ilustração,
+  marca, textos e identidade visual não são copiados.
+- Desktop: o canvas neutro centraliza um único painel branco de grande raio. Dentro
+  dele, a região verde ligeiramente mais larga apresenta a proposta de valor e uma
+  composição original de documentos; a região clara reúne marca, autenticação e
+  nota legal sem criar um segundo card visual.
+- Região comum conecta as duas áreas como uma experiência única; proximidade agrupa
+  título, apoio e representação de documentos; alinhamento central organiza o acesso;
+  espaço negativo separa a ação Google das informações secundárias.
+- Não usar gradientes, ilustrações abstratas ou cor violeta. O grande raio fica
+  reservado ao painel unificado e à região visual; controles mantêm os raios do
+  sistema para não descaracterizar o baseline.
+- Tablet: o painel passa para uma coluna; a região verde preserva título, apoio,
+  visual de documentos e garantia de segurança antes da área de acesso.
+- Mobile: o painel ocupa toda a largura, a região verde vira um cabeçalho horizontal
+  compacto e o visual de documentos é simplificado. Marca, autenticação e nota legal
+  permanecem centralizadas abaixo dele, com largura fluida a partir de 320 px.
+
+### Evolução aprovada
+
+- Preservar: cores, tipografia, textos obrigatórios, botão oficial Google, privacidade
+  e estados de falha/carregamento.
+- Melhorar: hierarquia, respiro, unidade do painel e separação entre a proposta de
+  valor e a tarefa de autenticação.
+- Adicionar: representação original e decorativa de documento, busca e proteção,
+  sem introduzir novas promessas funcionais.
 
 ## Verificação e callback
 
