@@ -71,5 +71,9 @@ export function createAuthenticationApi(
 }
 
 export function getGoogleCallbackUrl(apiBaseUrl: string): string {
-  return `${apiBaseUrl.replace(/\/$/, '')}/auth/google/callback`;
+  const normalized = apiBaseUrl.replace(/\/$/, '');
+  if (normalized.startsWith('/') && typeof window !== 'undefined') {
+    return `${window.location.origin}${normalized}/auth/google/callback`;
+  }
+  return `${normalized}/auth/google/callback`;
 }
