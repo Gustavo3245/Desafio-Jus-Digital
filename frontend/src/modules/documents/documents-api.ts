@@ -193,10 +193,10 @@ export function toSafeDocumentError(
       return toBadRequestMessage(error.details);
     }
     if (error.code === 'ANALYSIS_FAILED') {
-      return 'Não foi possível concluir a análise do documento pela IA. Tente novamente.';
+      return toAnalysisFailedMessage(error.details);
     }
     if (error.code === 'EXTERNAL_SERVICE_UNAVAILABLE') {
-      return 'O serviço está temporariamente indisponível. Tente novamente em instantes.';
+      return toExternalServiceUnavailableMessage(error.details);
     }
     if (error.status >= 500) {
       return fallback;
@@ -204,10 +204,33 @@ export function toSafeDocumentError(
   }
 
   if (error instanceof Error && error.name === 'AbortError') {
-    return 'A análise demorou mais que o esperado. Tente novamente.';
+    return 'A análise da IA excedeu o tempo limite. Tente novamente.';
   }
 
   return fallback;
+}
+
+function toAnalysisFailedMessage(details: string | null): string {
+  const normalized = details?.toLowerCase() ?? '';
+
+  if (normalized.includes('could not be read')) {
+    return 'A IA não conseguiu ler o conteúdo deste arquivo. Verifique se o documento possui texto legível e tente novamente.';
+  }
+
+  return 'Não foi possível concluir a análise do documento pela IA. Tente novamente.';
+}
+
+function toExternalServiceUnavailableMessage(details: string | null): string {
+  const normalized = details?.toLowerCase() ?? '';
+
+  if (normalized.includes('timed out')) {
+    return 'A análise da IA excedeu o tempo limite. Tente novamente.';
+  }
+  if (normalized.includes('rate limit')) {
+    return 'O limite de uso da IA foi atingido no momento. Aguarde alguns instantes e tente novamente.';
+  }
+
+  return 'O serviço está temporariamente indisponível. Tente novamente em instantes.';
 }
 
 function toInvalidFileMessage(details: string | null): string {

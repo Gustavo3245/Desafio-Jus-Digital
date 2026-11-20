@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useRef } from 'react';
-import { FileText, X } from 'lucide-react';
+import { FileText, RefreshCw, X } from 'lucide-react';
 import type { DocumentRecord } from './documents.types.js';
 
 const DocumentAnalysisMarkdown = lazy(async () => {
@@ -10,6 +10,7 @@ const DocumentAnalysisMarkdown = lazy(async () => {
 interface DocumentAnalysisDialogProps {
   document: DocumentRecord;
   onClose: () => void;
+  onRetryUpload?: () => void;
 }
 
 function analysisMessage(document: DocumentRecord): string {
@@ -18,6 +19,16 @@ function analysisMessage(document: DocumentRecord): string {
   }
 
   if (document.status === 'failed') {
+    if (document.failureCode === 'ANALYSIS_TIMEOUT') {
+      return 'A análise deste documento excedeu o tempo limite da IA. Tente enviar o documento novamente.';
+    }
+    if (document.failureCode === 'ANALYSIS_RATE_LIMITED') {
+      return 'O limite de uso da IA foi atingido durante o processamento deste documento. Aguarde alguns instantes e tente novamente.';
+    }
+    if (document.failureCode === 'ANALYSIS_UNREADABLE_FILE') {
+      return 'A IA não conseguiu ler o conteúdo deste arquivo. Verifique se o documento possui texto legível e tente novamente.';
+    }
+
     return 'Não foi possível concluir esta análise. Envie o documento novamente para tentar de novo.';
   }
 
@@ -27,6 +38,7 @@ function analysisMessage(document: DocumentRecord): string {
 export function DocumentAnalysisDialog({
   document,
   onClose,
+  onRetryUpload,
 }: DocumentAnalysisDialogProps) {
   const dialog = useRef<HTMLDialogElement>(null);
 
@@ -83,6 +95,21 @@ export function DocumentAnalysisDialog({
               </DocumentAnalysisMarkdown>
             </Suspense>
           </div>
+          {document.status === 'failed' && onRetryUpload ? (
+            <div className="document-analysis-dialog__retry">
+              <button
+                className="document-preview-dialog__save"
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onRetryUpload();
+                }}
+              >
+                <RefreshCw size={16} aria-hidden="true" />
+                Tentar novamente
+              </button>
+            </div>
+          ) : null}
         </section>
       </div>
     </dialog>

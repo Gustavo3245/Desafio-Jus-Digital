@@ -123,11 +123,11 @@ export class DocumentsService {
 
 function toAnalysisFailureCode(error: unknown): string {
   if (error instanceof InvalidAnalysisResponseException) {
-    return 'ANALYSIS_INVALID_RESPONSE';
+    return error.failureCode;
   }
 
   if (error instanceof ExternalAnalysisUnavailableException) {
-    return 'ANALYSIS_PROVIDER_UNAVAILABLE';
+    return error.failureCode;
   }
 
   return 'ANALYSIS_PERSISTENCE_FAILED';

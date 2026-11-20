@@ -196,6 +196,7 @@ export function DocumentDropzone() {
         <DocumentAnalysisDialog
           document={library.analysisDocument}
           onClose={library.closeAnalysis}
+          onRetryUpload={openFilePicker}
         />
       ) : null}
 

@@ -194,7 +194,7 @@ export function DocumentPreviewDialog({
             </button>
             <button className="document-preview-dialog__save" type="submit">
               <Save size={17} aria-hidden="true" />
-              Salvar
+              {errorMessage ? 'Tentar novamente' : 'Salvar'}
             </button>
           </footer>
         ) : null}

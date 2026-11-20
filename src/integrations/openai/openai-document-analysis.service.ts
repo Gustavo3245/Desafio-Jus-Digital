@@ -71,11 +71,63 @@ export class OpenAIDocumentAnalysisService extends DocumentAnalysisService {
 
       return analysis;
     } catch (error) {
-      if (error instanceof InvalidAnalysisResponseException) {
+      if (
+        error instanceof InvalidAnalysisResponseException ||
+        error instanceof ExternalAnalysisUnavailableException
+      ) {
         throw error;
       }
 
-      throw new ExternalAnalysisUnavailableException();
+      throw classifyOpenAIError(error);
     }
   }
+}
+
+function classifyOpenAIError(
+  error: unknown,
+): ExternalAnalysisUnavailableException | InvalidAnalysisResponseException {
+  const status = getErrorStatus(error);
+  const name = error instanceof Error ? error.name : '';
+
+  if (
+    name === 'APIConnectionTimeoutError' ||
+    name === 'AbortError' ||
+    status === 408 ||
+    status === 504
+  ) {
+    return new ExternalAnalysisUnavailableException(
+      'Document analysis timed out',
+      'ANALYSIS_TIMEOUT',
+    );
+  }
+
+  if (name === 'RateLimitError' || status === 429) {
+    return new ExternalAnalysisUnavailableException(
+      'Document analysis rate limit reached',
+      'ANALYSIS_RATE_LIMITED',
+    );
+  }
+
+  if (
+    name === 'BadRequestError' ||
+    name === 'UnprocessableEntityError' ||
+    status === 400 ||
+    status === 422
+  ) {
+    return new InvalidAnalysisResponseException(
+      'Document content could not be read for analysis',
+      'ANALYSIS_UNREADABLE_FILE',
+    );
+  }
+
+  return new ExternalAnalysisUnavailableException();
+}
+
+function getErrorStatus(error: unknown): number | null {
+  if (typeof error === 'object' && error !== null && 'status' in error) {
+    const { status } = error as { status?: unknown };
+    return typeof status === 'number' ? status : null;
+  }
+
+  return null;
 }

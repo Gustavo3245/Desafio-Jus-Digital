@@ -164,6 +164,37 @@ describe('createDocumentsApi', () => {
         ),
       ),
     ).toBe('A instrução deve ter no máximo 2.000 caracteres.');
+    expect(
+      toSafeDocumentError(
+        new DocumentHttpError(
+          503,
+          'EXTERNAL_SERVICE_UNAVAILABLE',
+          'Document analysis timed out',
+        ),
+      ),
+    ).toBe('A análise da IA excedeu o tempo limite. Tente novamente.');
+    expect(
+      toSafeDocumentError(
+        new DocumentHttpError(
+          503,
+          'EXTERNAL_SERVICE_UNAVAILABLE',
+          'Document analysis rate limit reached',
+        ),
+      ),
+    ).toBe(
+      'O limite de uso da IA foi atingido no momento. Aguarde alguns instantes e tente novamente.',
+    );
+    expect(
+      toSafeDocumentError(
+        new DocumentHttpError(
+          502,
+          'ANALYSIS_FAILED',
+          'Document content could not be read for analysis',
+        ),
+      ),
+    ).toBe(
+      'A IA não conseguiu ler o conteúdo deste arquivo. Verifique se o documento possui texto legível e tente novamente.',
+    );
   });
 
   it('validates file extension, empty size and 10 MB limit on the client', () => {

@@ -1220,6 +1220,25 @@ body:has(.auth-layout),
   overflow-x: auto;
 }
 
+.document-analysis-dialog__retry {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
+.document-analysis-dialog__retry button {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 16px;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .document-analysis-markdown > :first-child {
   margin-top: 0;
 }

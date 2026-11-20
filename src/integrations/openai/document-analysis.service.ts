@@ -8,8 +8,11 @@ export interface AnalyzeDocumentInput {
 }
 
 export class ExternalAnalysisUnavailableException extends HttpException {
+  readonly failureCode: string;
+
   constructor(
     message = 'Document analysis service is temporarily unavailable',
+    failureCode = 'ANALYSIS_PROVIDER_UNAVAILABLE',
   ) {
     super(
       {
@@ -18,11 +21,17 @@ export class ExternalAnalysisUnavailableException extends HttpException {
       },
       HttpStatus.SERVICE_UNAVAILABLE,
     );
+    this.failureCode = failureCode;
   }
 }
 
 export class InvalidAnalysisResponseException extends HttpException {
-  constructor(message = 'Document analysis could not be completed') {
+  readonly failureCode: string;
+
+  constructor(
+    message = 'Document analysis could not be completed',
+    failureCode = 'ANALYSIS_INVALID_RESPONSE',
+  ) {
     super(
       {
         code: 'ANALYSIS_FAILED',
@@ -30,6 +39,7 @@ export class InvalidAnalysisResponseException extends HttpException {
       },
       HttpStatus.BAD_GATEWAY,
     );
+    this.failureCode = failureCode;
   }
 }
 

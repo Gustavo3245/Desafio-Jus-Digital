@@ -96,4 +96,59 @@ describe('OpenAIDocumentAnalysisService', () => {
     );
     await expect(result).rejects.not.toThrow('sensitive upstream response');
   });
+
+  it('classifies timeout, rate limit and unreadable file errors into specific safe categories', async () => {
+    const timeoutError = Object.assign(new Error('Request timed out'), {
+      name: 'APIConnectionTimeoutError',
+    });
+    createResponse.mockRejectedValueOnce(timeoutError);
+
+    await expect(
+      service.analyzeDocument({
+        body: Buffer.from('document'),
+        originalName: 'document.txt',
+        mimeType: 'text/plain',
+        instruction: 'Resuma',
+      }),
+    ).rejects.toMatchObject({
+      failureCode: 'ANALYSIS_TIMEOUT',
+      message: 'Document analysis timed out',
+    });
+
+    const rateLimitError = Object.assign(new Error('Quota exceeded'), {
+      name: 'RateLimitError',
+      status: 429,
+    });
+    createResponse.mockRejectedValueOnce(rateLimitError);
+
+    await expect(
+      service.analyzeDocument({
+        body: Buffer.from('document'),
+        originalName: 'document.txt',
+        mimeType: 'text/plain',
+        instruction: 'Resuma',
+      }),
+    ).rejects.toMatchObject({
+      failureCode: 'ANALYSIS_RATE_LIMITED',
+      message: 'Document analysis rate limit reached',
+    });
+
+    const unreadableError = Object.assign(new Error('Could not parse PDF'), {
+      name: 'BadRequestError',
+      status: 400,
+    });
+    createResponse.mockRejectedValueOnce(unreadableError);
+
+    await expect(
+      service.analyzeDocument({
+        body: Buffer.from('%PDF-1.7\ncorrupted'),
+        originalName: 'corrupted.pdf',
+        mimeType: 'application/pdf',
+        instruction: 'Resuma',
+      }),
+    ).rejects.toMatchObject({
+      failureCode: 'ANALYSIS_UNREADABLE_FILE',
+      message: 'Document content could not be read for analysis',
+    });
+  });
 });
