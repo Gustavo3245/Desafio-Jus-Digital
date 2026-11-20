@@ -130,7 +130,10 @@ export function createDocumentsApi(
   }
 }
 
-export function toSafeDocumentError(error: unknown): string {
+export function toSafeDocumentError(
+  error: unknown,
+  fallback = 'Não foi possível salvar o documento. Tente novamente.',
+): string {
   if (error instanceof DocumentHttpError) {
     if (error.status === 401) return 'Sua sessão expirou. Entre novamente.';
     if (error.code === 'INVALID_FILE') {
@@ -140,7 +143,7 @@ export function toSafeDocumentError(error: unknown): string {
       return 'Revise o título, a instrução e o arquivo selecionado.';
     }
     if (error.status >= 500) {
-      return 'Não foi possível analisar o documento agora. Tente novamente.';
+      return fallback;
     }
   }
 
@@ -148,5 +151,5 @@ export function toSafeDocumentError(error: unknown): string {
     return 'A análise demorou mais que o esperado. Tente novamente.';
   }
 
-  return 'Não foi possível salvar o documento. Tente novamente.';
+  return fallback;
 }
