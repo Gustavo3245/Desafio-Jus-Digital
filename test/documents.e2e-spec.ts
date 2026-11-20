@@ -299,6 +299,67 @@ describe('Document upload and storage (e2e)', () => {
     expect(detail.body.document).toEqual(upload.body.document);
   });
 
+  it('deletes an owned document from storage and history', async () => {
+    const userId = await signIn();
+    const upload = await agent
+      .post('/api/v1/documents')
+      .set('Origin', frontendOrigin)
+      .field('title', 'Documento descartável')
+      .field('instruction', 'Resuma')
+      .attach('file', Buffer.from('Documento que será removido'), {
+        filename: 'descartavel.txt',
+        contentType: 'text/plain',
+      })
+      .expect(HttpStatus.CREATED);
+    const documentId = upload.body.document.id as string;
+    const repository = app.get(DocumentsRepository);
+    const storage = app.get(InMemoryDocumentStorageService);
+    const persisted = await repository.findByIdAndOwner(documentId, userId);
+    const storageKey = persisted?.storageKey ?? '';
+
+    await agent
+      .delete(`/api/v1/documents/${documentId}`)
+      .set('Origin', frontendOrigin)
+      .expect(HttpStatus.NO_CONTENT);
+
+    expect(await repository.findByIdAndOwner(documentId, userId)).toBeNull();
+    expect(storage.hasObject(storageKey)).toBe(false);
+    await agent
+      .get(`/api/v1/documents/${documentId}`)
+      .expect(HttpStatus.NOT_FOUND);
+  });
+
+  it('preserves the document when storage deletion is unavailable', async () => {
+    const userId = await signIn();
+    const upload = await agent
+      .post('/api/v1/documents')
+      .set('Origin', frontendOrigin)
+      .field('title', 'Documento para retry')
+      .field('instruction', 'Resuma')
+      .attach('file', Buffer.from('Documento que permanecerá persistido'), {
+        filename: 'retry.txt',
+        contentType: 'text/plain',
+      })
+      .expect(HttpStatus.CREATED);
+    const documentId = upload.body.document.id as string;
+    vi.spyOn(
+      app.get(DocumentStorageService),
+      'deleteObject',
+    ).mockRejectedValueOnce(new ExternalStorageUnavailableException());
+
+    const response = await agent
+      .delete(`/api/v1/documents/${documentId}`)
+      .set('Origin', frontendOrigin)
+      .expect(HttpStatus.SERVICE_UNAVAILABLE);
+
+    expect(response.body).toMatchObject({
+      code: 'EXTERNAL_SERVICE_UNAVAILABLE',
+    });
+    expect(
+      await app.get(DocumentsRepository).findByIdAndOwner(documentId, userId),
+    ).not.toBeNull();
+  });
+
   it('does not list or reveal a document owned by another user', async () => {
     await signIn();
     const upload = await agent
@@ -338,5 +399,11 @@ describe('Document upload and storage (e2e)', () => {
       code: 'DOCUMENT_NOT_FOUND',
       message: 'Document was not found',
     });
+    const forbiddenDeletion = await otherAgent
+      .delete(`/api/v1/documents/${documentId}`)
+      .set('Origin', frontendOrigin)
+      .expect(HttpStatus.NOT_FOUND);
+    expect(forbiddenDeletion.body).toEqual(hidden.body);
+    await agent.get(`/api/v1/documents/${documentId}`).expect(HttpStatus.OK);
   });
 });

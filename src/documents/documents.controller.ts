@@ -4,6 +4,7 @@ import {
   Body,
   Catch,
   Controller,
+  Delete,
   type ExceptionFilter,
   Get,
   HttpCode,
@@ -79,6 +80,15 @@ export class DocumentsController {
     return {
       document: toDocumentResponse(document),
     };
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async delete(
+    @CurrentUser() user: User,
+    @Param('id') documentId: string,
+  ): Promise<void> {
+    await this.documents.deleteDocument(user.id, documentId);
   }
 
   @Post()

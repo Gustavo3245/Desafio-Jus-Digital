@@ -43,6 +43,22 @@ export class DocumentsService {
     return document;
   }
 
+  async deleteDocument(userId: string, documentId: string): Promise<void> {
+    const document = await this.documents.findByIdAndOwner(documentId, userId);
+
+    if (!document) {
+      throw new DocumentNotFoundException();
+    }
+
+    await this.storage.deleteObject(document.storageKey);
+
+    const deleted = await this.documents.deleteByIdAndOwner(documentId, userId);
+
+    if (!deleted) {
+      throw new DocumentNotFoundException();
+    }
+  }
+
   async createDocument(command: UploadDocumentCommand): Promise<Document> {
     const validatedFile = inspectAndValidateDocumentFile(command.file);
     const storageKey = buildDocumentStorageKey(

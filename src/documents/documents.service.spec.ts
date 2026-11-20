@@ -225,4 +225,90 @@ describe('DocumentsService', () => {
       service.getDocument('user-1', 'missing-document'),
     ).rejects.toBeInstanceOf(DocumentNotFoundException);
   });
+
+  it('deletes the owned object before removing its database record', async () => {
+    const created = await service.createDocument({
+      userId: 'user-1',
+      title: 'Documento descartável',
+      instruction: 'Resuma',
+      file: {
+        originalname: 'discard.txt',
+        buffer: Buffer.from('Conteúdo descartável'),
+      },
+    });
+    const operationOrder: string[] = [];
+    vi.spyOn(storage, 'deleteObject').mockImplementationOnce(
+      async (storageKey) => {
+        operationOrder.push('storage');
+        await InMemoryDocumentStorageService.prototype.deleteObject.call(
+          storage,
+          storageKey,
+        );
+      },
+    );
+    vi.spyOn(repository, 'deleteByIdAndOwner').mockImplementationOnce(
+      (documentId, userId) => {
+        operationOrder.push('database');
+        return InMemoryDocumentsRepository.prototype.deleteByIdAndOwner.call(
+          repository,
+          documentId,
+          userId,
+        );
+      },
+    );
+
+    await expect(
+      service.deleteDocument('user-1', created.id),
+    ).resolves.toBeUndefined();
+
+    expect(operationOrder).toEqual(['storage', 'database']);
+    expect(storage.hasObject(created.storageKey)).toBe(false);
+    expect(repository.findByIdAndOwner(created.id, 'user-1')).toBeNull();
+  });
+
+  it('does not delete foreign documents or call storage for unknown resources', async () => {
+    const created = await service.createDocument({
+      userId: 'user-1',
+      title: 'Documento privado',
+      instruction: 'Resuma',
+      file: {
+        originalname: 'private.txt',
+        buffer: Buffer.from('Conteúdo privado'),
+      },
+    });
+    const deleteSpy = vi.spyOn(storage, 'deleteObject');
+
+    await expect(
+      service.deleteDocument('user-2', created.id),
+    ).rejects.toBeInstanceOf(DocumentNotFoundException);
+    await expect(
+      service.deleteDocument('user-1', 'missing-document'),
+    ).rejects.toBeInstanceOf(DocumentNotFoundException);
+
+    expect(deleteSpy).not.toHaveBeenCalled();
+    expect(storage.hasObject(created.storageKey)).toBe(true);
+  });
+
+  it('preserves the database record when storage deletion fails', async () => {
+    const created = await service.createDocument({
+      userId: 'user-1',
+      title: 'Documento para retry',
+      instruction: 'Resuma',
+      file: {
+        originalname: 'retry.txt',
+        buffer: Buffer.from('Conteúdo para nova tentativa'),
+      },
+    });
+    vi.spyOn(storage, 'deleteObject').mockRejectedValueOnce(
+      new ExternalStorageUnavailableException(),
+    );
+    const repositoryDeleteSpy = vi.spyOn(repository, 'deleteByIdAndOwner');
+
+    await expect(
+      service.deleteDocument('user-1', created.id),
+    ).rejects.toBeInstanceOf(ExternalStorageUnavailableException);
+
+    expect(repositoryDeleteSpy).not.toHaveBeenCalled();
+    expect(repository.findByIdAndOwner(created.id, 'user-1')).not.toBeNull();
+  });
 });
