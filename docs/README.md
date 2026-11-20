@@ -29,6 +29,7 @@ esta prática com Domain-Driven Design, também conhecido como DDD.
 | Google, AWS e OpenAI          | [`integrations/overview.md`](integrations/overview.md)                     |
 | Segurança                     | [`quality/security.md`](quality/security.md)                               |
 | Estratégia de testes          | [`quality/testing.md`](quality/testing.md)                                 |
+| Qualidade e manutenção        | [`quality/code-quality.md`](quality/code-quality.md)                       |
 | Processo com agentes e skills | [`workflow/agent-development.md`](workflow/agent-development.md)           |
 | Catálogo de skills            | [`skills/README.md`](skills/README.md)                                     |
 | Design do aplicativo          | [`skills/application-design/SKILL.md`](skills/application-design/SKILL.md) |

@@ -146,8 +146,11 @@ drag and drop e mantendo uma adaptação utilizável em tablet e mobile.
 ## Evidência de implementação
 
 - Código: `frontend/src/modules/documents/DocumentDropzone.tsx`,
+  `useDocumentLibrary.ts`, `DocumentsPanelHeader.tsx`, `DocumentsGrid.tsx`,
+  `EmptyDocumentsDropzone.tsx`,
   `DocumentPreviewDialog.tsx`, `DocumentAnalysisDialog.tsx`,
-  `DocumentDeleteDialog.tsx`, `documents-api.ts` e estilos da tela.
+  `DocumentDeleteDialog.tsx`, `document.constants.ts`, `document-formatters.ts`,
+  `documents-api.ts` e estilos da tela.
 - Testes: cliente HTTP coberto por testes de multipart, credenciais, resposta e erro
   seguro; lint, testes e builds registrados na entrega.
 - Visual: notebook, 920 px, 768 px, 390 px e 320 px inspecionados no navegador;
@@ -170,4 +173,7 @@ drag and drop e mantendo uma adaptação utilizável em tablet e mobile.
   citação, tabela e código inline; modal e conteúdo permaneceram sem overflow global.
 - Verificação em 2026-11-20: lint e builds aprovados, 54 testes unitários, 14 de
   integração, 21 E2E e 14 testes do pacote front-end aprovados.
+- Refatoração em 2026-11-20: apresentação, estado e integração do painel separados;
+  limites e formatadores centralizados; 43 testes unitários do back-end e 20 testes
+  do pacote front-end aprovados em suítes independentes.
 - ADRs: nenhuma.

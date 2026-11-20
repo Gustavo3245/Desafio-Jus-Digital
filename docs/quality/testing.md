@@ -1,7 +1,7 @@
 ---
 title: Estratégia de testes
 status: accepted
-last_updated: 2026-11-18
+last_updated: 2026-11-20
 ---
 
 # Estratégia de testes
@@ -19,6 +19,8 @@ sem valor contratual.
 - Regras e estados de documentos.
 - Validação e tradução de erros.
 - Serviços de aplicação com Google, S3 e OpenAI simulados.
+- Cada pacote executa somente seus próprios testes: a raiz cobre `src/` e o pacote
+  front-end cobre `frontend/src/`.
 
 ### Integração
 
@@ -44,6 +46,9 @@ npm run test:e2e
 npm run test:cov
 npm run lint
 npm run build
+npm run frontend:lint
+npm run frontend:test
+npm run frontend:build
 ```
 
 No ambiente Docker:
@@ -71,6 +76,7 @@ ao S3 ou à OpenAI é realizada.
 - Secrets de teste são fictícios e nunca reutilizam credenciais reais.
 - Testes de autorização usam pelo menos dois usuários distintos.
 - Mocks preservam contratos e falham explicitamente quando o contrato muda.
+- Builds rejeitam símbolos locais e parâmetros sem uso em ambos os pacotes.
 - Cobertura é um sinal; critérios de aceitação continuam sendo a referência principal.
 
 ## Teste manual da análise real
