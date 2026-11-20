@@ -14,8 +14,9 @@ sem substituir a sessão própria definida na ADR-0001 nem expor a credencial em
 
 No modo `redirect`, o Google Identity Services envia um formulário diretamente ao
 back-end. Esse transporte possui requisitos diferentes do endpoint JSON existente:
-o callback recebe `application/x-www-form-urlencoded`, vem da origem do Google e
-inclui um token CSRF em cookie e no corpo.
+o callback recebe `application/x-www-form-urlencoded` e inclui um token CSRF em
+cookie e no corpo. Em navegador real, o `form_post` do Google pode serializar a
+origem como `null`, mesmo com `Sec-Fetch-Site: cross-site`.
 
 ## Restrições e critérios
 
@@ -51,6 +52,12 @@ popup. `POST /api/v1/auth/google/callback` recebe o formulário do Google, exige
 o cookie e o campo `g_csrf_token` coincidam, valida a mesma credencial e cria a mesma
 sessão opaca.
 
+Depois da validação double-submit, o callback normaliza exclusivamente a combinação
+real `Origin: null` e `Sec-Fetch-Site: cross-site` para a origem conhecida do Google,
+permitindo que a proteção de login da biblioteca emita a sessão. `null` não é
+adicionado às origens confiáveis globais; origem explícita não confiável e CSRF
+inválido continuam bloqueados.
+
 Após sucesso, o callback responde `303 See Other` para `/auth/callback` na origem
 configurada. Falhas de credencial também retornam ao front-end com um código seguro;
 falhas de CSRF são interrompidas com `403` e não redirecionam.
@@ -69,10 +76,13 @@ falhas de CSRF são interrompidas com `403` e não redirecionam.
 - A URI do callback precisa ser cadastrada exatamente no Google Cloud.
 - O callback é uma exceção explícita à proteção de origem genérica e depende da
   validação double-submit do Google.
+- A compatibilidade com origem opaca depende da ordem obrigatória: validar CSRF antes
+  de normalizar o request usado na emissão da sessão.
 
 ## Plano de validação
 
-- Teste E2E do callback com cookie e campo CSRF correspondentes.
+- Teste E2E do callback real com `Origin: null`, `Sec-Fetch-Site: cross-site` e CSRF
+  correspondente.
 - Testes de rejeição para cookie ausente, divergente e credencial inválida.
 - Teste real em navegador comum usando uma URI autorizada no Google Cloud.
 

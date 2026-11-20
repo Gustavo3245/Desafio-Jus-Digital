@@ -40,6 +40,8 @@ last_updated: 2026-11-18
   tratado como substituto dessa proteção.
 - O callback de Google redirect é a única exceção de rota e exige a igualdade entre
   o cookie e o campo `g_csrf_token` antes de validar a credencial.
+- A origem opaca usada pelo `form_post` real do Google é normalizada somente depois
+  dessa prova CSRF e apenas no callback; `null` nunca é uma origem confiável global.
 - A aplicação recusa produção com armazenamento de sessão em memória.
 - A chave da OpenAI é validada na inicialização, permanece no back-end e nunca é
   incluída em respostas ou logs.

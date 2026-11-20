@@ -76,20 +76,23 @@ pelo back-end.
 - `AUTH-RULE-009` - O cliente manual encerra a verificação inicial em tempo finito e
   informa separadamente sessão ausente, API indisponível, SDK Google indisponível e
   abertura incorreta por `file://`.
+- `AUTH-RULE-010` - O callback pode normalizar `Origin: null` somente depois de
+  validar o double-submit CSRF e somente quando `Sec-Fetch-Site` for `cross-site`;
+  nenhuma outra rota confia em origem opaca.
 
 ## Estados e erros
 
-| Situação                                          | Comportamento esperado             | Código/estado |
-| ------------------------------------------------- | ---------------------------------- | ------------- |
-| Payload inválido ou ausente                       | Rejeitar sem chamar o Google       | `400`         |
-| ID token inválido, expirado ou de outra audiência | Não criar usuário nem sessão       | `401`         |
-| E-mail Google não verificado                      | Não criar usuário nem sessão       | `403`         |
-| Sessão ausente ou inválida                        | Não expor dados de usuário         | `401`         |
-| Login válido                                      | Criar sessão e retornar perfil     | `200`         |
-| Callback válido                                   | Criar sessão e voltar ao front-end | `303`         |
-| CSRF ausente ou divergente no callback            | Não validar nem criar sessão       | `403`         |
-| Logout válido                                     | Revogar a sessão e limpar o cookie | `204`         |
-| Página manual aberta diretamente como arquivo     | Orientar abertura pelo Vite        | Erro local    |
+| Situação                                          | Comportamento esperado              | Código/estado |
+| ------------------------------------------------- | ----------------------------------- | ------------- |
+| Payload inválido ou ausente                       | Rejeitar sem chamar o Google        | `400`         |
+| ID token inválido, expirado ou de outra audiência | Não criar usuário nem sessão        | `401`         |
+| E-mail Google não verificado                      | Não criar usuário nem sessão        | `403`         |
+| Sessão ausente ou inválida                        | Não expor dados de usuário          | `401`         |
+| Login válido                                      | Criar sessão e retornar perfil      | `200`         |
+| Callback válido                                   | Criar sessão e voltar ao front-end  | `303`         |
+| CSRF ausente ou divergente no callback            | Não validar nem criar sessão        | `403`         |
+| Logout válido                                     | Revogar a sessão e limpar o cookie  | `204`         |
+| Página manual aberta diretamente como arquivo     | Orientar abertura pelo Vite         | Erro local    |
 | API ou SDK Google sem resposta                    | Encerrar espera e orientar correção | Erro local    |
 
 ## Contratos afetados
@@ -105,6 +108,9 @@ pelo back-end.
 - Login e demais requisições mutáveis validam uma origem confiável.
 - O callback externo valida o double-submit cookie definido pelo Google antes de
   processar a credencial.
+- O `form_post` real do Google pode chegar com origem opaca; a compatibilidade é
+  limitada ao callback e ocorre após a prova CSRF, sem adicionar `null` às origens
+  confiáveis globais.
 - Nenhum token, cookie, conteúdo de documento ou dado pessoal é registrado em logs.
 - O perfil retornado contém somente os atributos necessários à interface.
 
@@ -157,5 +163,8 @@ pelo back-end.
   botão Google; chamadas à API e carregamento do SDK possuem timeout de 10 segundos.
   Lint, build do Nest e do Vite, 40 testes unitários, 14 de integração e 19 E2E
   aprovados.
+- Callback real reproduzido em 2026-11-19 com `Origin: null` e
+  `Sec-Fetch-Site: cross-site`; o cenário foi incorporado aos testes E2E e de
+  integração sem reduzir a rejeição de origem não confiável ou CSRF inválido.
 - ADRs: [`ADR-0001`](../architecture/decisions/0001-google-id-token-and-server-session.md)
   e [`ADR-0003`](../architecture/decisions/0003-google-sign-in-redirect.md).
