@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import type { ChangeEvent, DragEvent, KeyboardEvent } from 'react';
-import { FileSearch, FileUp, Plus } from 'lucide-react';
+import { CheckCircle2, FileSearch, Plus } from 'lucide-react';
+import { DocumentPreviewDialog } from './DocumentPreviewDialog.js';
 
 const ACCEPTED_DOCUMENTS = '.pdf,.doc,.docx,.txt';
 
@@ -8,11 +9,19 @@ export function DocumentDropzone() {
   const input = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const openFilePicker = () => input.current?.click();
+  const openFilePicker = () => {
+    if (!input.current) return;
+    input.current.value = '';
+    input.current.click();
+  };
 
   const selectFile = (file?: File) => {
-    if (file) setSelectedFile(file);
+    if (file) {
+      setSuccessMessage(null);
+      setSelectedFile(file);
+    }
     setIsDragging(false);
   };
 
@@ -73,18 +82,36 @@ export function DocumentDropzone() {
         onDrop={handleDrop}
       >
         <span className="document-dropzone__icon" aria-hidden="true">
-          {selectedFile ? <FileUp size={38} /> : <FileSearch size={38} />}
+          {successMessage ? (
+            <CheckCircle2 size={38} />
+          ) : (
+            <FileSearch size={38} />
+          )}
         </span>
         <h2 id="documents-empty-title">
-          {selectedFile ? selectedFile.name : 'Você ainda não tem documentos'}
+          {successMessage
+            ? 'Documento enviado'
+            : 'Você ainda não tem documentos'}
         </h2>
         <p>
-          {selectedFile
-            ? 'Documento selecionado. Adicione outro arquivo para substituí-lo.'
-            : 'Arraste um arquivo para esta área ou clique em “Adicionar documento”.'}
+          {successMessage ??
+            'Arraste um arquivo para esta área ou clique em “Adicionar documento”.'}
         </p>
         <small>PDF, DOC, DOCX ou TXT · até 10 MB</small>
       </div>
+
+      {selectedFile ? (
+        <DocumentPreviewDialog
+          file={selectedFile}
+          onClose={() => setSelectedFile(null)}
+          onSaved={(document) => {
+            setSelectedFile(null);
+            setSuccessMessage(
+              `“${document.title}” foi salvo e analisado com sucesso.`,
+            );
+          }}
+        />
+      ) : null}
     </section>
   );
 }
