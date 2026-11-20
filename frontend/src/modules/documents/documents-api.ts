@@ -45,41 +45,17 @@ export function createDocumentsApi(
 
   return {
     async createDocument(input) {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), timeoutMs);
       const form = new FormData();
       form.set('file', input.file);
       form.set('title', input.title.trim());
       form.set('instruction', input.instruction.trim());
 
-      try {
-        const response = await fetchImplementation(
-          `${normalizedBaseUrl}/documents`,
-          {
-            method: 'POST',
-            credentials: 'include',
-            headers: { Accept: 'application/json' },
-            body: form,
-            signal: controller.signal,
-          },
-        );
-
-        if (!response.ok) {
-          const body = (await response
-            .json()
-            .catch(() => ({}))) as ErrorResponse;
-          const rawCode = body.code ?? body.errorCode;
-          throw new DocumentHttpError(
-            response.status,
-            typeof rawCode === 'string' ? rawCode : null,
-          );
-        }
-
-        const body = (await response.json()) as DocumentResponse;
-        return body.document;
-      } finally {
-        clearTimeout(timeout);
-      }
+      const response = await request('/documents', {
+        method: 'POST',
+        body: form,
+      });
+      const body = (await response.json()) as DocumentResponse;
+      return body.document;
     },
     async listDocuments() {
       const response = await request('/documents', { method: 'GET' });
