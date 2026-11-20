@@ -97,11 +97,12 @@ drag and drop e mantendo uma adaptação utilizável em tablet e mobile.
 | Arquivo selecionado | Abrir prévia e permitir edição                                | Modal            |
 | Envio em andamento  | Exibir modal de análise com GPT-4o-mini e bloquear fechamento | Loading no modal |
 | Falha segura        | Manter dados e orientar nova tentativa                        | Erro no modal    |
-| Envio concluído     | Fechar modal e confirmar resultado                            | Sucesso          |
+| Envio concluído     | Fechar modal, exibir aviso de sucesso com atalho para análise | Sucesso          |
 | Histórico carregado | Exibir cartões dentro do painel branco                        | Grade            |
 | Uma seleção         | Exibir análise e exclusão                                     | Ações            |
 | Várias seleções     | Exibir somente exclusão                                       | Ações            |
 | Exclusão solicitada | Pedir confirmação explícita                                   | Modal            |
+| Exclusão concluída  | Remover cartões e exibir aviso de sucesso no painel           | Sucesso          |
 
 ## Contratos afetados
 

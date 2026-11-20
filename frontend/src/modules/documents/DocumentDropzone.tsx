@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import type { ChangeEvent, DragEvent } from 'react';
-import { FileUp, RefreshCw } from 'lucide-react';
+import { CheckCircle2, Eye, FileUp, RefreshCw, X } from 'lucide-react';
 import { Spinner } from '../../shared/Spinner.js';
 import { DocumentAnalysisDialog } from './DocumentAnalysisDialog.js';
 import { DocumentDeleteDialog } from './DocumentDeleteDialog.js';
@@ -57,6 +57,7 @@ export function DocumentDropzone() {
 
     setFileErrorMessage(null);
     library.clearError();
+    library.clearSuccess();
     setSelectedFile(file);
   };
 
@@ -116,6 +117,35 @@ export function DocumentDropzone() {
           selectFile(event.target.files?.[0], event.target.files?.length ?? 1)
         }
       />
+
+      {library.successMessage ? (
+        <div
+          className="documents-panel__success inline-alert inline-alert--success"
+          role="status"
+          aria-live="polite"
+        >
+          <div className="documents-panel__success-copy">
+            <CheckCircle2 size={18} aria-hidden="true" />
+            <p>{library.successMessage}</p>
+          </div>
+          <div className="documents-panel__success-actions">
+            {library.lastAddedDocument ? (
+              <button type="button" onClick={library.openLastAddedAnalysis}>
+                <Eye size={16} aria-hidden="true" />
+                Visualizar análise
+              </button>
+            ) : null}
+            <button
+              className="documents-panel__success-dismiss"
+              type="button"
+              aria-label="Fechar aviso de sucesso"
+              onClick={library.clearSuccess}
+            >
+              <X size={16} aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+      ) : null}
 
       {fileErrorMessage ? (
         <div

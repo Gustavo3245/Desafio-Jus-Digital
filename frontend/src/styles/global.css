@@ -113,6 +113,12 @@ p {
   color: #862837;
 }
 
+.inline-alert--success {
+  border-color: rgb(47 170 111 / 28%);
+  background: var(--color-primary-soft);
+  color: #18633e;
+}
+
 .text-button {
   min-height: 36px;
   padding: 0;

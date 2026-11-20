@@ -14,6 +14,18 @@ export function useDocumentLibrary() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [lastAddedDocument, setLastAddedDocument] =
+    useState<DocumentRecord | null>(null);
+
+  useEffect(() => {
+    if (!successMessage) return;
+    const timer = setTimeout(() => {
+      setSuccessMessage(null);
+      setLastAddedDocument(null);
+    }, 6_000);
+    return () => clearTimeout(timer);
+  }, [successMessage]);
 
   const loadDocuments = async () => {
     setIsLoading(true);
@@ -79,9 +91,16 @@ export function useDocumentLibrary() {
       );
       setSelectedIds(new Set());
       setIsDeleteOpen(false);
+      setLastAddedDocument(null);
+      setSuccessMessage(
+        ids.length === 1
+          ? 'Documento excluído com sucesso.'
+          : `${ids.length} documentos excluídos com sucesso.`,
+      );
     } catch (error) {
       setIsDeleteOpen(false);
       await loadDocuments();
+      setSuccessMessage(null);
       setErrorMessage(
         toSafeDocumentError(
           error,
@@ -98,6 +117,9 @@ export function useDocumentLibrary() {
       document,
       ...current.filter((item) => item.id !== document.id),
     ]);
+    setErrorMessage(null);
+    setLastAddedDocument(document);
+    setSuccessMessage('Documento enviado e análise concluída com sucesso.');
   };
 
   return {
@@ -106,6 +128,10 @@ export function useDocumentLibrary() {
     cancelDelete: () => setIsDeleteOpen(false),
     closeAnalysis: () => setAnalysisDocument(null),
     clearError: () => setErrorMessage(null),
+    clearSuccess: () => {
+      setSuccessMessage(null);
+      setLastAddedDocument(null);
+    },
     deleteSelectedDocuments,
     documents,
     errorMessage,
@@ -113,10 +139,18 @@ export function useDocumentLibrary() {
     isDeleting,
     isLoading,
     isOpeningAnalysis,
+    lastAddedDocument,
     loadDocuments,
     openAnalysis,
+    openLastAddedAnalysis: () => {
+      if (!lastAddedDocument) return;
+      setAnalysisDocument(lastAddedDocument);
+      setSuccessMessage(null);
+      setLastAddedDocument(null);
+    },
     requestDelete: () => setIsDeleteOpen(true),
     selectedIds,
+    successMessage,
     toggleDocument,
   };
 }
