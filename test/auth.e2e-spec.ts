@@ -95,7 +95,7 @@ describe('Google authentication (e2e)', () => {
     const csrfToken = 'google-csrf-token';
     const response = await agent
       .post('/api/v1/auth/google/callback')
-      .set('Origin', googleOrigin)
+      .set('Origin', 'null')
       .set('Sec-Fetch-Site', 'cross-site')
       .set('Cookie', `g_csrf_token=${csrfToken}`)
       .type('form')
@@ -117,7 +117,7 @@ describe('Google authentication (e2e)', () => {
     const csrfToken = 'google-csrf-token';
     const login = request(app.getHttpServer())
       .post('/api/v1/auth/google/callback')
-      .set('Origin', googleOrigin)
+      .set('Origin', 'null')
       .set('Sec-Fetch-Site', 'cross-site')
       .type('form')
       .send({

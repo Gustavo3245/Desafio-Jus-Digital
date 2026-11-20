@@ -417,7 +417,7 @@ describe('PostgreSQL persistence (integration)', () => {
       const csrfToken = 'journey-csrf-token';
       await agentA
         .post('/api/v1/auth/google/callback')
-        .set('Origin', 'https://accounts.google.com')
+        .set('Origin', 'null')
         .set('Sec-Fetch-Site', 'cross-site')
         .set('Cookie', `g_csrf_token=${csrfToken}`)
         .type('form')

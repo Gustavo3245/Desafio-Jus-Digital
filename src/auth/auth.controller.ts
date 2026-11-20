@@ -8,13 +8,16 @@ import {
   type HttpRedirectResponse,
   HttpStatus,
   Post,
+  Req,
   Redirect,
 } from '@nestjs/common';
 import { CurrentUser, Public } from '@nestjs/authentication';
+import type { Request } from 'express';
 import { z } from 'zod';
 import { type User, type UserProfile, toUserProfile } from '../users/user.js';
 import { AuthService } from './auth.service.js';
 import { GoogleAuthRedirectService } from './google/google-auth-redirect.service.js';
+import { GOOGLE_IDENTITY_ORIGIN } from './google/google.constants.js';
 import { GoogleCsrfService } from './google/google-csrf.service.js';
 
 const googleSignInSchema = z.object({
@@ -56,8 +59,10 @@ export class AuthController {
   async completeGoogleRedirect(
     @Body({ schema: googleRedirectSchema }) body: GoogleRedirectRequest,
     @Cookies('g_csrf_token') csrfCookie: string | undefined,
+    @Req() request: Request,
   ): Promise<HttpRedirectResponse> {
     this.googleCsrf.assertValid(csrfCookie, body.g_csrf_token);
+    normalizeGoogleRedirectOrigin(request);
 
     try {
       await this.authService.signInWithGoogle(body.credential);
@@ -84,6 +89,15 @@ export class AuthController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async signOut(): Promise<void> {
     await this.authService.signOut();
+  }
+}
+
+function normalizeGoogleRedirectOrigin(request: Request): void {
+  if (
+    request.headers.origin === 'null' &&
+    request.headers['sec-fetch-site'] === 'cross-site'
+  ) {
+    request.headers.origin = GOOGLE_IDENTITY_ORIGIN;
   }
 }
 
