@@ -27,6 +27,9 @@ last_updated: 2026-11-20
 ### Tablet e mobile
 
 - Até 820 px, a sidebar vira uma barra superior e o conteúdo usa uma coluna.
+- No mobile, o canto superior direito preserva foto, nome, e-mail e logout do mesmo
+  componente usado na base da sidebar desktop; textos longos são truncados sem
+  remover a identidade da conta.
 - Até 600 px, a ação ocupa a largura do painel para oferecer alvo de toque de no
   mínimo 44 px; a zona de upload reduz a altura sem perder o conteúdo central.
 - O layout não depende de drag and drop: teclado, toque e seletor de arquivos

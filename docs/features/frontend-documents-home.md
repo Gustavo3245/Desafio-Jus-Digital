@@ -74,6 +74,9 @@ drag and drop e mantendo uma adaptação utilizável em tablet e mobile.
   verdade antes de exibir erro seguro.
 - `FRONT-DOCS-009` - Em notebook, meia tela e tablet, ações contextuais não alteram a
   posição vertical da grade; no mobile estreito elas fluem sem cobrir os cartões.
+- `FRONT-DOCS-010` - A barra mobile exibe foto, nome, e-mail e logout da conta sem
+  overflow; nome e e-mail longos usam truncamento visual e preservam seu conteúdo
+  acessível.
 
 ## Estados e erros
 
@@ -151,6 +154,8 @@ drag and drop e mantendo uma adaptação utilizável em tablet e mobile.
 - Posicionamento contextual: em 920 px e 768 px, a coordenada vertical do primeiro
   cartão permaneceu idêntica antes e depois da seleção; no mobile as ações fluem sem
   overflow ou sobreposição.
+- Perfil mobile: foto, nome, e-mail e logout inspecionados com conteúdo longo em 390
+  px e 320 px; textos foram truncados visualmente e não houve overflow horizontal.
 - Verificação em 2026-11-20: lint e builds aprovados, 54 testes unitários, 14 de
   integração, 21 E2E e 11 testes do pacote front-end aprovados.
 - ADRs: nenhuma.
