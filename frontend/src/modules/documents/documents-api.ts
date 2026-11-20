@@ -1,4 +1,8 @@
 import type { CreateDocumentInput, DocumentRecord } from './documents.types.js';
+import {
+  DOCUMENT_API_TIMEOUT_MS,
+  DOCUMENT_LIMITS,
+} from './document.constants.js';
 
 interface DocumentResponse {
   document: DocumentRecord;
@@ -35,7 +39,7 @@ export interface DocumentsApi {
 export function createDocumentsApi(
   baseUrl: string,
   fetchImplementation: FetchImplementation = fetch,
-  timeoutMs = 120_000,
+  timeoutMs = DOCUMENT_API_TIMEOUT_MS,
 ): DocumentsApi {
   const normalizedBaseUrl = baseUrl.replace(/\/$/, '');
 
@@ -137,7 +141,7 @@ export function toSafeDocumentError(
   if (error instanceof DocumentHttpError) {
     if (error.status === 401) return 'Sua sessão expirou. Entre novamente.';
     if (error.code === 'INVALID_FILE') {
-      return 'O arquivo não é válido. Confira o formato e o limite de 10 MB.';
+      return `O arquivo não é válido. Confira o formato e o limite de ${DOCUMENT_LIMITS.sizeMegabytes} MB.`;
     }
     if (error.status === 400) {
       return 'Revise o título, a instrução e o arquivo selecionado.';

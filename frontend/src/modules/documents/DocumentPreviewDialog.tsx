@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import type { FormEvent, MouseEvent } from 'react';
 import { FileText, Save, X } from 'lucide-react';
 import { Spinner } from '../../shared/Spinner.js';
+import { DOCUMENT_LIMITS } from './document.constants.js';
+import { formatFileSize, getFileExtension } from './document-formatters.js';
 import { createDocumentsApi, toSafeDocumentError } from './documents-api.js';
 import type { DocumentRecord } from './documents.types.js';
 
@@ -12,17 +14,6 @@ interface DocumentPreviewDialogProps {
 }
 
 const documentsApi = createDocumentsApi(import.meta.env.VITE_API_BASE_URL);
-
-function formatFileSize(size: number): string {
-  if (size < 1_024) return `${size} B`;
-  if (size < 1_048_576) return `${Math.ceil(size / 1_024)} KB`;
-  return `${(size / 1_048_576).toFixed(1)} MB`;
-}
-
-function getFileExtension(name: string): string {
-  const extension = name.split('.').pop();
-  return extension && extension !== name ? extension.toUpperCase() : 'ARQUIVO';
-}
 
 export function DocumentPreviewDialog({
   file,
@@ -99,7 +90,7 @@ export function DocumentPreviewDialog({
               aria-hidden="true"
             >
               <FileText size={36} strokeWidth={1.6} />
-              <small>{getFileExtension(file.name)}</small>
+              <small>{getFileExtension(file.name).toUpperCase()}</small>
             </span>
             <p>{file.name}</p>
             <small>{formatFileSize(file.size)}</small>
@@ -110,7 +101,7 @@ export function DocumentPreviewDialog({
             <input
               autoFocus
               required
-              maxLength={150}
+              maxLength={DOCUMENT_LIMITS.titleLength}
               value={title}
               onChange={(event) => setTitle(event.target.value)}
             />
@@ -120,13 +111,16 @@ export function DocumentPreviewDialog({
             <span>Instrução para IA</span>
             <textarea
               required
-              maxLength={2_000}
+              maxLength={DOCUMENT_LIMITS.instructionLength}
               rows={3}
               placeholder="Como a IA deve analisar este documento"
               value={instruction}
               onChange={(event) => setInstruction(event.target.value)}
             />
-            <small>{instruction.length}/2.000</small>
+            <small>
+              {instruction.length}/
+              {DOCUMENT_LIMITS.instructionLength.toLocaleString('pt-BR')}
+            </small>
           </label>
 
           {errorMessage ? (

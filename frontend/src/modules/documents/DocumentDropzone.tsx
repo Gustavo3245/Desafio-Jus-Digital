@@ -13,26 +13,20 @@ import { Spinner } from '../../shared/Spinner.js';
 import { DocumentAnalysisDialog } from './DocumentAnalysisDialog.js';
 import { DocumentDeleteDialog } from './DocumentDeleteDialog.js';
 import { DocumentPreviewDialog } from './DocumentPreviewDialog.js';
+import {
+  ACCEPTED_DOCUMENT_TYPES,
+  DOCUMENT_FORMATS_LABEL,
+  DOCUMENT_LIMITS,
+} from './document.constants.js';
+import {
+  formatDocumentDate,
+  formatFileSize,
+  getFileExtension,
+} from './document-formatters.js';
 import { createDocumentsApi, toSafeDocumentError } from './documents-api.js';
 import type { DocumentRecord } from './documents.types.js';
 
-const ACCEPTED_DOCUMENTS = '.pdf,.doc,.docx,.txt';
 const documentsApi = createDocumentsApi(import.meta.env.VITE_API_BASE_URL);
-
-function formatFileSize(size: number): string {
-  if (size < 1_024) return `${size} B`;
-  if (size < 1_048_576) return `${Math.ceil(size / 1_024)} KB`;
-  return `${(size / 1_048_576).toFixed(1)} MB`;
-}
-
-function fileExtension(name: string): string {
-  const extension = name.split('.').pop();
-  return extension && extension !== name ? extension.toLowerCase() : 'arquivo';
-}
-
-function formatDate(value: string): string {
-  return new Intl.DateTimeFormat('pt-BR').format(new Date(value));
-}
 
 export function DocumentDropzone() {
   const input = useRef<HTMLInputElement>(null);
@@ -204,7 +198,7 @@ export function DocumentDropzone() {
         ref={input}
         className="document-dropzone__input"
         type="file"
-        accept={ACCEPTED_DOCUMENTS}
+        accept={ACCEPTED_DOCUMENT_TYPES}
         onChange={(event: ChangeEvent<HTMLInputElement>) =>
           selectFile(event.target.files?.[0])
         }
@@ -245,15 +239,15 @@ export function DocumentDropzone() {
                   </span>
                   <span className="document-card__file" aria-hidden="true">
                     <FileText size={29} strokeWidth={1.5} />
-                    <small>{fileExtension(document.originalName)}</small>
+                    <small>{getFileExtension(document.originalName)}</small>
                   </span>
                   <strong title={document.title}>{document.title}</strong>
                   <time dateTime={document.createdAt}>
-                    {formatDate(document.createdAt)}
+                    {formatDocumentDate(document.createdAt)}
                   </time>
                   <small>
                     {formatFileSize(document.sizeBytes)} · .
-                    {fileExtension(document.originalName)}
+                    {getFileExtension(document.originalName)}
                   </small>
                 </button>
               </div>
@@ -297,7 +291,9 @@ export function DocumentDropzone() {
             Arraste um arquivo para esta área ou clique em “Adicionar
             documento”.
           </p>
-          <small>PDF, DOC, DOCX ou TXT · até 10 MB</small>
+          <small>
+            {DOCUMENT_FORMATS_LABEL} · até {DOCUMENT_LIMITS.sizeMegabytes} MB
+          </small>
         </div>
       )}
 
