@@ -1358,11 +1358,47 @@ body:has(.auth-layout),
   }
 
   .prototype-sidebar {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 8px;
     padding: 14px 16px;
   }
 
+  .prototype-sidebar .brand {
+    gap: 7px;
+    font-size: 0.875rem;
+  }
+
+  .prototype-sidebar .brand__mark {
+    width: 30px;
+    height: 30px;
+  }
+
+  .prototype-sidebar__profile {
+    width: min(100%, 190px);
+    gap: 6px;
+  }
+
   .prototype-sidebar__profile > span {
-    display: none;
+    display: block;
+  }
+
+  .prototype-sidebar__profile .avatar {
+    width: 30px;
+    height: 30px;
+  }
+
+  .prototype-sidebar__profile strong {
+    font-size: 0.6875rem;
+  }
+
+  .prototype-sidebar__profile small {
+    margin-top: 1px;
+    font-size: 0.5625rem;
+  }
+
+  .prototype-sidebar__profile button {
+    width: 32px;
+    height: 32px;
   }
 
   .documents-placeholder {
