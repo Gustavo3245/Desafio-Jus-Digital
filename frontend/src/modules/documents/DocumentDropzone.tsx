@@ -166,31 +166,38 @@ export function DocumentDropzone() {
             <Plus size={18} aria-hidden="true" />
             Adicionar documento
           </button>
-        </div>
 
-        {selectedIds.size > 0 ? (
-          <div className="documents-selection-actions">
-            <button type="button" onClick={() => setIsDeleteOpen(true)}>
-              <Trash2 size={19} aria-hidden="true" />
-              Excluir documentos
-            </button>
-            {selectedIds.size === 1 ? (
+          {selectedIds.size > 0 ? (
+            <div className="documents-selection-actions">
               <button
-                className="documents-selection-actions__analysis"
                 type="button"
-                disabled={isOpeningAnalysis}
-                onClick={() => void openAnalysis()}
+                aria-label="Excluir documentos"
+                title="Excluir documentos"
+                onClick={() => setIsDeleteOpen(true)}
               >
-                {isOpeningAnalysis ? (
-                  <Spinner label="Abrindo análise" />
-                ) : (
-                  <Eye size={20} aria-hidden="true" />
-                )}
-                Visualizar análise
+                <Trash2 size={19} aria-hidden="true" />
+                <span>Excluir documentos</span>
               </button>
-            ) : null}
-          </div>
-        ) : null}
+              {selectedIds.size === 1 ? (
+                <button
+                  className="documents-selection-actions__analysis"
+                  type="button"
+                  aria-label="Visualizar análise"
+                  title="Visualizar análise"
+                  disabled={isOpeningAnalysis}
+                  onClick={() => void openAnalysis()}
+                >
+                  {isOpeningAnalysis ? (
+                    <Spinner label="Abrindo análise" />
+                  ) : (
+                    <Eye size={20} aria-hidden="true" />
+                  )}
+                  <span>Visualizar análise</span>
+                </button>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
       </div>
 
       <input

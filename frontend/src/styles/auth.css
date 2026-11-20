@@ -497,6 +497,7 @@ body:has(.auth-layout),
 }
 
 .documents-upload-panel__actions {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -536,10 +537,12 @@ body:has(.auth-layout),
 }
 
 .documents-selection-actions {
+  position: absolute;
+  z-index: 3;
+  top: calc(100% + 10px);
+  left: 16px;
   display: grid;
   min-width: 236px;
-  grid-column: 2;
-  justify-self: start;
   overflow: hidden;
   border: 1px solid var(--color-border);
   border-radius: 8px;
@@ -1211,6 +1214,40 @@ body:has(.auth-layout),
   }
 }
 
+@media (min-width: 601px) and (max-width: 1080px) {
+  .documents-selection-count {
+    display: none;
+  }
+
+  .documents-selection-actions {
+    position: static;
+    display: flex;
+    min-width: 0;
+    overflow: visible;
+    border: 0;
+    box-shadow: none;
+  }
+
+  .documents-selection-actions button {
+    width: 40px;
+    min-height: 40px;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    background: var(--color-surface);
+  }
+
+  .documents-selection-actions button + button {
+    margin-left: 8px;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .documents-selection-actions button span {
+    display: none;
+  }
+}
+
 @media (max-width: 820px) {
   .prototype-shell {
     grid-template-columns: 1fr;
@@ -1369,9 +1406,9 @@ body:has(.auth-layout),
   }
 
   .documents-selection-actions {
+    position: static;
     width: 100%;
     min-width: 0;
-    grid-column: 1;
   }
 
   .documents-selection-actions button {
