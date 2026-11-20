@@ -55,7 +55,7 @@ export function GoogleSignInButton() {
           text: 'continue_with',
           shape: 'rectangular',
           logo_alignment: 'left',
-          width: Math.min(400, Math.max(240, buttonWidth)),
+          width: Math.min(400, buttonWidth),
         });
         setState('ready');
       })
