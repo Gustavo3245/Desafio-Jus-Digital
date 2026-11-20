@@ -1,7 +1,7 @@
 ---
 title: Registro de decisões arquiteturais
 status: accepted
-last_updated: 2026-11-19
+last_updated: 2026-11-20
 ---
 
 # Decisões arquiteturais
@@ -28,7 +28,4 @@ módulo. Não crie ADR para detalhes locais facilmente alteráveis.
 | [`ADR-0005`](0005-s3-storage-and-upload-compensation.md)   | Aceita | Armazenamento privado no AWS S3 e compensação no upload |
 | [`ADR-0006`](0006-synchronous-openai-document-analysis.md) | Aceita | Análise síncrona com OpenAI Responses API               |
 | [`ADR-0007`](0007-react-vite-colocated-frontend.md)        | Aceita | React e Vite em pacote independente `frontend/`         |
-
-## Primeiras ADRs candidatas
-
-- Exclusão consistente no banco e S3.
+| [`ADR-0008`](0008-document-deletion-order.md)              | Aceita | Storage antes do banco na exclusão de documentos        |

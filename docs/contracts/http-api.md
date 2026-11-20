@@ -1,7 +1,7 @@
 ---
 title: Contrato HTTP
 status: accepted
-last_updated: 2026-11-18
+last_updated: 2026-11-20
 ---
 
 # Contrato HTTP
@@ -33,7 +33,7 @@ de decorators.
 | `GET`    | `/documents/{id}/download` | Obter download autorizado         |
 | `DELETE` | `/documents/{id}`          | Excluir documento próprio         |
 
-Download e exclusão permanecem propostos até suas respectivas feature specs.
+Download permanece proposto até sua feature spec.
 
 ## Autenticação Google
 
@@ -189,6 +189,18 @@ Documento inexistente ou pertencente a outra pessoa responde igualmente `404`:
   "message": "Document was not found"
 }
 ```
+
+## Exclusão de documento
+
+### `DELETE /api/v1/documents/{id}`
+
+Exige sessão válida e origem confiável. Localiza o documento combinando o ID com o
+proprietário derivado da sessão, remove o objeto privado do storage e depois sua
+referência persistida. Em sucesso responde `204 No Content`, sem corpo.
+
+Documento inexistente ou pertencente a outra pessoa responde igualmente `404
+DOCUMENT_NOT_FOUND`. Falha temporária do storage preserva a referência e responde
+`503 EXTERNAL_SERVICE_UNAVAILABLE`.
 
 ## Códigos de erro iniciais
 

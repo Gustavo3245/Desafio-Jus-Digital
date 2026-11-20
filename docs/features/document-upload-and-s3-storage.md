@@ -47,9 +47,9 @@ de falha.
 
 - Chamada à API da OpenAI (`gpt-4o-mini`) após o upload, especificada e implementada
   separadamente pela [`FEAT-005`](openai-document-analysis.md).
-- Endpoints de listagem (`GET /documents`), leitura (`GET /documents/{id}`), download
-  (`GET /documents/{id}/download`) e exclusão (`DELETE /documents/{id}`), cobertos
-  por `FEAT-006`.
+- Endpoints de listagem e leitura, cobertos pela [`FEAT-006`](document-history-and-reading.md),
+  e exclusão, coberta pela [`FEAT-007`](document-deletion.md). Download permanece fora
+  do escopo atual.
 
 ## Atores e autorização
 

@@ -1,7 +1,7 @@
 ---
 title: Design da tela de documentos
 status: accepted
-last_updated: 2026-11-19
+last_updated: 2026-11-20
 ---
 
 # Design da tela de documentos
@@ -39,6 +39,38 @@ last_updated: 2026-11-19
 - Similaridade: verde identifica a ação primária e o estado ativo de arraste.
 - O foco é visível, a zona responde a `Enter` e espaço e os estados não dependem
   apenas de cor.
+
+## Histórico, seleção e ações
+
+### Notebook e tela dividida
+
+- Depois do primeiro envio, todos os documentos são exibidos dentro do mesmo painel
+  branco externo, em cartões compactos com ícone, título, data, tamanho e extensão.
+- A seleção usa superfície azul-clara e marcador azul no canto superior esquerdo;
+  cartão, marcador e texto formam uma região clicável única.
+- O cabeçalho do painel mantém, da esquerda para a direita, a quantidade total, a
+  contagem selecionada e `Adicionar documento`.
+- Um documento selecionado revela `Excluir documentos` e `Visualizar análise`; com
+  dois ou mais, somente exclusão permanece disponível, como no protótipo.
+
+### Tablet e mobile
+
+- O cabeçalho e as ações quebram linha sem overflow; `Adicionar documento` mantém
+  alvo de toque de 44 px.
+- A grade reduz colunas conforme o espaço, sem comprimir cartões ou truncar controles.
+- A seleção permanece explícita por texto para leitores de tela e por marcador, não
+  apenas pela cor.
+
+## Modal de análise
+
+- `Visualizar análise` abre um modal branco centralizado sobre overlay, com o mesmo
+  cabeçalho `Prévia do Documento` do protótipo.
+- Metadados, título, instrução e `Análise da IA` são agrupados em regiões separadas;
+  conteúdo longo rola dentro do modal.
+- Estados `processing` e `failed` recebem mensagens seguras no lugar de uma análise
+  inexistente.
+- No mobile o modal usa a largura disponível, preserva margens de 12 px e mantém a
+  ação de fechar visível.
 
 ## Prévia do documento
 

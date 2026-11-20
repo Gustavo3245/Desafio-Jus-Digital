@@ -1,7 +1,7 @@
 ---
 title: Front-end inicial de documentos
 status: implemented
-last_updated: 2026-11-19
+last_updated: 2026-11-20
 feature_id: FEAT-009
 requirements:
   - DOC-001
@@ -29,11 +29,14 @@ drag and drop e mantendo uma adaptação utilizável em tablet e mobile.
 - Integração autenticada com `POST /api/v1/documents` e feedback de loading, erro e
   sucesso.
 - Layout responsivo para notebook, tela dividida, tablet, 390 px e 320 px.
+- Carregamento e exibição dos documentos persistidos dentro do painel branco.
+- Seleção individual e múltipla, contador e ações contextuais fiéis ao protótipo.
+- Modal de análise para uma seleção e exclusão confirmada de uma ou várias seleções.
+- Atualização imediata da lista após upload e recarga segura em falha parcial.
 
 ### Não incluído
 
-- Listagem, leitura, download ou exclusão no front-end.
-- Atualização da listagem após o envio.
+- Download do arquivo original.
 
 ## Atores e autorização
 
@@ -46,11 +49,13 @@ drag and drop e mantendo uma adaptação utilizável em tablet e mobile.
 
 ## Fluxo principal
 
-1. A pessoa abre a tela de documentos sem histórico visível.
-2. Seleciona a ação ou arrasta um arquivo para a zona tracejada.
+1. A pessoa abre a tela e o histórico próprio é carregado dentro do painel.
+2. Sem documentos, seleciona a ação ou arrasta um arquivo para a zona tracejada.
 3. A interface abre a prévia com nome, tamanho, tipo, título e instrução.
 4. A pessoa confirma `Salvar`; o front-end envia o multipart com a sessão.
-5. Em sucesso, o modal fecha e a zona confirma o documento analisado.
+5. Em sucesso, o modal fecha e o novo documento aparece na grade.
+6. A pessoa seleciona um documento para visualizar sua análise ou seleciona um ou
+   vários documentos para confirmar a exclusão.
 
 ## Regras de negócio
 
@@ -63,6 +68,10 @@ drag and drop e mantendo uma adaptação utilizável em tablet e mobile.
   e nunca registra arquivo, título ou instrução.
 - `FRONT-DOCS-006` - O modal preserva foco, fechamento por teclado e ações acessíveis
   em todos os viewports.
+- `FRONT-DOCS-007` - Um documento selecionado permite análise e exclusão; seleção
+  múltipla permite somente exclusão.
+- `FRONT-DOCS-008` - Exclusão exige confirmação e falha parcial recarrega a fonte de
+  verdade antes de exibir erro seguro.
 
 ## Estados e erros
 
@@ -74,10 +83,15 @@ drag and drop e mantendo uma adaptação utilizável em tablet e mobile.
 | Envio em andamento  | Bloquear fechamento e ação duplicada   | Loading       |
 | Falha segura        | Manter dados e orientar nova tentativa | Erro no modal |
 | Envio concluído     | Fechar modal e confirmar resultado     | Sucesso       |
+| Histórico carregado | Exibir cartões dentro do painel branco | Grade         |
+| Uma seleção         | Exibir análise e exclusão              | Ações         |
+| Várias seleções     | Exibir somente exclusão                | Ações         |
+| Exclusão solicitada | Pedir confirmação explícita            | Modal         |
 
 ## Contratos afetados
 
-- API: `POST /api/v1/documents` em [`../contracts/http-api.md`](../contracts/http-api.md).
+- API: `POST`, `GET` e `DELETE /api/v1/documents` em
+  [`../contracts/http-api.md`](../contracts/http-api.md).
 - Dados: nenhum.
 - Integrações: nenhuma.
 - Design: [`../design/documents.md`](../design/documents.md).
@@ -99,10 +113,16 @@ drag and drop e mantendo uma adaptação utilizável em tablet e mobile.
       oferece nova tentativa sem revelar detalhes externos.
 - [x] Dados tablet e mobile, então a ação e a zona permanecem visíveis, operáveis e
       sem overflow horizontal.
+- [ ] Dado histórico persistido, então todos os documentos aparecem dentro do painel
+      branco com metadados essenciais e seleção acessível.
+- [ ] Dado exatamente um documento selecionado, então análise e exclusão ficam
+      disponíveis; com vários, somente exclusão fica disponível.
+- [ ] Dada exclusão confirmada, então a grade reflete a resposta da API e mantém
+      consistência após falha parcial.
 
 ## Estratégia de teste
 
-- Unitário: montagem do multipart, credenciais, resposta e tradução segura de erro.
+- Unitário: cliente de listagem, leitura e exclusão, credenciais e tradução de erro.
 - Integração: contrato HTTP existente do back-end.
 - Visual: notebook, tela dividida, tablet, 390 px e 320 px.
 
