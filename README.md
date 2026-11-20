@@ -170,6 +170,8 @@ não responder, a página encerra a verificação após 10 segundos e informa a 
 
 ## Verificação
 
+Verificação completa do back-end:
+
 ```bash
 npm run lint
 npm test
@@ -178,8 +180,31 @@ npm run test:e2e
 npm run build
 ```
 
-Os mesmos comandos podem ser executados no container com
+Verificação do front-end:
+
+```bash
+npm run frontend:lint
+npm run frontend:test
+npm run frontend:build
+```
+
+Os comandos do back-end também podem ser executados no container com
 `docker compose exec api <comando>` enquanto o ambiente estiver ativo.
+
+## CI/CD (GitHub Actions)
+
+O repositório possui fluxos automatizados de integração e entrega contínua:
+
+- **CI (`.github/workflows/ci.yml`)**: acionado em todo `push` ou `pull_request` nos
+  ramos `main` e `development`. Executa em paralelo jobs isolados sob Node.js 26 LTS:
+  - Estilo e padronização com Prettier;
+  - Linting estrito com Oxlint e checagem de tipos com TypeScript (back-end e front-end);
+  - Testes unitários e E2E da API com Vitest;
+  - Testes de integração PostgreSQL com service container oficial `postgres:18-bookworm`;
+  - Construção das imagens Docker de produção (`Dockerfile` runtime e `frontend/Dockerfile`);
+  - Barreira unificada de aprovação (`ci-status`).
+- **CD (`.github/workflows/cd.yml`)**: acionado em tags `v*` ou merge na branch `main`,
+  compilando e publicando as imagens multi-stage no GitHub Container Registry (GHCR).
 
 ## Documentação
 

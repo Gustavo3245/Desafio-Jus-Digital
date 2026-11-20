@@ -29,3 +29,4 @@ módulo. Não crie ADR para detalhes locais facilmente alteráveis.
 | [`ADR-0006`](0006-synchronous-openai-document-analysis.md) | Aceita | Análise síncrona com OpenAI Responses API               |
 | [`ADR-0007`](0007-react-vite-colocated-frontend.md)        | Aceita | React e Vite em pacote independente `frontend/`         |
 | [`ADR-0008`](0008-document-deletion-order.md)              | Aceita | Storage antes do banco na exclusão de documentos        |
+| [`ADR-0009`](0009-github-actions-ci-pipeline.md)           | Aceita | Pipeline de CI/CD com GitHub Actions                    |

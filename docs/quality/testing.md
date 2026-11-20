@@ -79,6 +79,37 @@ ao S3 ou à OpenAI é realizada.
 - Builds rejeitam símbolos locais e parâmetros sem uso em ambos os pacotes.
 - Cobertura é um sinal; critérios de aceitação continuam sendo a referência principal.
 
+## Integração Contínua (GitHub Actions)
+
+O pipeline automatizado em `.github/workflows/ci.yml` é executado a cada `push` ou
+`pull_request` direcionado a `development` ou `main`. Ele divide as validações em
+jobs paralelos com Node.js 26 LTS:
+
+1. **Lint & Code Style (`lint-and-format`)**:
+   - `npx prettier --check` nos fontes, documentação e configurações.
+   - `npm run lint` (Oxlint no back-end e testes).
+   - `npx tsc -p tsconfig.build.json --noEmit` (tipagem estrita no back-end).
+2. **Qualidade do Front-end (`frontend-quality`)**:
+   - `npm run frontend:lint` (Oxlint no front-end).
+   - `npm run frontend:test` (Vitest nos componentes e clientes de API React).
+   - `npm run frontend:build` (compilação de produção com Vite).
+3. **Testes Unitários e E2E do Back-end (`backend-unit-and-e2e`)**:
+   - `npm test` (testes unitários isolados com mocks rápidos).
+   - `npm run test:e2e` (testes de rotas HTTP com storage e IA simulados).
+4. **Integração com PostgreSQL (`backend-integration`)**:
+   - Inicializa um service container oficial `postgres:18-bookworm`.
+   - Executa `npm run test:integration` aplicando migrations Drizzle e validando os
+     repositórios, concorrência de sessão e integridade relacional.
+5. **Validação de Imagens Docker (`docker-build`)**:
+   - Constrói o estágio `runtime` do `Dockerfile` da API.
+   - Constrói o `Dockerfile` do front-end.
+6. **Barreira de Proteção (`ci-status`)**:
+   - Consolida o resultado de todos os jobs anteriores e atua como status check
+     obrigatório para regras de proteção de branch.
+
+A entrega contínua para o GitHub Container Registry (GHCR) é gerenciada pelo
+workflow `.github/workflows/cd.yml` em tags `v*` e merges em `main`.
+
 ## Teste manual da análise real
 
 Com `OPENAI_API_KEY` configurada localmente, execute a API em desenvolvimento com

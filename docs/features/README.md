@@ -23,6 +23,7 @@ Cada funcionalidade relevante possui uma especificação em
 | [`FEAT-007`](document-deletion.md)              | Exclusão de documentos                | Implementada |
 | [`FEAT-008`](frontend-authentication.md)        | Front-end de autenticação e conta     | Implementada |
 | [`FEAT-009`](frontend-documents-home.md)        | Front-end inicial de documentos       | Implementada |
+| [`FEAT-010`](github-actions-ci.md)              | Pipeline de CI/CD com GitHub Actions  | Implementada |
 
 Crie a spec imediatamente antes de trabalhar na funcionalidade, evitando detalhar
 todo o sistema com suposições que ainda não foram validadas.
