@@ -4,6 +4,10 @@ interface DocumentResponse {
   document: DocumentRecord;
 }
 
+interface DocumentsResponse {
+  documents: DocumentRecord[];
+}
+
 interface ErrorResponse {
   code?: unknown;
   errorCode?: unknown;
@@ -23,6 +27,9 @@ export class DocumentHttpError extends Error {
 
 export interface DocumentsApi {
   createDocument(input: CreateDocumentInput): Promise<DocumentRecord>;
+  listDocuments(): Promise<DocumentRecord[]>;
+  getDocument(documentId: string): Promise<DocumentRecord>;
+  deleteDocument(documentId: string): Promise<void>;
 }
 
 export function createDocumentsApi(
@@ -70,7 +77,57 @@ export function createDocumentsApi(
         clearTimeout(timeout);
       }
     },
+    async listDocuments() {
+      const response = await request('/documents', { method: 'GET' });
+      const body = (await response.json()) as DocumentsResponse;
+      return body.documents;
+    },
+    async getDocument(documentId) {
+      const response = await request(
+        `/documents/${encodeURIComponent(documentId)}`,
+        { method: 'GET' },
+      );
+      const body = (await response.json()) as DocumentResponse;
+      return body.document;
+    },
+    async deleteDocument(documentId) {
+      await request(`/documents/${encodeURIComponent(documentId)}`, {
+        method: 'DELETE',
+      });
+    },
   };
+
+  async function request(path: string, init: RequestInit): Promise<Response> {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+    const headers = new Headers(init.headers);
+    headers.set('Accept', 'application/json');
+
+    try {
+      const response = await fetchImplementation(
+        `${normalizedBaseUrl}${path}`,
+        {
+          ...init,
+          credentials: 'include',
+          headers,
+          signal: controller.signal,
+        },
+      );
+
+      if (!response.ok) {
+        const body = (await response.json().catch(() => ({}))) as ErrorResponse;
+        const rawCode = body.code ?? body.errorCode;
+        throw new DocumentHttpError(
+          response.status,
+          typeof rawCode === 'string' ? rawCode : null,
+        );
+      }
+
+      return response;
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
 }
 
 export function toSafeDocumentError(error: unknown): string {

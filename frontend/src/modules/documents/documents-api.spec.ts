@@ -74,4 +74,58 @@ describe('createDocumentsApi', () => {
       toSafeDocumentError(new DocumentHttpError(400, 'INVALID_FILE')),
     ).toBe('O arquivo não é válido. Confira o formato e o limite de 10 MB.');
   });
+
+  it('lists and reads persisted documents with the authenticated session', async () => {
+    const fetchImplementation = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ documents: [documentRecord] }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ document: documentRecord }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+      );
+    const api = createDocumentsApi(
+      'http://api.test/api/v1',
+      fetchImplementation,
+    );
+
+    await expect(api.listDocuments()).resolves.toEqual([documentRecord]);
+    await expect(api.getDocument('document/1')).resolves.toEqual(
+      documentRecord,
+    );
+
+    expect(fetchImplementation).toHaveBeenNthCalledWith(
+      1,
+      'http://api.test/api/v1/documents',
+      expect.objectContaining({ method: 'GET', credentials: 'include' }),
+    );
+    expect(fetchImplementation).toHaveBeenNthCalledWith(
+      2,
+      'http://api.test/api/v1/documents/document%2F1',
+      expect.objectContaining({ method: 'GET', credentials: 'include' }),
+    );
+  });
+
+  it('deletes one document without attempting to parse the empty response', async () => {
+    const fetchImplementation = vi
+      .fn<typeof fetch>()
+      .mockResolvedValue(new Response(null, { status: 204 }));
+    const api = createDocumentsApi(
+      'http://api.test/api/v1',
+      fetchImplementation,
+    );
+
+    await expect(api.deleteDocument('document-1')).resolves.toBeUndefined();
+
+    expect(fetchImplementation).toHaveBeenCalledWith(
+      'http://api.test/api/v1/documents/document-1',
+      expect.objectContaining({ method: 'DELETE', credentials: 'include' }),
+    );
+  });
 });
