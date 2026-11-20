@@ -30,12 +30,18 @@ linguagem do fluxo de documentos.
 
 ### Composição
 
-- Desktop: sidebar verde com largura próxima à navegação do protótipo e área branca
-  com painel de autenticação centralizado.
+- Desktop: duas regiões com exatamente 50% da largura disponível. A região verde
+  agrupa marca, proposta de valor e garantia de segurança; a região clara centraliza
+  o painel de autenticação e sua nota legal.
+- Alinhamento e região comum definem os dois grupos principais; proximidade mantém
+  título e apoio como uma unidade, enquanto espaço negativo separa a ação Google das
+  informações secundárias.
 - Não usar gradientes, ilustrações abstratas, cor violeta ou cards excessivamente
   arredondados, pois esses elementos não aparecem no baseline.
-- Tablet e mobile: a sidebar vira uma faixa superior verde; a marca reaparece acima
-  do painel de acesso e o conteúdo permanece utilizável a partir de 320 px.
+- Tablet e mobile: a região verde vira uma faixa horizontal que ocupa toda a parte
+  superior; o título fica centralizado e integralmente contido nessa faixa. Marca,
+  painel de acesso e nota legal permanecem centralizados abaixo dela, com largura
+  fluida e limite legível a partir de 320 px.
 
 ## Verificação e callback
 

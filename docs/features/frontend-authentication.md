@@ -63,6 +63,9 @@ ao JavaScript da aplicação depois do login.
 - `FRONT-AUTH-003` - Login usa redirect na mesma aba conforme ADR-0003.
 - `FRONT-AUTH-004` - Uma falha encerra loading em tempo finito e oferece recuperação.
 - `FRONT-AUTH-005` - Dados do perfil vêm somente de `/auth/me` ou da resposta de login.
+- `FRONT-AUTH-006` - O login divide o desktop em duas regiões iguais; no mobile, o
+  título ocupa uma faixa horizontal superior e o grupo de acesso permanece
+  centralizado.
 
 ## Estados e erros
 
@@ -101,7 +104,8 @@ ao JavaScript da aplicação depois do login.
       login e uma nova consulta protegida é rejeitada.
 - [x] Dada falha de API, SDK ou configuração, então o loading termina e há orientação
       recuperável.
-- [x] Dadas larguras desktop, 768 px, 390 px e 320 px, então não há corte ou overflow.
+- [x] Dadas larguras desktop, 768 px, 390 px e 320 px, então não há corte ou overflow;
+      no desktop as regiões ocupam 50% cada e no mobile o conteúdo fica centralizado.
 
 ## Estratégia de teste
 
@@ -127,4 +131,7 @@ ao JavaScript da aplicação depois do login.
   2026-11-19.
 - Visual: comparação com o Figma oficial em desktop e validação responsiva em 390 px
   e 320 px, sem overflow horizontal.
+- Revisão responsiva em 2026-11-19: regiões desktop medidas em 50%/50% nos viewports
+  de 988 px e 1366 px; faixa superior com largura integral validada em 768 px,
+  390 px e 320 px, mantendo título e acesso centralizados sem overflow.
 - Docker: imagem do front-end construída e container saudável em `localhost:5173`.
