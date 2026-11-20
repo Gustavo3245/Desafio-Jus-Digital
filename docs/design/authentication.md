@@ -43,11 +43,15 @@ linguagem do fluxo de documentos.
 - Não usar gradientes, ilustrações abstratas ou cor violeta. O grande raio fica
   reservado ao painel unificado e à região visual; controles mantêm os raios do
   sistema para não descaracterizar o baseline.
-- Tablet: o painel passa para uma coluna; a região verde preserva título, apoio,
-  visual de documentos e garantia de segurança antes da área de acesso.
+- Tela dividida e tablet: em larguras de até 1080 px, o painel passa para uma coluna
+  para garantir largura útil ao acesso. A região verde preserva título, apoio, visual
+  de documentos e garantia de segurança antes da área de autenticação.
 - Mobile: o painel ocupa toda a largura, a região verde vira um cabeçalho horizontal
   compacto e o visual de documentos é simplificado. Marca, autenticação e nota legal
   permanecem centralizadas abaixo dele, com largura fluida a partir de 320 px.
+- Marca, textos, botão Google, privacidade e nota legal compartilham o mesmo limite de
+  largura e nunca podem ultrapassar a região clara. O componente injetado pelo Google
+  deve usar a largura observada do contêiner, sem impor um mínimo maior que ele.
 
 ### Evolução aprovada
 

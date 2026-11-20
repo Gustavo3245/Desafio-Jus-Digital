@@ -66,6 +66,8 @@ ao JavaScript da aplicação depois do login.
 - `FRONT-AUTH-006` - O login usa um painel unificado com destaque visual e acesso
   lado a lado no desktop; em tablet e mobile, as regiões formam uma coluna e o grupo
   de acesso permanece centralizado.
+- `FRONT-AUTH-007` - Marca, textos, estados e botão Google permanecem contidos e
+  centralizados na região de acesso em tela dividida, tablet e mobile.
 
 ## Estados e erros
 
@@ -107,6 +109,8 @@ ao JavaScript da aplicação depois do login.
 - [x] Dadas larguras desktop, 768 px, 390 px e 320 px, então não há corte ou overflow;
       no desktop as regiões permanecem lado a lado e, nos viewports menores, formam
       uma coluna com o conteúdo centralizado.
+- [x] Dada uma janela dividida com até 1080 px, então o painel forma uma coluna e
+      nenhum texto, estado ou controle ultrapassa a região de acesso.
 
 ## Estratégia de teste
 
@@ -137,4 +141,8 @@ ao JavaScript da aplicação depois do login.
   aninhado. Substitui a divisão 50%/50% anterior e foi inspecionada no navegador em
   988 px, 768 px, 390 px e 320 px. A ação primária permaneceu visível, a ordem de
   leitura foi preservada e não houve overflow horizontal.
+- Correção responsiva em 2026-11-19: contenção e alinhamento da região de acesso
+  medidos em 920 px, 768 px, 390 px e 320 px. Marca, descrição, botão Google,
+  privacidade e nota legal permaneceram dentro da região e no mesmo eixo central,
+  sem overflow horizontal.
 - Docker: imagem do front-end construída e container saudável em `localhost:5173`.
