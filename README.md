@@ -7,6 +7,7 @@
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18-4169E1?logo=postgresql&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178C6?logo=typescript&logoColor=white)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Aplicação web FullStack para gestão e análise inteligente de documentos jurídicos e corporativos. Permite que usuários autenticados via **Google OAuth** enviem documentos (`.pdf`, `.docx`, `.doc`, `.txt`), armazenem os arquivos originais de forma privada no **AWS S3**, processem instruções personalizadas com **OpenAI (`gpt-4o-mini`)** e consultem ou gerenciem seu histórico persistido em **PostgreSQL**.
 
@@ -295,3 +296,9 @@ O projeto adota **desenvolvimento orientado à documentação**. Todas as decis�
 | Segurança e Privacidade                                     | [`docs/quality/security.md`](docs/quality/security.md)                           |
 | Estratégia de Testes e CI                                   | [`docs/quality/testing.md`](docs/quality/testing.md)                             |
 | Diretrizes de Design e Interface                            | [`docs/design/foundations.md`](docs/design/foundations.md)                       |
+
+---
+
+## Licença
+
+Este projeto está licenciado sob a [Licença MIT](LICENSE).
