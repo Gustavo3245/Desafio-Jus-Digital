@@ -11,7 +11,7 @@ módulo. Não crie ADR para detalhes locais facilmente alteráveis.
 
 ## Processo
 
-1. Copie `docs/templates/adr.md`.
+1. Crie o documento seguindo o padrão editorial em [`docs/standards.md`](../../standards.md).
 2. Use o próximo número sequencial e um nome em `kebab-case`.
 3. Descreva contexto, opções, decisão e consequências.
 4. Use `proposed` antes da aprovação e `accepted` após a decisão.

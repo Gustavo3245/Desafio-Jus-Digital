@@ -19,28 +19,28 @@ esta prática com Domain-Driven Design, também conhecido como DDD.
 
 ## Mapa das fontes canônicas
 
-| Assunto                       | Documento                                                                  |
-| ----------------------------- | -------------------------------------------------------------------------- |
-| Requisitos e escopo           | [`product/requirements.md`](product/requirements.md)                       |
-| Arquitetura                   | [`architecture/overview.md`](architecture/overview.md)                     |
-| Modelo de dados               | [`architecture/data-model.md`](architecture/data-model.md)                 |
-| Decisões arquiteturais        | [`architecture/decisions/README.md`](architecture/decisions/README.md)     |
-| Endpoints e payloads          | [`contracts/http-api.md`](contracts/http-api.md)                           |
-| Google, AWS e OpenAI          | [`integrations/overview.md`](integrations/overview.md)                     |
-| Segurança                     | [`quality/security.md`](quality/security.md)                               |
-| Estratégia de testes          | [`quality/testing.md`](quality/testing.md)                                 |
-| Qualidade e manutenção        | [`quality/code-quality.md`](quality/code-quality.md)                       |
-| Processo com agentes e skills | [`workflow/agent-development.md`](workflow/agent-development.md)           |
-| Catálogo de skills            | [`skills/README.md`](skills/README.md)                                     |
-| Design do aplicativo          | [`skills/application-design/SKILL.md`](skills/application-design/SKILL.md) |
-| Fundações visuais             | [`design/foundations.md`](design/foundations.md)                           |
-| Telas de autenticação         | [`design/authentication.md`](design/authentication.md)                     |
-| Tela de documentos            | [`design/documents.md`](design/documents.md)                               |
-| Padrão editorial              | [`standards.md`](standards.md)                                             |
+| Assunto                | Documento                                                                  |
+| ---------------------- | -------------------------------------------------------------------------- |
+| Requisitos e escopo    | [`product/requirements.md`](product/requirements.md)                       |
+| Arquitetura            | [`architecture/overview.md`](architecture/overview.md)                     |
+| Modelo de dados        | [`architecture/data-model.md`](architecture/data-model.md)                 |
+| Decisões arquiteturais | [`architecture/decisions/README.md`](architecture/decisions/README.md)     |
+| Endpoints e payloads   | [`contracts/http-api.md`](contracts/http-api.md)                           |
+| Google, AWS e OpenAI   | [`integrations/overview.md`](integrations/overview.md)                     |
+| Segurança              | [`quality/security.md`](quality/security.md)                               |
+| Estratégia de testes   | [`quality/testing.md`](quality/testing.md)                                 |
+| Qualidade e manutenção | [`quality/code-quality.md`](quality/code-quality.md)                       |
+| Catálogo de skills     | [`skills/README.md`](skills/README.md)                                     |
+| Design do aplicativo   | [`skills/application-design/SKILL.md`](skills/application-design/SKILL.md) |
+| Fundações visuais      | [`design/foundations.md`](design/foundations.md)                           |
+| Telas de autenticação  | [`design/authentication.md`](design/authentication.md)                     |
+| Tela de documentos     | [`design/documents.md`](design/documents.md)                               |
+| Padrão editorial       | [`standards.md`](standards.md)                                             |
 
 ## Ciclo de uma funcionalidade
 
-1. Criar a feature spec a partir de [`templates/feature-spec.md`](templates/feature-spec.md).
+1. Criar a feature spec em [`features/`](features/README.md) seguindo o padrão em
+   [`standards.md`](standards.md).
 2. Revisar escopo, regras, erros e critérios de aceitação.
 3. Registrar em ADR qualquer decisão arquitetural com impacto duradouro.
 4. Implementar código e testes referenciando os IDs dos requisitos.

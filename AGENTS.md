@@ -25,8 +25,8 @@ demais arquivos.
 
 1. Localize a especificação e os requisitos relacionados antes de implementar.
 2. Se o comportamento ainda não estiver especificado, crie ou atualize uma feature
-   spec usando `docs/templates/feature-spec.md`.
-3. Registre decisões arquiteturais relevantes usando `docs/templates/adr.md`.
+   spec em `docs/features/` seguindo `docs/standards.md`.
+3. Registre decisões arquiteturais relevantes em `docs/architecture/decisions/`.
 4. Implemente o menor incremento que satisfaça os critérios de aceitação.
 5. Atualize código, testes e documentação na mesma mudança.
 6. Não marque uma especificação como `implemented` sem evidência de verificação.

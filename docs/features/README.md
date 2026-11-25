@@ -7,8 +7,8 @@ last_updated: 2026-11-20
 # Funcionalidades
 
 Cada funcionalidade relevante possui uma especificação em
-`docs/features/<nome-da-funcionalidade>.md`, criada a partir de
-[`docs/templates/feature-spec.md`](../templates/feature-spec.md).
+`docs/features/<nome-da-funcionalidade>.md`, seguindo o padrão definido em
+[`docs/standards.md`](../standards.md).
 
 ## Ordem inicial sugerida
 
